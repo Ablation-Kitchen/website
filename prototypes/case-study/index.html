@@ -1,0 +1,559 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Answers ticket #9: "What should a case-study page look like?"
+  Three structurally different variants of /work/<slug>, switchable via ?variant=A|B|C
+  (floating bar at the bottom, or ← / → keys). ?palette=spec|mockup switches the colour tokens
+  (the spec and the approved mockup disagree; see the bar).
+  Copy is DRAFT. Anything in [brackets] is a slot waiting on ticket #8; no real numbers here.
+  Lives on branch prototype/case-study-page only. Never merge to main.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case study prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens: spec (default) ---------- */
+:root{
+  --bg:#F7F6F3;--surface:#FFFFFF;--ink:#111111;--soft:#3B3B38;--meta:#6A6A66;--rule:#E4E2DC;
+  --accent:#E4572E;--accentText:#B83D1A;--planeA:#C9A66B;--planeB:#5B7C99;
+  --tBg:#0E0E0D;--tInk:#E9E6DF;--tRole:#FF7A52;--tMeta:#8F9196;--tRule:#262624;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Inter Tight',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#0C0C0B;--surface:#141413;--ink:#EDEBE6;--soft:#C7C4BC;--meta:#9A9A95;--rule:#262624;
+  --accent:#FF6A3D;--accentText:#FF7A52;color-scheme:dark;
+}
+/* ---------- tokens: mockup palette ---------- */
+:root[data-palette="mockup"]{
+  --bg:#F6F1EB;--surface:#FFFBF6;--ink:#3A3550;--soft:#57506E;--meta:#6E6684;--rule:#E7DED3;
+  --accent:#E8A0BF;--accentText:#A8557C;--planeA:#F9C6A8;--planeB:#C3B1E1;
+  --tBg:#2B2740;--tInk:#EDE6F2;--tRole:#B8E0D2;--tMeta:#A59CBB;--tRule:#3D3858;
+}
+:root[data-palette="mockup"][data-theme="dark"]{
+  --bg:#26233A;--surface:#2F2B47;--ink:#EDE6F2;--soft:#CFC6DE;--meta:#A59CBB;--rule:#3D3858;
+  --accent:#F2B5D0;--accentText:#F4BFD7;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+html.fading body, html.fading body *{transition:background-color .5s var(--ease),border-color .5s var(--ease),color .5s var(--ease)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:16px;top:-60px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;z-index:50}
+.skip:focus{top:12px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.mono{font-family:var(--mono)}
+.eyebrow{margin:0 0 14px;font-family:var(--mono);font-size:12px;color:var(--meta);letter-spacing:.01em}
+.serif{font-family:var(--serif);font-weight:400}
+.slot{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accentText);border-radius:4px;padding:0 4px;font-family:var(--mono);font-size:.82em;overflow-wrap:anywhere;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.pill{min-height:44px;padding:0 22px;display:inline-flex;align-items:center;gap:10px;border-radius:999px;border:1px solid var(--rule);font-size:15px;font-weight:500;transition:transform .3s var(--ease)}
+.pill:hover{transform:translateY(-1px)}
+.pill.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tag{padding:5px 12px;border:1px solid var(--rule);border-radius:999px;font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.tags{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.navlink{position:relative;padding:6px 0}
+.navlink::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.navlink:hover::after,.navlink[aria-current="page"]::after{transform:scaleX(1)}
+.arrow{display:inline-block;transition:transform .35s var(--ease)}
+.row:hover .arrow{transform:translateX(6px)}
+.cubist{transition:transform .8s var(--ease)}
+.cubist:hover{transform:rotate(-2deg) scale(1.02)}
+@media (max-width:960px){.cubist,.hide-sm{display:none !important}}
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:rise .9s var(--ease) both}.d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.3s}.d4{animation-delay:.45s}
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+  .float{animation:float 6s ease-in-out infinite}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes float{0%,100%{transform:rotate(var(--rot,3deg)) translateY(0)}50%{transform:rotate(var(--rot,3deg)) translateY(-8px)}}
+}
+
+/* ---------- shared header / footer ---------- */
+.site-h{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--rule)}
+.site-h nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;padding-bottom:14px}
+.navlinks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 28px;font-size:14px}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);cursor:pointer}
+.site-f{border-top:1px solid var(--rule);font-family:var(--mono);font-size:12px;color:var(--meta)}
+.site-f .wrap{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center;padding-top:22px;padding-bottom:88px}
+
+/* ---------- prose ---------- */
+.prose p{margin:0 0 1.1em;color:var(--soft)}
+.prose ul{margin:0 0 1.1em;padding-left:1.1em;color:var(--soft)}
+.prose li{margin:.3em 0}
+.prose strong{color:var(--ink);font-weight:500}
+.prose table{width:100%;border-collapse:collapse;margin:8px 0 1.4em;font-size:15px}
+.prose th{text-align:left;font-family:var(--mono);font-size:11.5px;font-weight:400;color:var(--meta);padding:10px 12px 10px 0;border-bottom:1px solid var(--rule)}
+.prose td{padding:14px 12px 14px 0;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--soft)}
+.prose td:first-child{color:var(--ink)}
+.tablebox{overflow-x:auto}
+
+/* ---------- diagram ---------- */
+.diagram{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:28px}
+.diagram svg{width:100%;height:auto;display:block}
+.diagram figcaption{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.diagram.dark{background:var(--tBg);border-color:var(--tBg);color:var(--tInk)}
+.diagram.dark figcaption{color:var(--tMeta)}
+
+/* ---------- prototype bar (not part of the design) ---------- */
+#proto-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:6px;padding:6px;background:#1d4ed8;color:#fff;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);font:500 13px/1 system-ui,sans-serif;max-width:calc(100vw - 16px)}
+#proto-bar button{all:unset;cursor:pointer;min-width:36px;height:36px;display:grid;place-items:center;border-radius:999px;padding:0 10px;background:rgba(255,255,255,.12)}
+#proto-bar button:hover{background:rgba(255,255,255,.25)}
+#proto-bar button:focus-visible{outline:2px solid #fff}
+#proto-bar .lbl{padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#proto-state{position:fixed;right:12px;bottom:70px;z-index:100;background:#1d4ed8;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:8px 12px;border-radius:8px;opacity:.92;max-width:260px;white-space:pre-line}
+@media (max-width:700px){#proto-state{display:none}}
+
+/* =====================================================================
+   VARIANT A — Long read: one narrow column, diagram breaks out wide
+   ===================================================================== */
+.A-head{padding:112px 0 0;position:relative}
+.A-head h1{margin:0;max-width:860px;font-family:var(--serif);font-weight:400;font-size:clamp(44px,6.4vw,88px);line-height:1;letter-spacing:-.025em}
+.A-course{font-family:var(--serif);font-style:italic;font-size:28px;color:var(--meta);margin:0 0 18px}
+.A-sum{margin:28px 0 0;max-width:640px;font-size:19px;font-weight:300;color:var(--soft)}
+.A-meta{margin:56px 0 0;padding:24px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px 28px}
+.A-meta dt{font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.A-meta dd{margin:4px 0 0;font-size:15px}
+.A-metrics{margin:0;padding:36px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px}
+.A-metrics div{display:flex;flex-direction:column-reverse;gap:4px}
+.A-metrics dt{font-size:14px;color:var(--meta)}
+.A-metrics dd{margin:0;font-family:var(--serif);font-size:44px;line-height:1}
+.A-ticket{position:absolute;top:104px;right:0;width:212px;padding:18px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;--rot:3deg;transform:rotate(3deg);box-shadow:0 24px 50px -30px rgba(0,0,0,.4);font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--soft)}
+.A-body{max-width:680px;margin:0 auto}
+.A-sec{padding-top:104px}
+.A-sec h2{margin:0 0 28px;font-family:var(--serif);font-weight:400;font-size:52px;line-height:1;letter-spacing:-.02em}
+.A-sec .eyebrow b{font-weight:400;color:var(--accentText)}
+.A-wide{margin:40px calc(50% - min(590px, 50vw) + 40px)}
+@media (max-width:600px){.A-wide{margin:32px 0}}
+.A-pull{margin:40px 0;padding:0;font-family:var(--serif);font-style:italic;font-size:30px;line-height:1.2;color:var(--ink)}
+.A-next{margin-top:136px;border-top:1px solid var(--rule)}
+.A-next a{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:24px;align-items:center;padding:36px 0;border-bottom:1px solid var(--rule)}
+.A-next .c{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--meta)}
+.A-next .t{font-family:var(--serif);font-size:36px;line-height:1.05}
+.A-next .k{font-family:var(--mono);font-size:11.5px;color:var(--meta);display:block;margin-bottom:6px}
+
+/* =====================================================================
+   VARIANT B — Menu card rail: sticky section index + content column
+   ===================================================================== */
+.B-grid{display:grid;grid-template-columns:280px minmax(0,1fr);gap:72px;padding:88px 0 0}
+.B-rail{position:sticky;top:96px;align-self:start;display:flex;flex-direction:column;gap:20px}
+.B-card{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:22px}
+.B-card dl{margin:0;display:grid;gap:12px}
+.B-card dt{font-family:var(--mono);font-size:11px;color:var(--meta)}
+.B-card dd{margin:2px 0 0;font-size:14px}
+.B-toc{margin:0;padding:0;list-style:none;border-left:1px solid var(--rule)}
+.B-toc a{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:8px 0 8px 16px;margin-left:-1px;border-left:2px solid transparent;font-size:14px;color:var(--meta);min-height:40px;align-items:center;transition:color .3s,border-color .3s}
+.B-toc a span:first-child{font-family:var(--mono);font-size:11px}
+.B-toc a[aria-current="true"]{color:var(--ink);border-left-color:var(--accent)}
+.B-toc a:hover{color:var(--ink)}
+.B-railnav{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.B-railnav a{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--rule);color:var(--meta)}
+.B-railnav a:hover{color:var(--ink)}
+.B-main h1{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(44px,5.6vw,76px);line-height:1;letter-spacing:-.025em}
+.B-main .lede{margin:24px 0 0;font-size:19px;font-weight:300;color:var(--soft);max-width:680px}
+.B-specs{margin:40px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+.B-specs div{padding:20px 22px;border-right:1px solid var(--rule);margin-right:-1px;background:var(--surface)}
+.B-specs dt{font-family:var(--mono);font-size:11px;color:var(--meta)}
+.B-specs dd{margin:8px 0 0;font-family:var(--mono);font-size:22px;color:var(--ink)}
+.B-sec{padding-top:88px;max-width:680px;scroll-margin-top:96px}
+.B-sec h2{margin:0 0 20px;font-family:var(--serif);font-weight:400;font-size:44px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;gap:16px}
+.B-sec h2 .n{font-family:var(--mono);font-size:12px;color:var(--accentText);letter-spacing:0}
+.B-sec .plain{font-family:var(--mono);font-size:12px;color:var(--meta);margin:-8px 0 20px}
+.B-note{position:relative;float:right;width:220px;margin:0 -260px 16px 24px;padding:18px 18px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;--rot:-2.5deg;transform:rotate(-2.5deg);box-shadow:0 24px 50px -30px rgba(0,0,0,.4);font-family:var(--serif);font-style:italic;font-size:20px;line-height:1.25;color:var(--ink)}
+.B-note .mono{display:block;font-style:normal;font-size:11px;color:var(--meta);margin-bottom:8px}
+.B-mobtoc{display:none}
+@media (max-width:1240px){.B-note{float:none;margin:24px 0;width:auto;max-width:320px}}
+@media (max-width:960px){
+  .B-grid{grid-template-columns:minmax(0,1fr);gap:0;padding-top:56px}
+  .B-rail{position:static}
+  .B-rail .B-toc,.B-rail .B-railnav{display:none}
+  .B-mobtoc{display:flex;position:sticky;top:73px;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);overflow-x:auto;gap:4px;padding:8px 0;margin:0}
+  .B-mobtoc a{white-space:nowrap;padding:8px 12px;border-radius:999px;font-size:13px;color:var(--meta);min-height:40px;display:flex;align-items:center}
+  .B-mobtoc a[aria-current="true"]{background:var(--surface);color:var(--ink);border:1px solid var(--rule)}
+  .B-main{order:-1}
+}
+.B-pn{margin-top:120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:680px}
+.B-pn a{padding:24px;border:1px solid var(--rule);border-radius:14px;background:var(--surface);display:flex;flex-direction:column;gap:6px;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.B-pn a:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(0,0,0,.35)}
+.B-pn .k{font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.B-pn .t{font-family:var(--serif);font-size:26px;line-height:1.1}
+
+/* =====================================================================
+   VARIANT C — Results first: verdict up top, heading-left section rows
+   ===================================================================== */
+.C-head{padding:104px 0 0;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:64px;align-items:start}
+@media (max-width:900px){.C-head{grid-template-columns:1fr;gap:40px}}
+.C-head h1{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(44px,5.8vw,80px);line-height:1;letter-spacing:-.025em}
+.C-head .lede{margin:24px 0 32px;font-size:19px;font-weight:300;color:var(--soft);max-width:600px}
+.C-glance{background:var(--surface);border:1px solid var(--rule);border-radius:20px;padding:32px;position:relative;overflow:hidden}
+.C-glance h2{margin:0 0 20px;font-family:var(--mono);font-weight:400;font-size:12px;color:var(--meta)}
+.C-glance dl.m{margin:0 0 24px;display:grid;gap:18px}
+.C-glance dl.m div{display:flex;flex-direction:column-reverse;gap:2px;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.C-glance dl.m dt{font-size:14px;color:var(--meta)}
+.C-glance dl.m dd{margin:0;font-family:var(--serif);font-size:44px;line-height:1}
+.C-glance dl.k{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px}
+.C-glance dl.k dt{font-family:var(--mono);font-size:11.5px;color:var(--meta);padding-top:2px}
+.C-glance dl.k dd{margin:0}
+.C-sec{display:grid;grid-template-columns:300px minmax(0,680px);gap:56px;padding:72px 0;border-top:1px solid var(--rule)}
+.C-sec:first-of-type{margin-top:104px}
+.C-sec > header{position:sticky;top:104px;align-self:start}
+.C-sec h2{margin:0;font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.02;letter-spacing:-.02em}
+.C-sec .n{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--meta);display:block;margin-bottom:8px}
+.C-sec .plain{margin:10px 0 0;font-family:var(--mono);font-size:12px;color:var(--meta)}
+@media (max-width:900px){.C-sec{grid-template-columns:1fr;gap:20px;padding:56px 0}.C-sec > header{position:static}}
+.C-band{margin:0 calc(50% - 50vw);padding:88px calc(50vw - 50%);background:var(--tBg);color:var(--tInk)}
+.C-band .wrap2{max-width:1100px;margin:0 auto}
+.C-band .eyebrow{color:var(--tMeta)}
+.C-band h2{margin:0 0 32px;font-family:var(--serif);font-weight:400;font-size:52px;line-height:1;color:var(--tInk)}
+.C-receipt{position:relative;width:300px;margin:8px 0 0;padding:22px 22px 26px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;--rot:-2deg;transform:rotate(-2deg);box-shadow:0 24px 50px -30px rgba(0,0,0,.45);font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--soft)}
+.C-receipt .ln{display:flex;gap:6px}.C-receipt .ln span:nth-child(2){flex:1;border-bottom:1px dotted var(--rule);transform:translateY(-5px)}
+.C-receipt hr{border:0;border-top:1px dashed var(--rule);margin:12px 0}
+.C-service{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.C-service .prose{flex:1 1 320px}
+.C-next{display:block;margin-top:0;border-top:1px solid var(--rule);padding:104px 0 112px}
+.C-next .k{font-family:var(--mono);font-size:12px;color:var(--meta)}
+.C-next .t{display:block;margin:16px 0 0;font-family:var(--serif);font-size:clamp(44px,6vw,84px);line-height:1;letter-spacing:-.02em}
+.C-next .t em{color:var(--meta)}
+.C-prev{font-family:var(--mono);font-size:12px;color:var(--meta);display:inline-flex;align-items:center;min-height:44px}
+</style>
+<script>
+  // theme + palette before first paint (prototype only)
+  (function(){
+    var q=new URLSearchParams(location.search);
+    var t=q.get('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    document.documentElement.dataset.theme=t;
+    document.documentElement.dataset.palette=q.get('palette')||'spec';
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-h">
+  <nav class="wrap" aria-label="Main">
+    <a href="#" style="display:flex;align-items:center;gap:10px;min-height:44px">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="20" y1="28" x2="20" y2="12"/><line x1="26" y1="28" x2="26" y2="8"/><line x1="32" y1="28" x2="32" y2="5" style="stroke:var(--accent)"/><line x1="38" y1="28" x2="38" y2="8"/><line x1="44" y1="28" x2="44" y2="12"/><rect x="17" y="28" width="30" height="7"/><polyline points="27,35 30,40 30,58 34,58 34,40 37,35"/></svg>
+      <span class="mono" style="font-size:14px">ablation<span style="color:var(--accentText)">.</span>kitchen</span>
+    </a>
+    <div class="navlinks">
+      <a class="navlink" href="#" aria-current="page">Work</a>
+      <a class="navlink" href="#">Research</a>
+      <a class="navlink" href="#">About</a>
+      <a class="navlink" href="#" style="font-weight:500">CV ↓</a>
+      <button class="iconbtn" id="theme" type="button" aria-label="Switch to dark theme"></button>
+    </div>
+  </nav>
+</header>
+
+<main id="main"></main>
+
+<footer class="site-f">
+  <div class="wrap">
+    <span style="display:flex;align-items:center;gap:8px;color:var(--ink)"><span class="pulse" aria-hidden="true" style="width:7px;height:7px;border-radius:999px;background:var(--accent)"></span>Cooking: The Brigade</span>
+    <span>Last shipped: —</span>
+    <span>Reading: [BOOK]</span>
+    <span style="margin-left:auto">ablation.kitchen — yes, chef</span>
+  </div>
+</footer>
+
+<div id="proto-state" aria-hidden="true"></div>
+<div id="proto-bar" role="toolbar" aria-label="Prototype controls (not part of the design)">
+  <button type="button" id="pv-prev" aria-label="Previous variant">←</button>
+  <span class="lbl" id="pv-label"></span>
+  <button type="button" id="pv-next" aria-label="Next variant">→</button>
+  <button type="button" id="pv-pal" title="Switch colour tokens: spec vs mockup"></button>
+</div>
+
+<script>
+/* ============================ content (DRAFT) ============================ */
+// One case study, as the work/ collection would hold it. [brackets] = slot for ticket #8.
+const S = (t) => `<span class="slot">[${t}]</span>`;
+const CS = {
+  course: 'i.',
+  title: 'One agent platform for the whole company',
+  org: 'iCounter',
+  role: 'Lead AI Engineer · leads the AI team, reports to the CTO',
+  years: '2025–now',
+  tags: ['agents', 'platform', 'AWS AgentCore', 'Kubernetes'],
+  summary: 'A sandboxed agent platform on AWS AgentCore and Kubernetes that serves the entire company, from data-collection pipelines to the mobile app.',
+  metrics: [
+    { value: S('N'), label: 'teams building on the platform' },
+    { value: S('N/wk'), label: 'agent runs in production' },
+    { value: S('−X%'), label: 'time to ship a new agent' },
+  ],
+  prev: null,
+  next: { course: 'ii.', title: 'Hybrid search and automated reporting', tag: 'Fortinet · 2023–2025' },
+};
+
+const BRIGADE_SVG = (dark) => {
+  const ink = dark ? 'var(--tInk)' : 'var(--ink)', meta = dark ? 'var(--tMeta)' : 'var(--meta)',
+        fill = dark ? 'color-mix(in srgb, var(--tInk) 6%, transparent)' : 'var(--bg)', acc = dark ? 'var(--tRole)' : 'var(--accent)';
+  const box = (x,y,w,h,label,sub,hi) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${fill}" stroke="${hi?acc:ink}" stroke-width="${hi?1.6:1.2}"/>
+    <text x="${x+w/2}" y="${y+h/2-(sub?4:-5)}" text-anchor="middle" font-family="Inter Tight" font-size="15" fill="${ink}">${label}</text>
+    ${sub?`<text x="${x+w/2}" y="${y+h/2+16}" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="${meta}">${sub}</text>`:''}`;
+  const arr = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${meta}" stroke-width="1.2" marker-end="url(#ah${dark?'d':'l'})"/>`;
+  return `<svg viewBox="0 0 1000 340" role="img" aria-label="Placeholder architecture: company teams send tasks to an orchestrator, which routes them to sandboxed agents with tools and models; output passes evals and guardrails before reaching production.">
+  <defs><marker id="ah${dark?'d':'l'}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${meta}"/></marker></defs>
+  <text x="0" y="16" font-family="JetBrains Mono" font-size="11" fill="${meta}">the order</text>
+  ${box(0,40,170,56,'Data pipelines','team · [who]')}
+  ${box(0,122,170,56,'Mobile app','team · [who]')}
+  ${box(0,204,170,56,'Internal tools','team · [who]')}
+  <text x="250" y="16" font-family="JetBrains Mono" font-size="11" fill="${meta}">sous chef</text>
+  ${box(250,112,170,76,'Orchestrator','routing · policy',true)}
+  <text x="500" y="16" font-family="JetBrains Mono" font-size="11" fill="${meta}">stations · sandboxed</text>
+  <rect x="490" y="30" width="250" height="250" rx="14" fill="none" stroke="${meta}" stroke-dasharray="4 5"/>
+  ${box(510,48,210,52,'Agent runtime','AgentCore')}
+  ${box(510,124,210,52,'Tools + memory','[which]')}
+  ${box(510,200,210,52,'Model gateway','[which]')}
+  <text x="730" y="272" text-anchor="end" font-family="JetBrains Mono" font-size="10.5" fill="${meta}">Kubernetes</text>
+  <text x="810" y="16" font-family="JetBrains Mono" font-size="11" fill="${meta}">the pass</text>
+  ${box(810,112,190,76,'Evals + guardrails','human review · [when]',true)}
+  ${arr(170,68,250,140)}${arr(170,150,250,150)}${arr(170,232,250,160)}
+  ${arr(420,150,490,150)}${arr(740,150,810,150)}
+  <path d="M905,188 L905,320 L85,320 L85,262" fill="none" stroke="${meta}" stroke-width="1.2" stroke-dasharray="3 4" marker-end="url(#ah${dark?'d':'l'})"/>
+  <text x="495" y="314" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="${meta}">order up → back to the team</text>
+</svg>`;
+};
+
+// The seven sections. kitchen = H2 (kitchen flow); plain = what it covers (plain English).
+const SECTIONS = [
+  { id: 'order', kitchen: 'The order', plain: 'Problem, context, constraints, scope',
+    html: `<p>Every team at iCounter wanted to run AI agents: the data-collection pipelines, the mobile app, internal tooling. Each was about to build its own, with its own secrets handling, its own model keys and no shared way to check output. ${S('what triggered the project, and who asked')}.</p>
+<p><strong>The constraints.</strong> Agents touch customer data, so every run had to be isolated and auditable. ${S('budget / headcount')}. ${S('deadline or forcing event')}.</p>
+<p><strong>Scope.</strong> I owned the platform end to end: architecture, the team building it, and the bar for what's allowed into production. Out of scope: ${S('what was explicitly not taken on')}.</p>` },
+  { id: 'mise', kitchen: 'Mise en place', plain: 'Data, tools, team, what had to be prepared',
+    html: `<p>Before the first agent ran, three things had to exist: a sandbox per run, a way to give agents tools without giving them credentials, and a shared set of evals each team could extend.</p>
+<ul><li><strong>Team:</strong> ${S('size and shape of the AI team')}, reporting to the CTO.</li><li><strong>Infrastructure:</strong> AWS AgentCore for the agent runtime, Kubernetes for everything around it.</li><li><strong>Data:</strong> ${S('which sources the first agents needed')}.</li></ul>` },
+  { id: 'brigade', kitchen: 'The brigade', plain: 'Architecture and who did what', diagram: true,
+    html: `<p>Requests from any team go through one orchestrator, which applies policy and routes the work to sandboxed agents. Output clears an eval-and-guardrail gate before it goes back to the team that asked.</p>`,
+    after: `<p><strong>Who did what.</strong> I set the architecture and wrote ${S('which parts I built myself')}; ${S('who owned which component')}.</p>` },
+  { id: 'tasting', kitchen: 'Tasting notes', plain: 'Evals, metrics, failure modes found and fixed',
+    html: `<p>Every agent ships with evals, and the platform runs them on every change. The failures that taught us the most:</p>
+<div class="tablebox"><table><thead><tr><th>Failure mode</th><th>How we caught it</th><th>Fix</th></tr></thead><tbody>
+<tr><td>${S('failure 1')}</td><td>${S('eval or signal')}</td><td>${S('what changed')}</td></tr>
+<tr><td>${S('failure 2')}</td><td>${S('eval or signal')}</td><td>${S('what changed')}</td></tr>
+<tr><td>${S('failure 3')}</td><td>${S('eval or signal')}</td><td>${S('what changed')}</td></tr></tbody></table></div>` },
+  { id: 'off', kitchen: 'Off the menu', plain: 'Alternatives considered and why they lost',
+    html: `<div class="tablebox"><table><thead><tr><th>Option</th><th>Why it lost</th></tr></thead><tbody>
+<tr><td>Each team builds its own agents</td><td>${S('reason')}</td></tr>
+<tr><td>${S('a vendor platform')}</td><td>${S('reason')}</td></tr>
+<tr><td>${S('self-hosted framework only')}</td><td>${S('reason')}</td></tr></tbody></table></div>` },
+  { id: 'service', kitchen: 'Service', plain: 'Results and impact, with numbers', metrics: true,
+    html: `<p>The platform now serves the whole company. ${S('adoption: which teams, how fast')}. ${S('measured impact: hours saved / cost / latency, or a relative result')}.</p>
+<p><strong>Beyond the team.</strong> ${S('influence: standards adopted elsewhere, decisions it changed')}.</p>` },
+  { id: 'differently', kitchen: "What I'd cook differently", plain: 'Honest retrospective',
+    html: `<p>${S('the main thing I would change, and why')}.</p><p>${S('a second, smaller lesson')}.</p>` },
+];
+
+/* ============================ shared bits ============================ */
+const tagsHTML = () => `<ul class="tags" aria-label="Tags">${CS.tags.map(t => `<li class="tag">${t}</li>`).join('')}</ul>`;
+const prose = (s) => `<div class="prose">${s.html}</div>`;
+
+/* ============================ VARIANT A ============================ */
+function VariantA() {
+  const meta = [['Course', CS.course], ['Org', CS.org], ['Role', CS.role], ['Years', CS.years]];
+  const metricsDL = `<dl class="A-metrics">${CS.metrics.map(m => `<div><dt>${m.label}</dt><dd>${m.value}</dd></div>`).join('')}</dl>`;
+  return `
+<article class="wrap">
+  <header class="A-head">
+    <p class="eyebrow rise"><a href="#">Signature dishes</a> · course ${CS.course}</p>
+    <p class="A-course rise" aria-hidden="true">${CS.course}</p>
+    <h1 class="rise d1">${CS.title}</h1>
+    <p class="A-sum rise d2">${CS.summary}</p>
+    <dl class="A-meta rise d3">${meta.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}<div><dt>Tags</dt><dd style="margin-top:8px">${tagsHTML()}</dd></div></dl>
+    ${metricsDL}
+    <div class="A-ticket float hide-sm" aria-hidden="true">
+      <div style="display:flex;justify-content:space-between;color:var(--meta)"><span>course ${CS.course}</span><span>${CS.years}</span></div>
+      <div style="margin:10px 0;border-top:1px dashed var(--rule)"></div>
+      <div style="color:var(--ink)">1× agent platform</div><div>— for every team</div><div>— sandboxed, no shared keys</div><div>— evals at the pass</div>
+      <div style="margin-top:10px;color:var(--accentText)">fire →</div>
+    </div>
+  </header>
+  <div class="A-body">
+    ${SECTIONS.map((s, i) => `
+    <section class="A-sec" id="a-${s.id}" aria-labelledby="a-${s.id}-h">
+      <p class="eyebrow"><b>0${i+1}</b> · ${s.plain}</p>
+      <h2 id="a-${s.id}-h">${s.kitchen}</h2>
+      ${prose(s)}
+      ${s.diagram ? `<figure class="diagram A-wide">${BRIGADE_SVG(false)}<figcaption>Fig. 1 · placeholder architecture, drawn from the summary only</figcaption></figure><div class="prose">${s.after}</div>` : ''}
+      ${s.metrics ? `<div style="margin:32px 0 0;padding-top:4px;border-top:1px solid var(--rule)">${metricsDL}</div>` : ''}
+      ${s.id === 'differently' ? `<blockquote class="A-pull">“${S('one-line takeaway')}”</blockquote>` : ''}
+    </section>`).join('')}
+  </div>
+  <nav class="A-next" aria-label="More courses">
+    <a class="row" href="#"><span class="c">${CS.next.course}</span><span><span class="k">Next course · ${CS.next.tag}</span><span class="t">${CS.next.title}</span></span><span class="arrow" aria-hidden="true" style="font-size:22px">→</span></a>
+    <a class="row" href="#"><span class="c" aria-hidden="true">←</span><span><span class="k">All case studies</span><span class="t" style="font-size:28px">The tasting menu</span></span><span></span></a>
+  </nav>
+</article>`;
+}
+VariantA.label = 'Long read';
+
+/* ============================ VARIANT B ============================ */
+function VariantB() {
+  const toc = SECTIONS.map((s, i) => `<li><a href="#b-${s.id}" data-sec="b-${s.id}"><span>0${i+1}</span><span>${s.kitchen}</span></a></li>`).join('');
+  return `
+<div class="wrap">
+  <nav class="B-mobtoc" aria-label="Sections">${SECTIONS.map(s => `<a href="#b-${s.id}" data-sec="b-${s.id}">${s.kitchen}</a>`).join('')}</nav>
+  <div class="B-grid">
+    <aside class="B-rail" aria-label="Case study details">
+      <div class="B-card">
+        <p class="eyebrow" style="margin-bottom:16px">Course ${CS.course} · menu card</p>
+        <dl><div><dt>Org</dt><dd>${CS.org}</dd></div><div><dt>Role</dt><dd>${CS.role}</dd></div><div><dt>Years</dt><dd>${CS.years}</dd></div><div><dt>Tags</dt><dd style="margin-top:6px">${tagsHTML()}</dd></div></dl>
+      </div>
+      <nav aria-label="Sections"><ol class="B-toc">${toc}</ol></nav>
+      <div class="B-railnav"><a href="#"><span>← The tasting menu</span></a><a href="#"><span>Next: ${CS.next.course} ${CS.next.title}</span><span aria-hidden="true">→</span></a></div>
+    </aside>
+    <article class="B-main">
+      <p class="eyebrow rise"><a href="#">Signature dishes</a> · course ${CS.course}</p>
+      <h1 class="rise d1">${CS.title}</h1>
+      <p class="lede rise d2">${CS.summary}</p>
+      <dl class="B-specs rise d3">${CS.metrics.map(m => `<div><dt>${m.label}</dt><dd>${m.value}</dd></div>`).join('')}</dl>
+      ${SECTIONS.map((s, i) => `
+      <section class="B-sec" id="b-${s.id}" aria-labelledby="b-${s.id}-h">
+        <h2 id="b-${s.id}-h"><span class="n">0${i+1}</span>${s.kitchen}</h2>
+        <p class="plain">${s.plain}</p>
+        ${s.id === 'differently' ? `<aside class="B-note float hide-sm" aria-label="Chef's note"><span class="mono">chef's note</span>${S('the one thing I would do first next time')}</aside>` : ''}
+        ${prose(s)}
+        ${s.diagram ? `<figure class="diagram" style="margin:28px 0">${BRIGADE_SVG(false)}<figcaption>Fig. 1 · placeholder architecture, drawn from the summary only</figcaption></figure><div class="prose">${s.after}</div>` : ''}
+        ${s.metrics ? `<dl class="B-specs" style="margin-top:24px">${CS.metrics.map(m => `<div><dt>${m.label}</dt><dd>${m.value}</dd></div>`).join('')}</dl>` : ''}
+      </section>`).join('')}
+      <nav class="B-pn" aria-label="More courses">
+        <a href="#"><span class="k">← All case studies</span><span class="t">The tasting menu</span></a>
+        <a href="#"><span class="k">Next course ${CS.next.course} →</span><span class="t">${CS.next.title}</span></a>
+      </nav>
+    </article>
+  </div>
+</div>`;
+}
+VariantB.label = 'Menu card rail';
+
+/* ============================ VARIANT C ============================ */
+function VariantC() {
+  const order = ['service', 'order', 'mise', 'brigade', 'tasting', 'off', 'differently'];
+  const sec = (s, i) => {
+    if (s.diagram) return `
+  <section class="C-band" id="c-${s.id}" aria-labelledby="c-${s.id}-h">
+    <div class="wrap2">
+      <p class="eyebrow">${s.plain}</p>
+      <h2 id="c-${s.id}-h">${s.kitchen}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;margin-bottom:40px;color:var(--tInk)">
+        <div class="prose" style="--soft:var(--tInk);--ink:var(--tInk)">${s.html}</div>
+        <div class="prose" style="--soft:var(--tInk);--ink:var(--tInk)">${s.after}</div>
+      </div>
+      <figure class="diagram dark" style="margin:0;padding:0">${BRIGADE_SVG(true)}<figcaption>Fig. 1 · placeholder architecture, drawn from the summary only</figcaption></figure>
+    </div>
+  </section>`;
+    const body = s.metrics
+      ? `<div class="C-service">${prose(s)}<div class="C-receipt float hide-sm" aria-hidden="true">
+           <div style="display:flex;justify-content:space-between;color:var(--meta)"><span>the check · ${CS.course}</span><span>${CS.years}</span></div><hr>
+           ${CS.metrics.map(m => `<div class="ln"><span>${m.label}</span><span></span><span style="color:var(--ink)">${m.value}</span></div>`).join('')}
+           <hr><div class="ln" style="color:var(--ink)"><span>served</span><span></span><span>whole company</span></div>
+           <div style="margin-top:10px;color:var(--accentText)">yes, chef →</div></div></div>`
+      : prose(s);
+    return `
+  <section class="C-sec" id="c-${s.id}" aria-labelledby="c-${s.id}-h">
+    <header><span class="n" aria-hidden="true">${String.fromCharCode(97 + i)}.</span><h2 id="c-${s.id}-h">${s.kitchen}</h2><p class="plain">${s.plain}</p></header>
+    ${body}
+  </section>`;
+  };
+  return `
+<article class="wrap">
+  <header class="C-head">
+    <div>
+      <p class="eyebrow rise"><a href="#">Signature dishes</a> · course ${CS.course}</p>
+      <h1 class="rise d1">${CS.title}</h1>
+      <p class="lede rise d2">${CS.summary}</p>
+      <div class="rise d3" style="display:flex;flex-wrap:wrap;gap:12px"><a class="pill solid" href="#c-brigade">See the architecture <span aria-hidden="true">→</span></a><a class="pill" href="#c-off">Alternatives considered</a></div>
+    </div>
+    <aside class="C-glance rise d2" aria-labelledby="c-glance-h">
+      <svg class="cubist" width="140" height="120" viewBox="0 0 140 120" aria-hidden="true" style="position:absolute;right:-10px;top:-10px;opacity:.9">
+        <polygon points="40,0 140,0 140,70 90,50" style="fill:var(--planeA)" opacity=".35"/><polygon points="80,20 140,40 130,120 70,90" style="fill:var(--planeB)" opacity=".2"/>
+      </svg>
+      <h2 id="c-glance-h">At a glance · service</h2>
+      <dl class="m">${CS.metrics.map(m => `<div><dt>${m.label}</dt><dd>${m.value}</dd></div>`).join('')}</dl>
+      <dl class="k"><dt>Org</dt><dd>${CS.org}</dd><dt>Role</dt><dd>${CS.role}</dd><dt>Years</dt><dd>${CS.years}</dd></dl>
+      <div style="margin-top:18px">${tagsHTML()}</div>
+    </aside>
+  </header>
+  ${order.map((id, i) => sec(SECTIONS.find(s => s.id === id), i)).join('')}
+  <nav aria-label="More courses" style="margin-top:0">
+    <a class="C-next row" href="#"><span class="k">Next course · ${CS.next.tag}</span><span class="t"><em>${CS.next.course}</em> ${CS.next.title} <span class="arrow" aria-hidden="true">→</span></span></a>
+    <a class="C-prev" href="#" style="margin-bottom:40px">← All case studies · The tasting menu</a>
+  </nav>
+</article>`;
+}
+VariantC.label = 'Results first';
+
+/* ============================ switcher ============================ */
+const VARIANTS = { A: VariantA, B: VariantB, C: VariantC };
+const KEYS = Object.keys(VARIANTS);
+const NOTES = {
+  A: 'one 680px column · diagram breaks out wide · chaos: order ticket in header',
+  B: 'sticky section rail + metadata card · chaos: chef\'s note in margin',
+  C: 'Service pulled to top · heading-left rows · dark diagram band · chaos: the check (receipt)',
+};
+const SUN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+
+let observer;
+function render() {
+  const q = window.__q || new URLSearchParams(location.search);
+  const v = KEYS.includes(q.get('variant')) ? q.get('variant') : 'A';
+  const root = document.documentElement;
+  document.getElementById('main').innerHTML = VARIANTS[v]();
+  document.getElementById('pv-label').textContent = `${v} · ${VARIANTS[v].label}`;
+  document.getElementById('pv-pal').textContent = `palette: ${root.dataset.palette}`;
+  const dark = root.dataset.theme === 'dark';
+  const tb = document.getElementById('theme');
+  tb.innerHTML = dark ? MOON : SUN;
+  tb.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  document.getElementById('proto-state').textContent = `variant=${v} · palette=${root.dataset.palette} · theme=${root.dataset.theme}\n${NOTES[v]}`;
+  document.title = `${CS.title} · Dalmo Veras  [proto ${v}]`;
+  // B: scroll-spy for the rail
+  observer?.disconnect();
+  if (v === 'B') {
+    const links = [...document.querySelectorAll('[data-sec]')];
+    observer = new IntersectionObserver((es) => es.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.setAttribute('aria-current', l.dataset.sec === e.target.id ? 'true' : 'false'));
+    }), { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('.B-sec').forEach(s => observer.observe(s));
+  }
+}
+function setParam(k, val) {
+  const q = new URLSearchParams(window.__q || location.search); q.set(k, val);
+  try { history.replaceState(null, '', `${location.pathname}?${q}`); } catch (e) { window.__q = q; }
+}
+function cycle(d) {
+  const q = window.__q || new URLSearchParams(location.search);
+  const i = Math.max(0, KEYS.indexOf(q.get('variant') || 'A'));
+  setParam('variant', KEYS[(i + d + KEYS.length) % KEYS.length]);
+  render(); scrollTo({ top: 0 });
+}
+document.getElementById('pv-prev').onclick = () => cycle(-1);
+document.getElementById('pv-next').onclick = () => cycle(1);
+document.getElementById('pv-pal').onclick = () => {
+  const r = document.documentElement; r.dataset.palette = r.dataset.palette === 'spec' ? 'mockup' : 'spec';
+  setParam('palette', r.dataset.palette); render();
+};
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement;
+  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) { r.classList.add('fading'); setTimeout(() => r.classList.remove('fading'), 500); }
+  r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark';
+  setParam('theme', r.dataset.theme); render();
+};
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input,textarea,[contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'ArrowLeft') cycle(-1);
+  if (e.key === 'ArrowRight') cycle(1);
+});
+render();
+</script>
+</body>
+</html>
