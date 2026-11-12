@@ -1,6 +1,6 @@
 # ablation.kitchen
 
-Dalmo Veras Neto's personal site. It presents AI engineering work through a light kitchen metaphor. Kitchen words name sections and content types; navigation and body copy stay plain English.
+Dalmo Veras's personal site. It presents AI engineering work through a light kitchen metaphor. Kitchen words name sections and content types; navigation and body copy stay plain English.
 
 ## Site content
 
