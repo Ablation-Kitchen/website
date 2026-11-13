@@ -1,0 +1,102 @@
+---
+/**
+ * Sticky site header: fork-toque logo + wordmark, plain nav, CV ↓ and the
+ * theme toggle (spec: Information architecture). No client JS of its own;
+ * the toggle brings its external module script.
+ */
+import { cv } from '../../site.config';
+import { isCurrent, navItems } from '../../lib/seo';
+import { getHasWriting } from '../../lib/visibility';
+import ThemeToggle from '../theme/ThemeToggle.astro';
+import ForkToque from './ForkToque.astro';
+
+/**
+ * TODO(#44): set to true once /writing and the post pages are built. The
+ * Writing link follows `getHasWriting()` (≥1 non-draft post, #6), but until
+ * #44 lands it would point at a 404, so it stays hidden.
+ */
+const WRITING_PAGES_BUILT: boolean = false;
+
+const showWriting = WRITING_PAGES_BUILT && (await getHasWriting());
+const items = navItems(showWriting);
+const path = Astro.url.pathname;
+const atHome = isCurrent(path, '/');
+---
+
+<header class="sticky top-0 z-20 border-b border-rule bg-bg">
+  <div class="wrap flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2.5 sm:py-3.5">
+    <a
+      href="/"
+      class="-ml-1 inline-flex min-h-11 items-center gap-2.5 rounded-full px-1 text-ink"
+      aria-current={atHome ? 'page' : undefined}
+    >
+      <ForkToque />
+      <span class="font-mono text-ui">
+        ablation<span class="text-accent-text">.</span>kitchen
+      </span>
+    </a>
+
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:gap-x-7">
+      <nav aria-label="Main">
+        <ul class="flex flex-wrap items-center gap-x-5 text-ui sm:gap-x-7">
+          {items.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 text-ink"
+                aria-current={isCurrent(path, item.href) ? 'page' : undefined}
+              >
+                <span>{item.label}</span>
+              </a>
+            </li>
+          ))}
+          <li>
+            <a
+              href={cv.href}
+              download={cv.downloadName}
+              class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 font-medium text-ink"
+              data-umami-event="cv-download"
+            >
+              <span>
+                CV<span aria-hidden="true"> ↓</span>
+                <span class="sr-only"> (PDF)</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      {/* The ⌘K "Call an order" button joins here, before the toggle (#38). */}
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  /* Underline slides in from the left on hover (0.35s); stays on for the current page. */
+  .navlink > span {
+    position: relative;
+    padding-block: 2px;
+  }
+
+  .navlink > span::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .navlink:hover > span::after,
+  .navlink[aria-current='page'] > span::after {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .navlink > span::after {
+      transition: transform 0.35s var(--ease-kitchen);
+    }
+  }
+</style>

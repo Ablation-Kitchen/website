@@ -1,0 +1,66 @@
+---
+/**
+ * Site footer: the status strip from `src/data/status.json` (a segment only
+ * when its field is set, #6), then email, profiles and the privacy note link
+ * (#7, #15). The `data-umami-event*` attributes are the #15 events; they do
+ * nothing until the Umami script lands (#41).
+ */
+import { person, profiles } from '../../site.config';
+import { getStatusSegments } from '../../lib/visibility';
+
+const segments = await getStatusSegments();
+
+interface FooterLink {
+  label: string;
+  href: string;
+  rel?: string;
+  event?: Record<`data-umami-event${string}`, string>;
+}
+
+const links: FooterLink[] = [
+  {
+    label: person.email,
+    href: `mailto:${person.email}`,
+    event: { 'data-umami-event': 'email-click', 'data-umami-event-location': 'footer' },
+  },
+  ...(['linkedin', 'github'] as const).map((key) => ({
+    label: profiles[key].label,
+    href: profiles[key].href,
+    rel: 'me',
+    event: { 'data-umami-event': 'profile-click', 'data-umami-event-profile': key },
+  })),
+  { label: 'Privacy', href: '/about#privacy' },
+];
+---
+
+<footer class="border-t border-rule font-mono text-label text-meta">
+  <div class="wrap flex flex-col gap-3 pt-5 pb-16 sm:pb-22">
+    <p class="flex flex-wrap items-center gap-x-7 gap-y-1 py-2">
+      {segments.map((s, i) => (
+        <span class:list={['inline-flex items-center gap-2', { 'text-ink': i === 0 }]}>
+          {i === 0 && (
+            <span class="pulse size-[7px] shrink-0 rounded-full bg-accent" aria-hidden="true" />
+          )}
+          {s.label}: {s.value}
+          <span class="sr-only">.</span>
+        </span>
+      ))}
+      <span class="sm:ml-auto">ablation.kitchen — yes, chef</span>
+    </p>
+
+    <ul class="flex flex-wrap items-center gap-x-6" aria-label="Contact and profiles">
+      {links.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            rel={link.rel}
+            class="-mx-1 inline-flex min-h-11 items-center px-1 text-soft underline decoration-rule underline-offset-4 hover:text-ink hover:decoration-current"
+            {...link.event}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</footer>

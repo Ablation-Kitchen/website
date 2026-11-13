@@ -1,0 +1,103 @@
+---
+/**
+ * The layout shell every page uses: <head> (title pattern, description,
+ * canonical, OG/Twitter tags, Person JSON-LD, sitemap), skip link, sticky
+ * header, <main id="main"> and the footer.
+ *
+ * Inline scripts: only ThemeHead's static theme script (hashed by the CSP,
+ * #25) and the JSON-LD data block, which is not executable and so not subject
+ * to script-src. Everything else is an external module.
+ */
+import ThemeHead from '../components/theme/ThemeHead.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { absoluteUrl, canonicalUrl, pageTitle, personJsonLd, serializeJsonLd } from '../lib/seo';
+import '../styles/global.css';
+
+export interface OgImage {
+  /** Path on the site (e.g. `/og/work.png`) or absolute URL. */
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+}
+
+export interface Props {
+  /** Page name for "<Page> · Dalmo Veras". Omit on the homepage. */
+  title?: string;
+  /** Meta description; every page needs one (spec: Deployment → SEO). */
+  description: string;
+  /** OG image (1200×630). Generated per page by #39; omitted until then. */
+  image?: OgImage;
+  /** `article` for case studies and posts. */
+  ogType?: 'website' | 'article';
+  /** Keep the page out of search (e.g. dev-only pages). */
+  noindex?: boolean;
+}
+
+const { title, description, image, ogType = 'website', noindex = false } = Astro.props;
+
+const fullTitle = pageTitle(title);
+const canonical = canonicalUrl(Astro.url.pathname);
+const og = image && {
+  url: absoluteUrl(image.src),
+  alt: image.alt,
+  width: image.width ?? 1200,
+  height: image.height ?? 630,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeHead />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="author" content="Dalmo Veras" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="ablation.kitchen" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {og && (
+      <>
+        <meta property="og:image" content={og.url} />
+        <meta property="og:image:alt" content={og.alt} />
+        <meta property="og:image:width" content={String(og.width)} />
+        <meta property="og:image:height" content={String(og.height)} />
+      </>
+    )}
+    <meta name="twitter:card" content={og ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {og && (
+      <>
+        <meta name="twitter:image" content={og.url} />
+        <meta name="twitter:image:alt" content={og.alt} />
+      </>
+    )}
+
+    <script is:inline type="application/ld+json" set:html={serializeJsonLd(personJsonLd())} />
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <a
+      href="#main"
+      class="fixed top-3 left-4 z-50 inline-flex min-h-11 -translate-y-24 items-center rounded-full bg-ink px-5 text-ui font-medium text-bg focus:translate-y-0"
+    >
+      Skip to content
+    </a>
+    <Header />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
