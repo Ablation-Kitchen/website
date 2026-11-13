@@ -1,0 +1,27 @@
+---
+title: Optimizing tugboats in busy ports
+org: Cyberlabs
+role: Founding engineer
+years: 2016–2019
+summary: "As a founding engineer at Cyberlabs, built a system that forecast vessel maneuvers and optimized tugboat allocation to cut costs for maritime transport companies."
+tags: [forecasting, optimization, maritime]
+metrics: []
+order: 4
+draft: true
+---
+
+<!-- Draft stub. Sections follow the case-study page (#9, variant C). Numbers, and what may be said publicly, wait on #8. -->
+
+## Service
+
+## The order
+
+## Mise en place
+
+## The brigade
+
+## Tasting notes
+
+## Off the menu
+
+## What I'd cook differently
