@@ -38,7 +38,11 @@ const vars = rotate ? `--art-rot:${rotate}deg;` : '';
 <Tag
   {...rest}
   aria-hidden="true"
-  class:list={['art', className, { inline: Tag === 'span', float, tilt, 'hide-small': hideOnSmall }]}
+  class:list={[
+    'art',
+    className,
+    { inline: Tag === 'span', float, tilt, 'hide-small': hideOnSmall },
+  ]}
   style={vars + (style ?? '') || undefined}
 >
   <slot />

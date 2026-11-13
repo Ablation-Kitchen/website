@@ -34,18 +34,16 @@ const { rows = DEFAULT_ROWS, ...behaviour } = Astro.props;
 
 <ArtFrame {...behaviour}>
   <div class="ablate">
-    {
-      rows.map((row) => (
-        <div class="row">
-          <span class="label">{row.label}</span>
-          <span class="dots">
-            {row.dots.map((d) => (
-              <i class={d} />
-            ))}
-          </span>
-        </div>
-      ))
-    }
+    {rows.map((row) => (
+      <div class="row">
+        <span class="label">{row.label}</span>
+        <span class="dots">
+          {row.dots.map((d) => (
+            <i class={d} />
+          ))}
+        </span>
+      </div>
+    ))}
   </div>
 </ArtFrame>
 
@@ -88,6 +86,7 @@ const { rows = DEFAULT_ROWS, ...behaviour } = Astro.props;
 
   .gone {
     /* The bare rule colour all but vanishes on the Dark surface; nudge it toward meta. */
-    border: 1.5px solid color-mix(in srgb, var(--color-rule, #e4e2dc) 70%, var(--color-meta, #6a6a66));
+    border: 1.5px solid
+      color-mix(in srgb, var(--color-rule, #e4e2dc) 70%, var(--color-meta, #6a6a66));
   }
 </style>

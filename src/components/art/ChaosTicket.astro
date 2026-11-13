@@ -56,40 +56,34 @@ const w = typeof width === 'number' ? `${width}px` : width;
 
 <ArtFrame rotate={rotate} float={float} {...behaviour} style={`width:${w};` + (style ?? '')}>
   <div class="ticket">
-    {
-      hasHeader && (
-        <>
-          <div class="head">
-            <slot name="header">
-              <span>{header?.[0]}</span>
-              {header?.[1] && <span>{header[1]}</span>}
-            </slot>
-          </div>
-          <hr />
-        </>
-      )
-    }
-    {
-      items.map((item) =>
-        item.value !== undefined ? (
-          <div class:list={['ln', { strike: item.strike, soft: item.strong === false }]}>
-            <span class="label">{item.label}</span>
-            <span class="leader" />
-            <span class="value">{item.value}</span>
-          </div>
-        ) : (
-          <div class:list={['line', { strike: item.strike, strong: item.strong }]}>{item.label}</div>
-        ),
-      )
-    }
-    <slot />
-    {
-      hasFooter && (
-        <div class="foot">
-          <slot name="footer">{footerText}</slot>
+    {hasHeader && (
+      <>
+        <div class="head">
+          <slot name="header">
+            <span>{header?.[0]}</span>
+            {header?.[1] && <span>{header[1]}</span>}
+          </slot>
         </div>
-      )
-    }
+        <hr />
+      </>
+    )}
+    {items.map((item) =>
+      item.value !== undefined ? (
+        <div class:list={['ln', { strike: item.strike, soft: item.strong === false }]}>
+          <span class="label">{item.label}</span>
+          <span class="leader" />
+          <span class="value">{item.value}</span>
+        </div>
+      ) : (
+        <div class:list={['line', { strike: item.strike, strong: item.strong }]}>{item.label}</div>
+      ),
+    )}
+    <slot />
+    {hasFooter && (
+      <div class="foot">
+        <slot name="footer">{footerText}</slot>
+      </div>
+    )}
   </div>
 </ArtFrame>
 

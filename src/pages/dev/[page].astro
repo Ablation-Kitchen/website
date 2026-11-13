@@ -38,119 +38,122 @@ const themes = [
   </head>
   <body>
     <p class="note">
-      Dev-only preview of <code>src/components/art</code>. Every piece is <code>aria-hidden</code> and
-      hidden below 960px, so widen the window if this page looks empty.
+      Dev-only preview of <code>src/components/art</code>. Every piece is <code>aria-hidden</code>{' '}
+      and hidden below 960px, so widen the window if this page looks empty.
     </p>
-    {
-      themes.map((t) => (
-        <section class="theme" data-theme={t.attr}>
-          <h2>{t.label}</h2>
-          <div class="grid">
-            <figure class="wide">
-              <div class="stage">
-                <StillLife width={360} />
-              </div>
-              <figcaption>StillLife · homepage hero · hover tilt</figcaption>
-            </figure>
+    {themes.map((t) => (
+      <section class="theme" data-theme={t.attr}>
+        <h2>{t.label}</h2>
+        <div class="grid">
+          <figure class="wide">
+            <div class="stage">
+              <StillLife width={360} />
+            </div>
+            <figcaption>StillLife · homepage hero · hover tilt</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage">
-                <div class="panel">
-                  <LabPlanes />
-                  <p class="panel-h">How an ablation reads</p>
-                  <AblationGraphic />
-                </div>
+          <figure>
+            <div class="stage">
+              <div class="panel">
+                <LabPlanes />
+                <p class="panel-h">How an ablation reads</p>
+                <AblationGraphic />
               </div>
-              <figcaption>LabPlanes + AblationGraphic · /research glance panel</figcaption>
-            </figure>
+            </div>
+            <figcaption>LabPlanes + AblationGraphic · /research glance panel</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage">
-                <div class="panel">
-                  <LabPlanes corner="top-right" width={200} />
-                  <p class="panel-h">LabPlanes, top-right, 200px</p>
-                </div>
+          <figure>
+            <div class="stage">
+              <div class="panel">
+                <LabPlanes corner="top-right" width={200} />
+                <p class="panel-h">LabPlanes, top-right, 200px</p>
               </div>
-              <figcaption>LabPlanes · corner prop</figcaption>
-            </figure>
+            </div>
+            <figcaption>LabPlanes · corner prop</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage row">
-                <SplitBottle />
-                <SplitBottle width={160} rotate={6} float />
-              </div>
-              <figcaption>SplitBottle · 96px; 160px rotated 6° floating</figcaption>
-            </figure>
+          <figure>
+            <div class="stage row">
+              <SplitBottle />
+              <SplitBottle width={160} rotate={6} float />
+            </div>
+            <figcaption>SplitBottle · 96px; 160px rotated 6° floating</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage row">
-                <p class="eyebrow">
-                  <Egg size={20} crack={false} style="color:var(--color-meta,#6a6a66)" />
-                  404 · not found
-                </p>
-                <Egg size={96} />
-                <Egg size={96} rotate={-8} tilt />
-              </div>
-              <figcaption>Egg · 20px uncracked in an eyebrow; 96px; tilted</figcaption>
-            </figure>
+          <figure>
+            <div class="stage row">
+              <p class="eyebrow">
+                <Egg size={20} crack={false} style="color:var(--color-meta,#6a6a66)" />
+                404 · not found
+              </p>
+              <Egg size={96} />
+              <Egg size={96} rotate={-8} tilt />
+            </div>
+            <figcaption>Egg · 20px uncracked in an eyebrow; 96px; tilted</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage row">
-                <ChaosTicket
-                  rotate={-2}
-                  width={250}
-                  header={['the check', 'course i.']}
-                  items={[
-                    { label: 'teams on the platform', value: '[N]' },
-                    { label: 'agent runs / wk', value: '[N]' },
-                  ]}
-                  footer
-                />
-                <ChaosTicket
-                  rotate={3}
-                  width={260}
-                  header={['tasting menu', '4 courses']}
-                  items={[
-                    { label: 'i.', value: 'iCounter' },
-                    { label: 'ii.', value: 'Fortinet' },
-                    { label: 'iii.', value: '313X' },
-                    { label: 'iv.', value: 'Cyberlabs' },
-                  ]}
-                  footer="chef's choice →"
-                />
-              </div>
-              <figcaption>ChaosTicket · the check (−2°); /work course list (3°)</figcaption>
-            </figure>
+          <figure>
+            <div class="stage row">
+              <ChaosTicket
+                rotate={-2}
+                width={250}
+                header={['the check', 'course i.']}
+                items={[
+                  { label: 'teams on the platform', value: '[N]' },
+                  { label: 'agent runs / wk', value: '[N]' },
+                ]}
+                footer
+              />
+              <ChaosTicket
+                rotate={3}
+                width={260}
+                header={['tasting menu', '4 courses']}
+                items={[
+                  { label: 'i.', value: 'iCounter' },
+                  { label: 'ii.', value: 'Fortinet' },
+                  { label: 'iii.', value: '313X' },
+                  { label: 'iv.', value: 'Cyberlabs' },
+                ]}
+                footer="chef's choice →"
+              />
+            </div>
+            <figcaption>ChaosTicket · the check (−2°); /work course list (3°)</figcaption>
+          </figure>
 
-            <figure>
-              <div class="stage row">
-                <ChaosTicket
-                  width={200}
-                  header={['specimen 01']}
-                  items={[
-                    { label: '− one ingredient', strong: true },
-                    { label: '+ one measurement' },
-                  ]}
-                  footer="taste →"
-                />
-                <ChaosTicket
-                  rotate={-6}
-                  width={220}
-                  items={[{ label: '1× /that-page', strike: true, strong: true }, { label: '— 86’d' }]}
-                  footer="try the menu →"
-                >
-                  <Fragment slot="header">
-                    <span>ticket 404</span>
-                    <Egg size={16} hideOnSmall={false} />
-                  </Fragment>
-                </ChaosTicket>
-              </div>
-              <figcaption>ChaosTicket · specimen (−3°, default); ticket 404 (−6°, header slot)</figcaption>
-            </figure>
-          </div>
-        </section>
-      ))
-    }
+          <figure>
+            <div class="stage row">
+              <ChaosTicket
+                width={200}
+                header={['specimen 01']}
+                items={[
+                  { label: '− one ingredient', strong: true },
+                  { label: '+ one measurement' },
+                ]}
+                footer="taste →"
+              />
+              <ChaosTicket
+                rotate={-6}
+                width={220}
+                items={[
+                  { label: '1× /that-page', strike: true, strong: true },
+                  { label: '— 86’d' },
+                ]}
+                footer="try the menu →"
+              >
+                <Fragment slot="header">
+                  <span>ticket 404</span>
+                  <Egg size={16} hideOnSmall={false} />
+                </Fragment>
+              </ChaosTicket>
+            </div>
+            <figcaption>
+              ChaosTicket · specimen (−3°, default); ticket 404 (−6°, header slot)
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    ))}
   </body>
 </html>
 
