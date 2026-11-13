@@ -1,0 +1,486 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Answers ticket #12: what do /work, /research, /about and the 404 look like
+  in the visual language set by the case-study page (#9: "Results first")?
+  ?page=work|research|about|404 picks the page; ?variant=A|B picks the layout (← / → keys cycle it).
+  ?palette=spec|mockup and ?theme=light|dark as in the case-study prototype.
+  Launch rules from #6/#7 applied: courses i–iv only, no Writing nav, Lab shows the PhD entry only,
+  contact = mailto dalmo@ablation.kitchen, status strip shows only "Cooking: The Brigade" + "yes, chef".
+  [brackets] = slots waiting on #8. Lives on branch prototype/case-study-page only. Never merge.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch pages prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F6F3;--surface:#FFFFFF;--ink:#111111;--soft:#3B3B38;--meta:#6A6A66;--rule:#E4E2DC;
+  --accent:#E4572E;--accentText:#B83D1A;--planeA:#C9A66B;--planeB:#5B7C99;
+  --tBg:#0E0E0D;--tInk:#E9E6DF;--tRole:#FF7A52;--tMeta:#8F9196;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Inter Tight',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{--bg:#0C0C0B;--surface:#141413;--ink:#EDEBE6;--soft:#C7C4BC;--meta:#9A9A95;--rule:#262624;--accent:#FF6A3D;--accentText:#FF7A52;color-scheme:dark}
+:root[data-palette="mockup"]{--bg:#F6F1EB;--surface:#FFFBF6;--ink:#3A3550;--soft:#57506E;--meta:#6E6684;--rule:#E7DED3;--accent:#E8A0BF;--accentText:#A8557C;--planeA:#F9C6A8;--planeB:#C3B1E1;--tBg:#2B2740;--tInk:#EDE6F2;--tRole:#B8E0D2;--tMeta:#A59CBB}
+:root[data-palette="mockup"][data-theme="dark"]{--bg:#26233A;--surface:#2F2B47;--ink:#EDE6F2;--soft:#CFC6DE;--meta:#A59CBB;--rule:#3D3858;--accent:#F2B5D0;--accentText:#F4BFD7}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+html.fading body,html.fading body *{transition:background-color .5s var(--ease),border-color .5s var(--ease),color .5s var(--ease)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:16px;top:-60px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;z-index:50}.skip:focus{top:12px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.mono{font-family:var(--mono)}
+.eyebrow{margin:0 0 14px;font-family:var(--mono);font-size:12px;color:var(--meta)}
+.slot{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accentText);border-radius:4px;padding:0 4px;font-family:var(--mono);font-size:.82em;overflow-wrap:anywhere;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.h1{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(44px,5.8vw,80px);line-height:1;letter-spacing:-.025em}
+.h1 em{color:var(--accentText)}
+.lede{margin:24px 0 0;font-size:19px;font-weight:300;color:var(--soft);max-width:600px}
+.pill{min-height:44px;padding:0 22px;display:inline-flex;align-items:center;gap:10px;border-radius:999px;border:1px solid var(--rule);font-size:15px;font-weight:500;transition:transform .3s var(--ease)}
+.pill:hover{transform:translateY(-1px)}
+.pill.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pills{display:flex;flex-wrap:wrap;gap:12px}
+.tag{padding:5px 12px;border:1px solid var(--rule);border-radius:999px;font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.tags{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.navlink{position:relative;padding:6px 0}
+.navlink::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.navlink:hover::after,.navlink[aria-current="page"]::after{transform:scaleX(1)}
+.arrow{display:inline-block;transition:transform .35s var(--ease)}
+.row:hover .arrow{transform:translateX(6px)}
+.card{transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(0,0,0,.35)}
+.cubist{transition:transform .8s var(--ease)}
+.cubist:hover{transform:rotate(-2deg) scale(1.02)}
+@media (max-width:960px){.cubist,.hide-sm{display:none !important}}
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:rise .9s var(--ease) both}.d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.3s}.d4{animation-delay:.45s}
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+  .float{animation:float 6s ease-in-out infinite}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes float{0%,100%{transform:rotate(var(--rot,3deg)) translateY(0)}50%{transform:rotate(var(--rot,3deg)) translateY(-8px)}}
+}
+.ticket{padding:18px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;box-shadow:0 24px 50px -30px rgba(0,0,0,.45);font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--soft)}
+.ticket hr{border:0;border-top:1px dashed var(--rule);margin:10px 0}
+.ticket .ln{display:flex;gap:6px}.ticket .ln span:nth-child(2){flex:1;border-bottom:1px dotted var(--rule);transform:translateY(-5px)}
+
+/* site chrome */
+.site-h{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--rule)}
+.site-h nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;padding-bottom:14px}
+.navlinks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 28px;font-size:14px}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);cursor:pointer}
+.site-f{border-top:1px solid var(--rule);font-family:var(--mono);font-size:12px;color:var(--meta)}
+.site-f .wrap{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center;padding-top:22px;padding-bottom:88px}
+.site-f a{min-height:44px;display:inline-flex;align-items:center}
+
+/* "Results first" building blocks (from #9) */
+.hero2{padding:104px 0 0;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:64px;align-items:start}
+@media (max-width:900px){.hero2{grid-template-columns:minmax(0,1fr);gap:40px}}
+.glance{background:var(--surface);border:1px solid var(--rule);border-radius:20px;padding:32px;position:relative;overflow:hidden}
+.glance h2{margin:0 0 20px;font-family:var(--mono);font-weight:400;font-size:12px;color:var(--meta)}
+.glance dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:15px}
+.glance dt{font-family:var(--mono);font-size:11.5px;color:var(--meta);padding-top:3px}
+.glance dd{margin:0}
+.glance dd a{text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:4px}
+.srow{display:grid;grid-template-columns:300px minmax(0,680px);gap:56px;padding:72px 0;border-top:1px solid var(--rule)}
+.srow:first-of-type{margin-top:104px}
+.srow > header{position:sticky;top:104px;align-self:start}
+.srow h2{margin:0;font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.02;letter-spacing:-.02em}
+.srow .n{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--meta);display:block;margin-bottom:8px}
+.srow .plain{margin:10px 0 0;font-family:var(--mono);font-size:12px;color:var(--meta)}
+@media (max-width:900px){.srow{grid-template-columns:minmax(0,1fr);gap:20px;padding:56px 0}.srow > header{position:static}}
+.prose p{margin:0 0 1.1em;color:var(--soft)}
+.prose strong{color:var(--ink);font-weight:500}
+.band{margin:0 calc(50% - 50vw);padding:88px calc(50vw - 50%);background:var(--tBg);color:var(--tInk)}
+.band .in{max-width:1100px;margin:0 auto}
+.band .eyebrow{color:var(--tMeta)}
+
+/* ---------- /work ---------- */
+.wA-row{display:grid;grid-template-columns:300px minmax(0,1fr) auto;gap:56px;align-items:start;padding:56px 0;border-top:1px solid var(--rule)}
+.wA-row:last-child{border-bottom:1px solid var(--rule)}
+.wA-row .c{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--meta);display:block;margin-bottom:6px}
+.wA-row .t{display:block;font-family:var(--serif);font-size:40px;line-height:1.05;letter-spacing:-.01em}
+.wA-row .k{display:block;margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--meta)}
+.wA-row .s{color:var(--soft);font-weight:300;max-width:560px}
+.wA-row .m{display:flex;gap:32px;margin-top:20px}
+.wA-row .m div{display:flex;flex-direction:column-reverse}
+.wA-row .m dt{font-size:13px;color:var(--meta)}
+.wA-row .m dd{margin:0;font-family:var(--serif);font-size:32px;line-height:1.1}
+.wA-row .go{font-size:24px;padding-top:8px}
+@media (max-width:900px){.wA-row{grid-template-columns:minmax(0,1fr);gap:16px}.wA-row .go{display:none}}
+.wB{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:64px;align-items:start;padding-top:96px}
+@media (max-width:960px){.wB{grid-template-columns:minmax(0,1fr)}}
+.wB-menu{background:var(--surface);border:1px solid var(--rule);border-radius:20px;padding:72px clamp(24px,6vw,88px);text-align:center}
+.wB-menu .rule{width:56px;margin:28px auto;border-top:1px solid var(--rule)}
+.wB-course{display:block;padding:36px 0;border-top:1px dashed var(--rule)}
+.wB-course:first-of-type{border-top:0}
+.wB-course .c{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--meta)}
+.wB-course .t{display:block;margin:6px 0 10px;font-family:var(--serif);font-size:clamp(30px,3.6vw,44px);line-height:1.05;letter-spacing:-.01em}
+.wB-course .s{display:block;max-width:520px;margin:0 auto;color:var(--soft);font-weight:300;font-size:16px}
+.wB-course .k{display:block;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.wB-course:hover .t{color:var(--accentText)}
+.wB-side{position:sticky;top:104px;display:flex;flex-direction:column;gap:24px}
+
+/* ---------- /research ---------- */
+.ablate{display:flex;flex-direction:column;gap:14px;font-family:var(--mono);font-size:11.5px;color:var(--meta)}
+.ablate div{display:flex;gap:12px;align-items:center}
+.ablate .l{width:120px}
+.ablate .d{display:flex;gap:8px}
+.ablate .on,.ablate .off,.ablate .gone{width:18px;height:18px;border-radius:999px}
+.ablate .on{background:var(--ink)}.ablate .off{border:1px dashed var(--accent)}.ablate .gone{border:1px dashed var(--rule)}
+.entry{display:grid;grid-template-columns:140px minmax(0,1fr);gap:24px;padding:32px 0;border-top:1px solid var(--rule)}
+.entry:last-child{border-bottom:1px solid var(--rule)}
+.entry .kind{font-family:var(--mono);font-size:12px;color:var(--meta);padding-top:10px}
+.entry .t{margin:0;font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.1}
+.entry .v{margin:8px 0 12px;font-family:var(--mono);font-size:12px;color:var(--meta)}
+@media (max-width:700px){.entry{grid-template-columns:minmax(0,1fr);gap:4px}}
+.rB-hero{position:relative;overflow:hidden;margin-top:72px;padding:88px clamp(24px,6vw,88px);background:var(--surface);border:1px solid var(--rule);border-radius:20px}
+.rB-hero .grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr);gap:56px;align-items:center}
+@media (max-width:900px){.rB-hero .grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- /about ---------- */
+.rules{margin:0;padding:0;list-style:none}
+.rules li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:22px 0;border-bottom:1px solid var(--rule)}
+.rules li:first-child{border-top:1px solid var(--rule)}
+.rules .n{font-family:var(--mono);font-size:11.5px;padding-top:8px;color:var(--accentText)}
+.rules .r{display:block;font-family:var(--serif);font-size:28px;line-height:1.2}
+.rules .w{display:block;font-size:15px;color:var(--meta)}
+.edu{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:12.5px;color:var(--meta)}
+.aB-rules{margin:0;padding:0;list-style:none;counter-reset:r}
+.aB-rules li{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,320px);gap:32px;align-items:baseline;padding:36px 0;border-top:1px solid var(--rule)}
+.aB-rules li:last-child{border-bottom:1px solid var(--rule)}
+.aB-rules .n{font-family:var(--serif);font-style:italic;font-size:56px;line-height:1;color:var(--meta)}
+.aB-rules .r{font-family:var(--serif);font-size:clamp(32px,4vw,52px);line-height:1.05;letter-spacing:-.015em}
+.aB-rules .w{color:var(--soft);font-weight:300}
+@media (max-width:900px){.aB-rules li{grid-template-columns:56px minmax(0,1fr);gap:8px 16px}.aB-rules .n{font-size:36px}.aB-rules .w{grid-column:2}}
+.contact-band{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:32px}
+.contact-band .addr{font-family:var(--serif);font-size:clamp(32px,5vw,64px);line-height:1;letter-spacing:-.02em;color:var(--tInk);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--tInk) 30%,transparent);text-underline-offset:10px;text-decoration-thickness:1px;overflow-wrap:anywhere}
+
+/* ---------- 404 ---------- */
+.nf{min-height:calc(100vh - 160px);display:grid;place-items:center;padding:96px 0;position:relative}
+.nf-big{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(120px,22vw,300px);line-height:.85;letter-spacing:-.04em}
+.nfB{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:64px;align-items:center;padding:120px 0}
+@media (max-width:900px){.nfB{grid-template-columns:minmax(0,1fr)}}
+.nfB-list{margin:0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.nfB-list a{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:center;padding:20px 0;border-bottom:1px solid var(--rule);min-height:44px}
+.nfB-list .c{font-family:var(--serif);font-style:italic;color:var(--meta)}
+.nfB-list .t{font-family:var(--serif);font-size:24px;line-height:1.1}
+
+/* prototype bar */
+#proto-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:100;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;padding:6px;background:#1d4ed8;color:#fff;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.35);font:500 13px/1 system-ui,sans-serif;max-width:calc(100vw - 16px)}
+#proto-bar button{all:unset;cursor:pointer;min-width:36px;height:36px;display:grid;place-items:center;border-radius:999px;padding:0 10px;background:rgba(255,255,255,.12)}
+#proto-bar button[aria-pressed="true"]{background:#fff;color:#1d4ed8}
+#proto-bar button:hover{background:rgba(255,255,255,.25)}
+#proto-bar button[aria-pressed="true"]:hover{background:#fff}
+#proto-bar button:focus-visible{outline:2px solid #fff}
+#proto-bar .sep{width:1px;height:24px;background:rgba(255,255,255,.3);margin:0 4px}
+#proto-bar .lbl{padding:0 8px;white-space:nowrap}
+#proto-state{position:fixed;right:12px;bottom:76px;z-index:100;background:#1d4ed8;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:8px 12px;border-radius:8px;opacity:.92;max-width:280px;white-space:pre-line}
+@media (max-width:700px){#proto-state{display:none}}
+</style>
+<script>
+(function(){var q=new URLSearchParams(location.search);document.documentElement.dataset.theme=q.get('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.palette=q.get('palette')||'spec';})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-h">
+  <nav class="wrap" aria-label="Main">
+    <a href="#" style="display:flex;align-items:center;gap:10px;min-height:44px">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="20" y1="28" x2="20" y2="12"/><line x1="26" y1="28" x2="26" y2="8"/><line x1="32" y1="28" x2="32" y2="5" style="stroke:var(--accent)"/><line x1="38" y1="28" x2="38" y2="8"/><line x1="44" y1="28" x2="44" y2="12"/><rect x="17" y="28" width="30" height="7"/><polyline points="27,35 30,40 30,58 34,58 34,40 37,35"/></svg>
+      <span class="mono" style="font-size:14px">ablation<span style="color:var(--accentText)">.</span>kitchen</span>
+    </a>
+    <div class="navlinks">
+      <a class="navlink" data-nav="work" href="#">Work</a>
+      <a class="navlink" data-nav="research" href="#">Research</a>
+      <a class="navlink" data-nav="about" href="#">About</a>
+      <a class="navlink" href="#" style="font-weight:500">CV ↓</a>
+      <button class="iconbtn" id="theme" type="button" aria-label="Switch to dark theme"></button>
+    </div>
+  </nav>
+</header>
+<main id="main"></main>
+<footer class="site-f">
+  <div class="wrap">
+    <span style="display:flex;align-items:center;gap:8px;color:var(--ink)"><span class="pulse" aria-hidden="true" style="width:7px;height:7px;border-radius:999px;background:var(--accent)"></span>Cooking: The Brigade</span>
+    <a href="mailto:dalmo@ablation.kitchen">dalmo@ablation.kitchen</a>
+    <a href="https://www.linkedin.com/in/dalmoveras">LinkedIn</a>
+    <a href="https://github.com/ablationkitchen">GitHub</a>
+    <span style="margin-left:auto">ablation.kitchen — yes, chef</span>
+  </div>
+</footer>
+
+<div id="proto-state" aria-hidden="true"></div>
+<div id="proto-bar" role="toolbar" aria-label="Prototype controls (not part of the design)">
+  <span id="pv-pages" style="display:flex;gap:4px"></span>
+  <span class="sep"></span>
+  <button type="button" id="pv-prev" aria-label="Previous variant">←</button>
+  <span class="lbl" id="pv-label"></span>
+  <button type="button" id="pv-next" aria-label="Next variant">→</button>
+  <span class="sep"></span>
+  <button type="button" id="pv-pal"></button>
+</div>
+
+<script>
+const S = (t) => `<span class="slot">[${t}]</span>`;
+// Launch content (#6: only non-draft case studies, i–iv; #7: name, contact, profiles)
+const COURSES = [
+  { c: 'i.', t: 'One agent platform for the whole company', s: 'Leading the AI team at iCounter, reporting to the CTO: a sandboxed agent platform on AWS AgentCore and Kubernetes that serves the entire company, from data-collection pipelines to the mobile app.', k: 'iCounter · 2025–now', m: [['teams on the platform', S('N')], ['agent runs / wk', S('N')]] },
+  { c: 'ii.', t: 'Hybrid search and automated reporting', s: 'Main developer of a hybrid-search retrieval system (Solr, OpenSearch, pgvector) and of an LLM pipeline that turned manual intelligence work into automated reports at Fortinet.', k: 'Fortinet · 2023–2025', m: [['analyst hours saved', S('N')], ['retrieval quality', S('+X%')]] },
+  { c: 'iii.', t: 'Founding a software company', s: 'Founded 313X and led data-mining tools combining graph analysis, transaction tracing and NLP for investigators, including work that helped uncover Brazil’s largest corporate espionage case.', k: '313X · founder · 2019–2022', m: [['investigations supported', S('N')], ['team', S('N')]] },
+  { c: 'iv.', t: 'Optimizing tugboats in busy ports', s: 'As a founding engineer at Cyberlabs, built a system that forecast vessel maneuvers and optimized tugboat allocation to cut costs for maritime transport companies.', k: 'Cyberlabs · 2016–2019', m: [['cost cut', S('−X%')], ['ports', S('N')]] },
+];
+const RULES = [
+  ['01', 'Nothing leaves the pass untasted.', 'Every change has an eval.'],
+  ['02', 'Mise en place before fire.', 'Design the context before the prompt.'],
+  ['03', 'One station, one job.', 'Narrow agents beat general ones.'],
+  ['04', 'Clean as you go.', 'Observability is not a later task.'],
+  ['05', 'The chef cooks too.', 'Principals still write code.'],
+];
+const EDU = ['PhD, Computer Science · University of Warwick · 2026–2028 (expected)', 'MSc, Cybersecurity · New York Institute of Technology · 2024', 'BSc, Information Systems · UNISINOS, Brazil · 2020'];
+const STORY = `<p>Ten years building software across Brazil, Cyprus and Canada: founding engineer, company founder, applied-AI engineer at Fortinet, and now leading the AI team at iCounter. I like the moment a research idea survives contact with production.</p>
+<p>In parallel, I'm doing a PhD at the University of Warwick on topology-aware machine learning, applied to threat detection in critical infrastructure.</p>`;
+const MAIL = '<a href="mailto:dalmo@ablation.kitchen">dalmo@ablation.kitchen</a>';
+
+// art
+const BOTTLE = (w = 96) => `<svg class="cubist" width="${w}" height="${Math.round(w * 116 / 96)}" viewBox="0 0 96 116" aria-hidden="true" style="display:block">
+  <polygon points="20,12 36,12 36,42 52,58 52,112 20,112" style="fill:var(--planeB);stroke:var(--ink)" opacity=".45" stroke-width="1.2"/>
+  <polygon points="38,4 52,4 52,34 70,52 70,106 38,106" style="fill:var(--planeA);stroke:var(--ink)" opacity=".6" stroke-width="1.2"/>
+  <polygon points="14,66 62,60 66,82 18,88" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.2"/>
+  <line x1="24" y1="74" x2="56" y2="70" style="stroke:var(--accent)" stroke-width="2"/></svg>`;
+const PLANES = (pos = 'right:0;bottom:0') => `<svg width="260" height="200" viewBox="0 0 260 200" aria-hidden="true" style="position:absolute;${pos};pointer-events:none">
+  <polygon points="260,40 160,90 200,200 260,200" style="fill:var(--planeA)" opacity=".22"/>
+  <polygon points="120,200 190,110 260,150 260,200" style="fill:var(--planeB);stroke:var(--ink)" opacity=".18" stroke-width=".8" stroke-opacity=".25"/>
+  <polygon points="210,0 260,0 260,70 230,60" style="fill:var(--accent)" opacity=".12"/></svg>`;
+const ABLATE = `<div class="ablate" aria-hidden="true">
+  <div><span class="l">full brigade</span><span class="d"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+  <div><span class="l">− critic</span><span class="d"><i class="on"></i><i class="on"></i><i class="on"></i><i class="off"></i></span></div>
+  <div><span class="l">− orchestrator</span><span class="d"><i class="off"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+  <div><span class="l">single cook</span><span class="d"><i class="on"></i><i class="gone"></i><i class="gone"></i><i class="gone"></i></span></div></div>`;
+// egg (stand-in for Phosphor "egg"; the build uses astro-icon)
+const EGG = (s = 40, crack = true) => `<svg width="${s}" height="${s}" viewBox="0 0 256 256" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M208,152a80,80,0,0,1-160,0C48,88,96,24,128,24S208,88,208,152Z"/>${crack ? '<polyline points="84,112 104,132 124,108 144,132 168,112" style="stroke:var(--accent)"/>' : ''}</svg>`;
+
+/* ================= /work ================= */
+const work = {
+  A: { label: 'Course rows', note: 'heading-left rows like the case-study page · a glance panel in the hero · chaos: tilted menu card', html: () => `
+<div class="wrap">
+  <header class="hero2">
+    <div><p class="eyebrow rise">Signature dishes · case studies</p><h1 class="h1 rise d1">The tasting menu</h1>
+    <p class="lede rise d2">Each case study covers the scope, the decision and the alternatives, who adopted it, and the measured result.</p></div>
+    <aside class="ticket float hide-sm rise d3" aria-hidden="true" style="--rot:3deg;transform:rotate(3deg);width:260px;justify-self:end;margin-top:24px">
+      <div style="display:flex;justify-content:space-between;color:var(--meta)"><span>tasting menu</span><span>${COURSES.length} courses</span></div><hr>
+      ${COURSES.map(x => `<div class="ln"><span style="color:var(--ink)">${x.c}</span><span></span><span>${x.k.split(' · ')[0]}</span></div>`).join('')}
+      <hr><div style="color:var(--accentText)">chef's choice →</div></aside>
+  </header>
+  <ol style="list-style:none;margin:96px 0 0;padding:0">
+    ${COURSES.map(x => `<li><a class="row wA-row" href="#">
+      <span><span class="c">${x.c}</span><span class="t">${x.t}</span><span class="k">${x.k}</span></span>
+      <span><span class="s">${x.s}</span><dl class="m">${x.m.map(([l, v]) => `<div><dt>${l}</dt><dd>${v}</dd></div>`).join('')}</dl></span>
+      <span class="arrow go" aria-hidden="true">→</span></a></li>`).join('')}
+  </ol>
+  <div style="height:104px"></div>
+</div>` },
+  B: { label: 'Printed menu', note: 'the list as a centred printed menu card · sticky side note with the reading guide · chaos: tilted "chef\'s choice" stamp on the card', html: () => `
+<div class="wrap">
+  <div class="wB">
+    <div>
+      <p class="eyebrow rise">Signature dishes · case studies</p><h1 class="h1 rise d1" style="margin-bottom:48px">The tasting menu</h1>
+      <div class="wB-menu rise d2" style="position:relative">
+        <p class="eyebrow" style="margin:0">ablation.kitchen · tasting menu</p>
+        <div class="rule"></div>
+        <ol style="list-style:none;margin:0;padding:0">
+        ${COURSES.map(x => `<li><a class="wB-course" href="#"><span class="c">${x.c}</span><span class="t">${x.t}</span><span class="s">${x.s}</span><span class="k">${x.k}</span></a></li>`).join('')}
+        </ol>
+        <div class="float hide-sm" aria-hidden="true" style="--rot:-8deg;position:absolute;top:56px;right:-28px;transform:rotate(-8deg);width:112px;height:112px;border-radius:999px;border:1.5px solid var(--accentText);color:var(--accentText);display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:11px;line-height:1.4;background:var(--surface)">chef's<br>choice<br>· i. ·</div>
+      </div>
+    </div>
+    <aside class="wB-side hide-sm">
+      <div class="glance"><h2>How to read a course</h2>
+        <ol style="margin:0;padding-left:1.1em;color:var(--soft);font-size:15px;display:grid;gap:6px"><li>Service: results first</li><li>The order: the problem</li><li>Mise en place</li><li>The brigade: architecture</li><li>Tasting notes: evals</li><li>Off the menu: alternatives</li><li>What I'd cook differently</li></ol></div>
+      ${BOTTLE(72)}
+    </aside>
+  </div>
+  <div style="height:104px"></div>
+</div>` },
+};
+
+/* ================= /research ================= */
+const PHD = `<article class="entry">
+  <span class="kind">PhD · in progress</span>
+  <div><h3 class="t">Topology-aware machine learning for threat detection in critical infrastructure</h3>
+  <p class="v">University of Warwick · Computer Science · 2026–2028 (expected)</p>
+  <div class="prose"><p>${S('two or three sentences on the research question and why topology matters here')}.</p></div>
+  <ul class="tags"><li class="tag">PhD candidate · Warwick · topology-aware ML</li></ul></div></article>`;
+const research = {
+  A: { label: 'Glance + entries', note: 'case-study hero (framing left, ablation graphic in a glance panel right) · then a plain list of entries, PhD only at launch · chaos: tilted lab label', html: () => `
+<div class="wrap">
+  <header class="hero2">
+    <div><p class="eyebrow rise">The Ablation Lab · research</p>
+      <h1 class="h1 rise d1">Take one ingredient out. <em>Taste the difference.</em></h1>
+      <p class="lede rise d2">An ablation study removes one part of a system at a time and measures what changes. Here that means agent systems: drop the critic, the orchestrator or a station, and see what each part is really worth in quality, cost and latency.</p></div>
+    <aside class="glance rise d3" aria-labelledby="g-h">${PLANES()}<h2 id="g-h">How an ablation reads</h2>${ABLATE}
+      <p style="margin:24px 0 0;font-size:14px;color:var(--meta);position:relative">Dashed circles are the parts taken out.</p></aside>
+  </header>
+  <section style="margin-top:104px" aria-labelledby="entries-h">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px;position:relative">
+      <h2 id="entries-h" style="margin:0;font-family:var(--serif);font-weight:400;font-size:40px">On the bench</h2>
+      <div class="ticket float hide-sm" aria-hidden="true" style="--rot:-3deg;transform:rotate(-3deg);width:200px;position:absolute;right:0;top:-150px">
+        <div style="color:var(--meta)">specimen 01</div><hr><div style="color:var(--ink)">− one ingredient</div><div>+ one measurement</div><div style="margin-top:8px;color:var(--accentText)">taste →</div></div>
+    </div>
+    ${PHD}
+    <p class="mono" style="font-size:12px;color:var(--meta);margin:20px 0 0">Studies, preprints, talks and releases join this list as they ship.</p>
+  </section>
+  <div style="height:104px"></div>
+</div>` },
+  B: { label: 'Lab panel page', note: 'the homepage Lab panel blown up to a page hero (planes in its corner) · entries as heading-left rows below · chaos: the ablation graphic itself, tilted', html: () => `
+<div class="wrap">
+  <section class="rB-hero rise" aria-labelledby="lab-h">${PLANES('right:0;bottom:0;width:420px;height:320px')}
+    <div class="grid" style="position:relative">
+      <div><p class="eyebrow">The Ablation Lab · research</p>
+        <h1 id="lab-h" class="h1">Take one ingredient out. <em>Taste the difference.</em></h1>
+        <p class="lede">An ablation study removes one part of a system at a time and measures what changes. Here that means agent systems: drop the critic, the orchestrator or a station, and see what each part is really worth.</p></div>
+      <div class="ticket float" style="--rot:4deg;transform:rotate(4deg);padding:28px;justify-self:center" aria-hidden="true">${ABLATE}</div>
+    </div>
+  </section>
+  <section class="srow" aria-labelledby="phd-h" style="margin-top:104px">
+    <header><span class="n" aria-hidden="true">a.</span><h2 id="phd-h">The PhD</h2><p class="plain">University of Warwick · 2026–2028</p></header>
+    <div><h3 style="margin:0 0 12px;font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.15">Topology-aware machine learning for threat detection in critical infrastructure</h3>
+      <div class="prose"><p>${S('two or three sentences on the research question and why topology matters here')}.</p></div>
+      <ul class="tags"><li class="tag">PhD candidate · Warwick · topology-aware ML</li></ul></div>
+  </section>
+  <section class="srow" aria-labelledby="next-h" style="border-bottom:1px solid var(--rule)">
+    <header><span class="n" aria-hidden="true">b.</span><h2 id="next-h">Studies</h2><p class="plain">Preprints, talks, open source</p></header>
+    <div class="prose"><p style="color:var(--meta)">(Renders only once the first study ships. Shown here to place it; hidden at launch.)</p></div>
+  </section>
+  <div style="height:104px"></div>
+</div>` },
+};
+
+/* ================= /about ================= */
+const about = {
+  A: { label: 'Glance + rules rows', note: 'case-study hero (story left, "at a glance" contact/profile panel right) · rules as one heading-left row · split bottle above the rules · chaos: tilted "order up" ticket with the address', html: () => `
+<div class="wrap">
+  <header class="hero2">
+    <div><p class="eyebrow rise">Meet the chef · about</p><h1 class="h1 rise d1">Dalmo Veras</h1>
+      <p class="rise d1" style="margin:20px 0 0;font-size:17px;font-weight:500">Lead AI Engineer · AI agents, retrieval systems, applied ML in production</p>
+      <div class="prose rise d2" style="margin-top:24px;max-width:600px;font-size:19px;font-weight:300">${STORY}</div>
+      <div class="pills rise d3" style="margin-top:12px"><a class="pill solid" href="#">Download CV <span aria-hidden="true">↓</span></a><a class="pill" href="mailto:dalmo@ablation.kitchen">Email me</a></div></div>
+    <aside class="glance rise d2" aria-labelledby="ga-h"><h2 id="ga-h">At a glance</h2>
+      <dl><dt>Now</dt><dd>Lead AI Engineer, iCounter</dd><dt>Based</dt><dd>Vancouver, BC</dd><dt>Open to</dt><dd>Principal roles</dd><dt>Email</dt><dd>${MAIL}</dd><dt>Profiles</dt><dd><a href="https://www.linkedin.com/in/dalmoveras">LinkedIn</a> · <a href="https://github.com/ablationkitchen">GitHub</a></dd></dl>
+      <hr style="border:0;border-top:1px solid var(--rule);margin:24px 0">
+      <h2>Education</h2><ul class="edu">${EDU.map(e => `<li>${e}</li>`).join('')}</ul></aside>
+  </header>
+  <section class="srow" aria-labelledby="rules-h" style="margin-top:104px">
+    <header>${BOTTLE()}<h2 id="rules-h" style="margin-top:20px">Kitchen rules</h2><p class="plain">How I run an engineering team</p></header>
+    <ol class="rules">${RULES.map(([n, r, w]) => `<li><span class="n">${n}</span><span><span class="r">${r}</span><span class="w">${w}</span></span></li>`).join('')}</ol>
+  </section>
+  <section class="srow" aria-labelledby="c-h" style="border-bottom:1px solid var(--rule);position:relative">
+    <header><h2 id="c-h">Order up</h2><p class="plain">Contact</p></header>
+    <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:center">
+      <div class="prose" style="flex:1 1 300px"><p>The fastest way to reach me is email: ${MAIL}. I read everything and reply from my personal address.</p></div>
+      <div class="ticket float hide-sm" aria-hidden="true" style="--rot:-3deg;transform:rotate(-3deg);width:240px"><div style="display:flex;justify-content:space-between;color:var(--meta)"><span>order up</span><span>to: chef</span></div><hr><div style="color:var(--ink)">1× conversation</div><div>— principal role</div><div>— agents, evals, retrieval</div><div style="margin-top:8px;color:var(--accentText)">yes, chef →</div></div>
+    </div>
+  </section>
+  <div style="height:104px"></div>
+</div>` },
+  B: { label: 'Rules as the hero', note: 'H1 "Kitchen rules" (as in the IA) · the five rules are the page\'s big type · story + education below · contact as a dark band · chaos: large split bottle, tilted, beside the H1', html: () => `
+<div class="wrap">
+  <header style="padding-top:104px;position:relative">
+    <p class="eyebrow rise">Meet the chef · about Dalmo Veras</p>
+    <h1 class="h1 rise d1" style="font-size:clamp(52px,8vw,112px)">Kitchen rules</h1>
+    <div class="float hide-sm" style="--rot:6deg;position:absolute;right:24px;top:72px;transform:rotate(6deg)">${BOTTLE(200)}</div>
+  </header>
+  <ol class="aB-rules rise d2" style="margin-top:72px">${RULES.map(([n, r, w]) => `<li><span class="n" aria-hidden="true">${+n}.</span><span class="r">${r}</span><span class="w">${w}</span></li>`).join('')}</ol>
+  <section class="srow" aria-labelledby="story-h" style="margin-top:104px">
+    <header><h2 id="story-h">The story</h2><p class="plain">Lead AI Engineer · iCounter · Vancouver, BC</p></header>
+    <div><div class="prose">${STORY}</div><ul class="edu" style="margin-top:24px">${EDU.map(e => `<li>${e}</li>`).join('')}</ul>
+      <div class="pills" style="margin-top:28px"><a class="pill solid" href="#">Download CV <span aria-hidden="true">↓</span></a><a class="pill" href="https://www.linkedin.com/in/dalmoveras">LinkedIn</a><a class="pill" href="https://github.com/ablationkitchen">GitHub</a></div></div>
+  </section>
+</div>
+<section class="band" aria-labelledby="ob-h" style="margin-top:0">
+  <div class="in"><p class="eyebrow" id="ob-h">Order up · contact</p>
+    <div class="contact-band"><a class="addr" href="mailto:dalmo@ablation.kitchen">dalmo@ablation.kitchen</a><span class="mono" style="font-size:12px;color:var(--tMeta)">Open to principal roles · I reply from my personal address</span></div></div>
+</section>` },
+};
+
+/* ================= 404 ================= */
+const nf = {
+  A: { label: 'Big 86\'d', note: 'one centred statement · huge serif "86\'d" with the egg · two ways out · chaos: tilted ticket with the missing path struck through', html: () => `
+<div class="wrap nf">
+  <div style="text-align:center;position:relative">
+    <p class="eyebrow rise" style="display:inline-flex;align-items:center;gap:10px"><span style="color:var(--meta)">${EGG(20, false)}</span>404 · not found</p>
+    <h1 class="nf-big rise d1">86’d</h1>
+    <p class="lede rise d2" style="margin:24px auto 36px">That page is off the menu. It may have moved, or it never made it out of the kitchen.</p>
+    <div class="pills rise d3" style="justify-content:center"><a class="pill solid" href="#">Back to the pass <span aria-hidden="true">→</span></a><a class="pill" href="#">See the tasting menu</a></div>
+    <div class="ticket float hide-sm" aria-hidden="true" style="--rot:-6deg;position:absolute;top:30px;right:-260px;transform:rotate(-6deg);width:220px;text-align:left">
+      <div style="display:flex;justify-content:space-between;color:var(--meta)"><span>ticket 404</span><span>${EGG(16)}</span></div><hr>
+      <div style="color:var(--ink);text-decoration:line-through">1× ${location.pathname.length > 18 ? '/that-page' : (location.pathname || '/that-page')}</div><div>— 86’d</div><div style="margin-top:8px;color:var(--accentText)">try the menu →</div></div>
+  </div>
+</div>` },
+  B: { label: 'Menu as the way out', note: 'left-aligned statement + the tasting menu as the way out · large cracked egg as the art · chaos: the egg itself, tilted', html: () => `
+<div class="wrap">
+  <div class="nfB">
+    <div><p class="eyebrow rise">404 · not found</p><h1 class="h1 rise d1" style="font-size:clamp(64px,9vw,128px)">86’d.</h1>
+      <p class="lede rise d2">That page is off the menu. Here's what the kitchen is serving instead.</p>
+      <ol class="nfB-list rise d3" style="margin-top:40px">${COURSES.map(x => `<li><a class="row" href="#"><span class="c">${x.c}</span><span class="t">${x.t}</span><span class="arrow" aria-hidden="true">→</span></a></li>`).join('')}</ol>
+      <a class="pill" href="#" style="margin-top:28px">← Back to the pass</a></div>
+    <div class="hide-sm cubist" aria-hidden="true" style="position:relative;justify-self:center;width:340px;height:340px">${PLANES('left:0;top:20px;width:340px;height:300px')}<div class="float" style="--rot:-10deg;transform:rotate(-10deg);position:absolute;left:30px;top:20px;color:var(--ink)">${EGG(280)}</div></div>
+  </div>
+</div>` },
+};
+
+/* ================= switcher ================= */
+const PAGES = { work, research, about, '404': nf };
+const PAGE_KEYS = Object.keys(PAGES);
+const SUN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+let Q = new URLSearchParams(location.search);
+const get = (k, d) => Q.get(k) || d;
+function set(k, v) { Q.set(k, v); try { history.replaceState(null, '', `${location.pathname}?${Q}`); } catch (e) {} }
+function render() {
+  const r = document.documentElement;
+  const p = PAGE_KEYS.includes(get('page')) ? get('page') : 'work';
+  const vs = Object.keys(PAGES[p]); const v = vs.includes(get('variant')) ? get('variant') : vs[0];
+  const V = PAGES[p][v];
+  document.getElementById('main').innerHTML = V.html();
+  document.querySelectorAll('[data-nav]').forEach(a => { if (a.dataset.nav === p) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  document.getElementById('pv-pages').innerHTML = PAGE_KEYS.map(k => `<button type="button" data-p="${k}" aria-pressed="${k === p}">${k === '404' ? '404' : '/' + k}</button>`).join('');
+  document.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { set('page', b.dataset.p); set('variant', 'A'); render(); scrollTo({ top: 0 }); });
+  document.getElementById('pv-label').textContent = `${v} · ${V.label}`;
+  document.getElementById('pv-pal').textContent = `palette: ${r.dataset.palette}`;
+  const dark = r.dataset.theme === 'dark', tb = document.getElementById('theme');
+  tb.innerHTML = dark ? MOON : SUN; tb.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  document.getElementById('proto-state').textContent = `page=${p} · variant=${v} · palette=${r.dataset.palette} · theme=${r.dataset.theme}\n${V.note}`;
+  document.title = `${p} ${v} · launch pages prototype`;
+}
+function cycle(d) {
+  const p = PAGE_KEYS.includes(get('page')) ? get('page') : 'work', vs = Object.keys(PAGES[p]);
+  const i = Math.max(0, vs.indexOf(get('variant', 'A')));
+  set('variant', vs[(i + d + vs.length) % vs.length]); render(); scrollTo({ top: 0 });
+}
+document.getElementById('pv-prev').onclick = () => cycle(-1);
+document.getElementById('pv-next').onclick = () => cycle(1);
+document.getElementById('pv-pal').onclick = () => { const r = document.documentElement; r.dataset.palette = r.dataset.palette === 'spec' ? 'mockup' : 'spec'; set('palette', r.dataset.palette); render(); };
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement;
+  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) { r.classList.add('fading'); setTimeout(() => r.classList.remove('fading'), 500); }
+  r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; set('theme', r.dataset.theme); render();
+};
+addEventListener('keydown', e => {
+  if (e.target.closest('input,textarea,[contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'ArrowLeft') cycle(-1);
+  if (e.key === 'ArrowRight') cycle(1);
+});
+render();
+</script>
+</body>
+</html>
