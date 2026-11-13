@@ -42,6 +42,34 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-kitchen: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /*
+   * Type scale (spec: Visual design → Typography). Serif display sizes, the
+   * 17px body, the 19px/300 lede and the mono label sizes (11.5–14px).
+   * Use as text-display, text-h2, text-row, text-title, text-lede, text-body,
+   * text-ui, text-label, text-label-sm.
+   */
+  --text-display: clamp(52px, 8vw, 112px);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.025em;
+  --text-h2: clamp(40px, 2.5rem + 1.5vw, 64px);
+  --text-h2--line-height: 1.05;
+  --text-h2--letter-spacing: -0.02em;
+  --text-row: 40px;
+  --text-row--line-height: 1.1;
+  --text-row--letter-spacing: -0.015em;
+  --text-title: clamp(28px, 1.25rem + 1.5vw, 40px);
+  --text-title--line-height: 1.15;
+  --text-lede: 19px;
+  --text-lede--line-height: 1.6;
+  --text-body: 17px;
+  --text-body--line-height: 1.65;
+  --text-ui: 14px;
+  --text-ui--line-height: 1.5;
+  --text-label: 12px;
+  --text-label--line-height: 1.5;
+  --text-label-sm: 11.5px;
+  --text-label-sm--line-height: 1.5;
 }
 
 :root {
@@ -95,12 +123,107 @@
 }
 
 @layer base {
+  html {
+    /* Keep in-page anchor targets clear of the sticky header. */
+    scroll-padding-top: 6rem;
+  }
+
   body {
     background-color: var(--color-bg);
     color: var(--color-soft);
     font-family: var(--font-sans);
-    font-size: 17px;
-    line-height: 1.65;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    font-weight: 400;
+  }
+
+  /* One visible focus ring for every focusable element (WCAG 2.4.7). */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* Page container: 1180px max, 40px side padding (16px on small phones). */
+@utility wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: 40px;
+
+  @media (width < 600px) {
+    padding-inline: 16px;
+  }
+}
+
+/*
+ * Motion (spec: Interactions and motion → Animation specs). The keyframes and
+ * the classes that use them exist only when motion is allowed, so under
+ * reduced motion everything renders in its final state.
+ *   .rise (+ .rise-1…4 for the 0.08/0.18/0.30/0.45s stagger), .float, .pulse
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* 8px drift. Uses `translate`, so an element's own `rotate` is kept (as in ArtFrame). */
+  @keyframes float {
+    50% {
+      translate: 0 -8px;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .rise {
+    animation: rise 0.9s var(--ease-kitchen) both;
+  }
+  .rise-1 {
+    animation-delay: 0.08s;
+  }
+  .rise-2 {
+    animation-delay: 0.18s;
+  }
+  .rise-3 {
+    animation-delay: 0.3s;
+  }
+  .rise-4 {
+    animation-delay: 0.45s;
+  }
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .pulse {
+    animation: pulse 2.4s ease-in-out infinite;
   }
 }
