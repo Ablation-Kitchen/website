@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { inlineScriptHashes } from '../integrations/security-headers.ts';
+import { inlineScriptHashes, inlineStyleAttributes } from '../integrations/security-headers.ts';
 import {
   buildCsp,
   headersRule,
@@ -27,6 +27,20 @@ describe('inlineScriptHashes', () => {
       '<script type="application/ld+json">{"@type":"Person"}</script>' +
       '<script type="application/json">{}</script>';
     expect(inlineScriptHashes(html)).toEqual([]);
+  });
+});
+
+describe('inlineStyleAttributes', () => {
+  it('finds style attributes on any element, quoted or not', () => {
+    const html =
+      '<div style="width:2px">a</div><svg><path style=\'fill:red\'/></svg><p style=x>b</p>';
+    expect(inlineStyleAttributes(html)).toHaveLength(3);
+  });
+
+  it('ignores style elements, data-style attributes and text inside scripts', () => {
+    const html =
+      '<style>.a{}</style><div data-style="x" class="style">style="no"</div><script>el.setAttribute("style", "a"); const s = \'<b style="x">\';</script>';
+    expect(inlineStyleAttributes(html)).toEqual([]);
   });
 });
 

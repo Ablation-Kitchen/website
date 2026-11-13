@@ -18,21 +18,30 @@ interface Props extends Omit<ArtBehaviour, 'tilt' | 'float' | 'rotate'> {
   width?: number;
 }
 
-const { corner = 'bottom-right', width = 260, style, ...behaviour } = Astro.props;
+// Literal class strings (not built from parts) so Tailwind sees them. No inline
+// styles: the CSP (#25) blocks them.
+const CORNER: Record<Corner, string> = {
+  'top-left': 'top-0 left-0',
+  'top-right': 'top-0 right-0',
+  'bottom-left': 'bottom-0 left-0',
+  'bottom-right': 'bottom-0 right-0',
+};
+
+const { corner = 'bottom-right', width = 260, class: className, ...behaviour } = Astro.props;
 const height = Math.round((width * 200) / 260);
 const [v, h] = corner.split('-') as ['top' | 'bottom', 'left' | 'right'];
-const flip = `${h === 'left' ? -1 : 1} ${v === 'top' ? -1 : 1}`;
-const position = `position:absolute;${v}:0;${h}:0;z-index:-1;pointer-events:none;line-height:0;`;
 ---
 
-<ArtFrame {...behaviour} style={position + (style ?? '')}>
+<ArtFrame
+  {...behaviour}
+  class:list={['pointer-events-none absolute -z-1 leading-[0]', CORNER[corner], className]}
+>
   <svg
-    class="planes"
+    class:list={['planes', { 'flip-x': h === 'left', 'flip-y': v === 'top' }]}
     width={width}
     height={height}
     viewBox="0 0 260 200"
     focusable="false"
-    style={`scale:${flip}`}
   >
     <polygon class="a" opacity="0.24" points="260,36 158,92 198,200 260,200" />
     <polygon class="b" opacity="0.18" points="112,200 188,108 260,146 260,200" />
@@ -46,6 +55,15 @@ const position = `position:absolute;${v}:0;${h}:0;z-index:-1;pointer-events:none
 <style>
   .planes {
     display: block;
+    scale: var(--flip-x, 1) var(--flip-y, 1);
+  }
+
+  .flip-x {
+    --flip-x: -1;
+  }
+
+  .flip-y {
+    --flip-y: -1;
   }
 
   .a {

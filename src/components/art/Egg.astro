@@ -14,10 +14,10 @@ interface Props extends ArtBehaviour {
   crack?: boolean;
 }
 
-const { size = 40, crack = true, style, ...behaviour } = Astro.props;
+const { size = 40, crack = true, class: className, ...behaviour } = Astro.props;
 ---
 
-<ArtFrame as="span" {...behaviour} style={'line-height:0;' + (style ?? '')}>
+<ArtFrame as="span" {...behaviour} class:list={['leading-[0]', className]}>
   <svg class="egg" width={size} height={size} viewBox="0 0 256 256" focusable="false">
     <path class="shell" d="M208,152a80,80,0,0,1-160,0C48,88,96,24,128,24S208,88,208,152Z" />
     {crack && <polyline class="crack" points="80,116 102,136 124,110 146,136 172,114" />}

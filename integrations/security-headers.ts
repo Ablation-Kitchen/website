@@ -10,7 +10,7 @@
  */
 import { createHash } from 'node:crypto';
 import { appendFile, readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import { headersRule, securityHeaders } from '../src/lib/security-headers.ts';
@@ -28,6 +28,19 @@ export function inlineScriptHashes(html: string): string[] {
     hashes.push(`sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}`);
   }
   return hashes;
+}
+
+// Script bodies are stripped first, so a `style=` inside JS text doesn't count.
+const SCRIPT_BLOCK = /<script\b[^>]*>[\s\S]*?<\/script\s*>/gi;
+const STYLE_ATTR = /<[a-z][\w:-]*\b[^>]*?\sstyle\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
+
+/**
+ * The opening tags in an HTML document that carry a `style` attribute.
+ * `style-src 'self'` blocks those in the browser, so the build fails on them
+ * rather than leaving it to the CSP check: use a class or a stylesheet rule.
+ */
+export function inlineStyleAttributes(html: string): string[] {
+  return [...html.replace(SCRIPT_BLOCK, '').matchAll(STYLE_ATTR)].map((m) => m[0]);
 }
 
 async function htmlFiles(dir: string): Promise<string[]> {
@@ -52,9 +65,18 @@ export default function securityHeadersIntegration(): AstroIntegration {
         }
 
         const hashes = new Set<string>();
+        const styled: string[] = [];
         const files = await htmlFiles(out);
         for (const file of files) {
-          for (const h of inlineScriptHashes(await readFile(file, 'utf8'))) hashes.add(h);
+          const html = await readFile(file, 'utf8');
+          for (const h of inlineScriptHashes(html)) hashes.add(h);
+          for (const tag of inlineStyleAttributes(html))
+            styled.push(`${relative(out, file)}: ${tag}`);
+        }
+        if (styled.length) {
+          throw new Error(
+            `Inline style attributes are blocked by the CSP (style-src 'self'). Use a class or a stylesheet rule instead:\n${styled.join('\n')}`,
+          );
         }
 
         const rule = headersRule('/*', securityHeaders([...hashes]));
