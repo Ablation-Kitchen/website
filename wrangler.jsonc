@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ablation-kitchen",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-10",
+  // PR previews are aliased Version URLs (`wrangler versions upload --preview-alias pr-<n>`),
+  // which only exist on workers.dev, so that route stays on. public/_headers marks every
+  // workers.dev host noindex. Production is the ablation.kitchen Custom Domain (docs/deploy.md).
+  "workers_dev": true,
+  "preview_urls": true,
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/_a/*"],
+  },
+  "observability": { "enabled": true },
+}

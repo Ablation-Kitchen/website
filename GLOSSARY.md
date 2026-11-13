@@ -51,7 +51,7 @@ _Avoid_: Footer status, ticker
 ## The metaphor (agent systems)
 
 **Brigade**:
-A multi-agent system arranged as a kitchen: one sous chef, several stations and the pass. Also the name of Dalmo's open-source project, *The Brigade*.
+A multi-agent system arranged as a kitchen: one sous chef, several stations and the pass. Also the name of Dalmo's open-source project, _The Brigade_.
 _Avoid_: Swarm, crew, team of agents
 
 **Sous chef**:

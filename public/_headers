@@ -1,0 +1,5 @@
+# Preview and workers.dev hosts must not be indexed. This matches aliased PR
+# previews (pr-<n>-ablation-kitchen.<subdomain>.workers.dev), plain Version URLs
+# and the Worker's own workers.dev URL. ablation.kitchen is not matched.
+https://:host.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
