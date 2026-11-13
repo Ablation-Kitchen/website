@@ -1,0 +1,165 @@
+---
+/**
+ * The chaos element: a kitchen ticket / receipt pinned at an angle.
+ * "The check" on case studies, the course list on /work, "specimen 01" on
+ * /research, "order up" on /about, "ticket 404".
+ *
+ * Structure, top to bottom (each part optional):
+ *   header row   `header={['the check', 'table i.']}` or `slot="header"`
+ *   ─ ─ ─ ─
+ *   line items   `items` — with a `value` they get a dotted leader
+ *   default slot (custom content)
+ *   footer       `footer` (true → "yes, chef →") or `slot="footer"`
+ *
+ * Floats by default (motion permitting); decorative, aria-hidden, hidden
+ * below 960px. Don't put anything a reader needs in here.
+ */
+import ArtFrame from './ArtFrame.astro';
+import type { ArtBehaviour } from './types';
+
+export interface TicketItem {
+  label: string;
+  /** Right-hand value; adds a dotted leader between label and value. */
+  value?: string;
+  /** Strike the line through (86'd). */
+  strike?: boolean;
+  /** Ink instead of the softer body colour. Lines with a value are ink by default. */
+  strong?: boolean;
+}
+
+interface Props extends ArtBehaviour {
+  /** Header row: left text and optional right text. */
+  header?: [string] | [string, string];
+  items?: TicketItem[];
+  /** Footer line in accent text; `true` gives "yes, chef →". */
+  footer?: string | boolean;
+  /** CSS width, e.g. 240 (px) or '16rem'. */
+  width?: number | string;
+}
+
+const {
+  header,
+  items = [],
+  footer,
+  width = 240,
+  rotate = -3,
+  float = true,
+  style,
+  ...behaviour
+} = Astro.props;
+
+const hasHeader = Boolean(header) || Astro.slots.has('header');
+const hasFooter = Boolean(footer) || Astro.slots.has('footer');
+const footerText = footer === true ? 'yes, chef →' : footer || '';
+const w = typeof width === 'number' ? `${width}px` : width;
+---
+
+<ArtFrame rotate={rotate} float={float} {...behaviour} style={`width:${w};` + (style ?? '')}>
+  <div class="ticket">
+    {
+      hasHeader && (
+        <>
+          <div class="head">
+            <slot name="header">
+              <span>{header?.[0]}</span>
+              {header?.[1] && <span>{header[1]}</span>}
+            </slot>
+          </div>
+          <hr />
+        </>
+      )
+    }
+    {
+      items.map((item) =>
+        item.value !== undefined ? (
+          <div class:list={['ln', { strike: item.strike, soft: item.strong === false }]}>
+            <span class="label">{item.label}</span>
+            <span class="leader" />
+            <span class="value">{item.value}</span>
+          </div>
+        ) : (
+          <div class:list={['line', { strike: item.strike, strong: item.strong }]}>{item.label}</div>
+        ),
+      )
+    }
+    <slot />
+    {
+      hasFooter && (
+        <div class="foot">
+          <slot name="footer">{footerText}</slot>
+        </div>
+      )
+    }
+  </div>
+</ArtFrame>
+
+<style>
+  .ticket {
+    box-sizing: border-box;
+    padding: 18px 20px;
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-rule, #e4e2dc);
+    border-radius: 6px;
+    box-shadow: 0 24px 50px -30px rgb(0 0 0 / 0.45);
+    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--color-soft, #3b3b38);
+    text-align: left;
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  hr {
+    margin: 10px 0;
+    border: 0;
+    border-top: 1px dashed var(--color-rule, #e4e2dc);
+  }
+
+  .ln {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .ln .label {
+    color: var(--color-ink, #111111);
+  }
+
+  .ln.soft .label {
+    color: inherit;
+  }
+
+  .leader {
+    flex: 1;
+    min-width: 12px;
+    position: relative;
+    top: -0.3em;
+    border-bottom: 1px dotted var(--color-meta, #6a6a66);
+    opacity: 0.6;
+  }
+
+  .value {
+    white-space: nowrap;
+  }
+
+  .strong {
+    color: var(--color-ink, #111111);
+  }
+
+  .strike,
+  .strike .label {
+    text-decoration: line-through;
+  }
+
+  .foot {
+    margin-top: 8px;
+    color: var(--color-accent-text, #4a6562);
+  }
+</style>

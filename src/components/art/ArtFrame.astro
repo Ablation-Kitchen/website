@@ -1,0 +1,87 @@
+---
+/**
+ * Shared wrapper for every decorative piece: the art and the chaos tickets.
+ *
+ * - Always `aria-hidden="true"`: pieces carry no content a reader needs.
+ * - `hideOnSmall` (default on) hides the piece below 960px.
+ * - `rotate` sets a resting rotation in degrees, kept in `--art-rot` so the
+ *   float and the hover tilt both build on it (they use the individual
+ *   `translate` / `rotate` / `scale` properties, so they never fight).
+ * - `float`: an 8px drift over 6s. `tilt`: hover tilt of −2° and scale 1.02
+ *   over 0.8s. Both only run when the reader allows motion.
+ *
+ * No client JS.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import type { ArtBehaviour } from './types';
+
+type Props = ArtBehaviour &
+  Omit<HTMLAttributes<'div'>, 'class' | 'style' | 'aria-hidden'> & {
+    /** `span` (inline-block) for pieces placed inside phrasing content. */
+    as?: 'div' | 'span';
+  };
+
+const {
+  as: Tag = 'div',
+  rotate = 0,
+  float = false,
+  tilt = false,
+  hideOnSmall = true,
+  class: className,
+  style,
+  ...rest
+} = Astro.props;
+
+const vars = rotate ? `--art-rot:${rotate}deg;` : '';
+---
+
+<Tag
+  {...rest}
+  aria-hidden="true"
+  class:list={['art', className, { inline: Tag === 'span', float, tilt, 'hide-small': hideOnSmall }]}
+  style={vars + (style ?? '') || undefined}
+>
+  <slot />
+</Tag>
+
+<style>
+  .art {
+    width: fit-content;
+    max-width: 100%;
+    rotate: var(--art-rot, 0deg);
+  }
+
+  .inline {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 959.98px) {
+    .hide-small {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .float {
+      animation: ak-art-float 6s ease-in-out infinite;
+    }
+
+    .tilt {
+      transition:
+        rotate 0.8s var(--ease-out, cubic-bezier(0.2, 0.7, 0.2, 1)),
+        scale 0.8s var(--ease-out, cubic-bezier(0.2, 0.7, 0.2, 1));
+    }
+
+    .tilt:hover {
+      rotate: calc(var(--art-rot, 0deg) - 2deg);
+      scale: 1.02;
+    }
+
+    @keyframes ak-art-float {
+      50% {
+        translate: 0 -8px;
+      }
+    }
+  }
+</style>

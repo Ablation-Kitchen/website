@@ -1,0 +1,78 @@
+---
+/**
+ * A bottle split down the middle into two offset planes, with a label band
+ * that bridges the halves. Homepage + /about (above Kitchen rules).
+ */
+import ArtFrame from './ArtFrame.astro';
+import type { ArtBehaviour } from './types';
+
+interface Props extends ArtBehaviour {
+  /** Rendered width in px; height follows the 96×116 viewBox. */
+  width?: number;
+}
+
+const { width = 96, tilt = true, ...behaviour } = Astro.props;
+const height = Math.round((width * 116) / 96);
+---
+
+<ArtFrame tilt={tilt} {...behaviour}>
+  <svg class="bottle" width={width} height={height} viewBox="0 0 96 116" focusable="false">
+    <!-- left half, set back -->
+    <polygon class="b ink" opacity="0.5" points="20,14 36,14 36,42 52,58 52,112 20,112" />
+    <!-- right half, pushed up and across -->
+    <polygon class="a ink" opacity="0.65" points="38,6 52,6 52,34 70,52 70,106 38,106" />
+    <!-- cork, seen from the side and the top -->
+    <rect class="surface ink" x="39" y="1" width="12" height="7" rx="1.5" />
+    <ellipse class="surface ink" cx="30" cy="13" rx="7" ry="3" />
+    <!-- label bridging both halves, slightly askew -->
+    <polygon class="surface ink" points="14,66 62,60 66,82 18,88" />
+    <line class="accent" x1="23" y1="74.5" x2="56" y2="70.5" />
+    <line class="faint" x1="25" y1="80" x2="46" y2="77.5" />
+    <!-- shared outlines so the halves read as one bottle -->
+    <polyline class="line" points="36,14 36,42 52,58 52,112" />
+  </svg>
+</ArtFrame>
+
+<style>
+  .bottle {
+    display: block;
+    overflow: visible;
+  }
+
+  .ink {
+    stroke: var(--color-ink, #111111);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+  }
+
+  .a {
+    fill: var(--color-plane-a, #c9a66b);
+  }
+
+  .b {
+    fill: var(--color-plane-b, #5b7c99);
+  }
+
+  .surface {
+    fill: var(--color-surface, #ffffff);
+  }
+
+  .accent {
+    stroke: var(--color-accent, #69908c);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+
+  .faint {
+    stroke: var(--color-meta, #6a6a66);
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+
+  .line {
+    fill: none;
+    stroke: var(--color-ink, #111111);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+  }
+</style>

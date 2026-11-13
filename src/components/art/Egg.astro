@@ -1,0 +1,43 @@
+---
+/**
+ * Phosphor-style egg (regular weight, 256 grid) with an accent crack.
+ * The 404 eyebrow (uncracked, small) and the "ticket 404" header.
+ * The shell takes `currentColor`, so it follows the surrounding text.
+ */
+import ArtFrame from './ArtFrame.astro';
+import type { ArtBehaviour } from './types';
+
+interface Props extends ArtBehaviour {
+  /** Rendered size in px. */
+  size?: number;
+  /** Draw the accent crack. */
+  crack?: boolean;
+}
+
+const { size = 40, crack = true, style, ...behaviour } = Astro.props;
+---
+
+<ArtFrame as="span" {...behaviour} style={'line-height:0;' + (style ?? '')}>
+  <svg class="egg" width={size} height={size} viewBox="0 0 256 256" focusable="false">
+    <path class="shell" d="M208,152a80,80,0,0,1-160,0C48,88,96,24,128,24S208,88,208,152Z" />
+    {crack && <polyline class="crack" points="80,116 102,136 124,110 146,136 172,114" />}
+  </svg>
+</ArtFrame>
+
+<style>
+  .egg {
+    display: block;
+    fill: none;
+    stroke-width: 16;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .shell {
+    stroke: currentColor;
+  }
+
+  .crack {
+    stroke: var(--color-accent, #69908c);
+  }
+</style>

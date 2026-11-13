@@ -1,0 +1,141 @@
+---
+/**
+ * Homepage hero art: an original cubist kitchen still life. A cup seen from
+ * the side and from above at once, a fork broken into offset pieces, a knife
+ * whose blade and handle don't line up, and a half-lemon in the accent, on
+ * flat overlapping ochre/slate planes with bold ink outlines.
+ */
+import ArtFrame from './ArtFrame.astro';
+import type { ArtBehaviour } from './types';
+
+interface Props extends ArtBehaviour {
+  /** Rendered width in px; height follows the 400×420 viewBox. */
+  width?: number;
+}
+
+const { width = 360, tilt = true, ...behaviour } = Astro.props;
+const height = Math.round((width * 420) / 400);
+---
+
+<ArtFrame tilt={tilt} {...behaviour}>
+  <svg class="still" width={width} height={height} viewBox="0 0 400 420" focusable="false">
+    <!-- planes -->
+    <polygon class="plane-a" opacity="0.5" points="38,64 252,26 292,262 18,300" />
+    <polygon class="plane-b" opacity="0.42" points="168,118 384,146 362,394 146,366" />
+    <polygon class="plane-a" opacity="0.32" points="0,318 176,288 214,420 0,420" />
+    <polygon class="accent-fill" opacity="0.22" points="300,34 364,22 344,116 312,100" />
+    <line class="ink-line" opacity="0.35" x1="232" y1="14" x2="218" y2="300" stroke-width="1.2" />
+    <!-- table edge -->
+    <polyline class="ink-line" points="0,304 214,268 400,240" stroke-width="2" />
+
+    <!-- fork, fractured into three offset pieces -->
+    <g transform="translate(298 70) rotate(12) scale(1.2)">
+      <path class="surface ink" d="M-15,0 V40 Q-15,60 0,63 Q15,60 15,40 V0" />
+      <line class="ink-line" x1="-5" y1="0" x2="-5" y2="38" />
+      <line class="ink-line" x1="5" y1="0" x2="5" y2="38" />
+      <g transform="translate(9 5)">
+        <polygon class="plane-b-solid ink" points="-3.5,63 3.5,63 4.5,124 -4.5,124" />
+      </g>
+      <g transform="translate(-7 12) rotate(-5)">
+        <path class="surface ink" d="M-5,128 H5 L9,206 Q0,216 -9,206 Z" />
+      </g>
+    </g>
+
+    <!-- cup: side view body + handle -->
+    <path class="ink-line" d="M194,192 C232,190 234,250 186,254" stroke-width="2.4" />
+    <path class="ink-line" d="M192,206 C214,206 216,238 188,240" stroke-width="1.6" />
+    <polygon class="surface ink" points="94,172 198,172 184,286 108,286" />
+    <polygon class="plane-a-solid" opacity="0.7" points="146,172 198,172 184,286 146,286" />
+    <polygon class="ink-none ink" points="94,172 198,172 184,286 108,286" />
+    <line class="ink-line" x1="102" y1="296" x2="190" y2="290" stroke-width="2.4" />
+    <!-- cup: the same rim seen from above, shifted off the body's axis -->
+    <ellipse class="surface ink" cx="136" cy="160" rx="54" ry="40" />
+    <ellipse class="plane-b-solid" cx="136" cy="160" rx="42" ry="30" />
+    <path class="ink-line" opacity="0.55" d="M106,150 Q130,140 158,148" stroke-width="1.4" />
+
+    <!-- half-lemon: the dome from the side, the cut face from the front -->
+    <path class="accent-fill ink" d="M52,372 A58,44 0 0 1 168,372 Z" />
+    <path class="ink-line" opacity="0.5" d="M120,336 Q148,344 156,366" stroke-width="1.4" />
+    <circle class="accent-fill ink" cx="76" cy="352" r="42" />
+    <circle class="flesh" cx="76" cy="352" r="33" />
+    <g class="segments">
+      <line x1="76" y1="352" x2="76" y2="319" />
+      <line x1="76" y1="352" x2="104.6" y2="335.5" />
+      <line x1="76" y1="352" x2="104.6" y2="368.5" />
+      <line x1="76" y1="352" x2="76" y2="385" />
+      <line x1="76" y1="352" x2="47.4" y2="368.5" />
+      <line x1="76" y1="352" x2="47.4" y2="335.5" />
+    </g>
+    <circle class="ink-none ink" cx="76" cy="352" r="33" stroke-width="1.4" />
+    <circle class="accent-fill" cx="76" cy="352" r="4" />
+    <!-- knife: blade and handle off-axis -->
+    <g transform="translate(156 390) rotate(-9)">
+      <path class="surface ink" d="M0,0 H142 C162,0 178,6 184,11 C162,17 42,19 0,19 Z" />
+      <line class="ink-line" opacity="0.5" x1="10" y1="6" x2="128" y2="6" stroke-width="1.2" />
+      <g transform="translate(-6 10) rotate(4)">
+        <rect class="ink-fill" x="-110" y="0" width="104" height="15" rx="6" />
+        <circle class="surface" cx="-86" cy="7.5" r="2" />
+        <circle class="surface" cx="-34" cy="7.5" r="2" />
+      </g>
+    </g>
+  </svg>
+</ArtFrame>
+
+<style>
+  .still {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .ink {
+    stroke: var(--color-ink, #111111);
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+  }
+
+  .ink-line {
+    fill: none;
+    stroke: var(--color-ink, #111111);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .ink-none {
+    fill: none;
+  }
+
+  .ink-fill {
+    fill: var(--color-ink, #111111);
+  }
+
+  .surface {
+    fill: var(--color-surface, #ffffff);
+  }
+
+  .plane-a,
+  .plane-a-solid {
+    fill: var(--color-plane-a, #c9a66b);
+  }
+
+  .plane-b,
+  .plane-b-solid {
+    fill: var(--color-plane-b, #5b7c99);
+  }
+
+  .accent-fill {
+    fill: var(--color-accent, #69908c);
+  }
+
+  .flesh {
+    fill: color-mix(in srgb, var(--color-accent, #69908c) 35%, var(--color-surface, #ffffff));
+  }
+
+  .segments line {
+    stroke: var(--color-accent, #69908c);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+</style>
