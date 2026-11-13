@@ -13,7 +13,7 @@ concurrency:
   # Superseded PR runs are cancelled; main runs (and so production deploys) queue.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-# The four jobs below are the required status checks on main (docs/deploy.md).
+# The five jobs below are the required status checks on main (docs/deploy.md).
 # Keep their names stable: branch protection matches on them.
 jobs:
   check:
@@ -56,6 +56,29 @@ jobs:
           path: dist/
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 7
+
+  # Blocking (#21, #25): loads every built page under the real _headers (via
+  # wrangler dev) and fails on any CSP or Trusted Types violation.
+  csp:
+    name: CSP check
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          playwright: 'true'
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: pnpm test:csp
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: csp-test-results
+          path: test-results/
           retention-days: 7
 
   # PR preview: an aliased Version URL, pr-<n>-ablation-kitchen.<subdomain>.workers.dev.
@@ -104,11 +127,11 @@ jobs:
             echo "::notice title=Preview URL::$url"
           fi
 
-  # Production: only after all four checks pass on main.
+  # Production: only after all five checks pass on main.
   deploy:
     name: Deploy production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [check, lint, format, build]
+    needs: [check, lint, format, build, csp]
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
