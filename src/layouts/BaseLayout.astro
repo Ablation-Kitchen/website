@@ -12,6 +12,8 @@ import ThemeHead from '../components/theme/ThemeHead.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import { absoluteUrl, canonicalUrl, pageTitle, personJsonLd, serializeJsonLd } from '../lib/seo';
+import { getHasWriting } from '../lib/visibility';
+import { FEED_TITLE } from '../lib/feed';
 import '../styles/global.css';
 
 export interface OgImage {
@@ -37,6 +39,8 @@ export interface Props {
 
 const { title, description, image, ogType = 'website', noindex = false } = Astro.props;
 
+// /rss.xml only exists once a post is visible (#40), so the alternate link follows the same gate.
+const hasFeed = await getHasWriting();
 const fullTitle = pageTitle(title);
 const canonical = canonicalUrl(Astro.url.pathname);
 const og = image && {
@@ -58,6 +62,9 @@ const og = image && {
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
+    {hasFeed && (
+      <link rel="alternate" type="application/rss+xml" title={FEED_TITLE} href="/rss.xml" />
+    )}
     <meta name="author" content="Dalmo Veras" />
 
     <meta property="og:type" content={ogType} />

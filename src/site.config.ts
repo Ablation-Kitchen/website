@@ -16,6 +16,9 @@ export const person = {
   affiliation: { name: 'University of Warwick', note: 'PhD in progress' },
 } as const;
 
+/** What Dalmo is open to, for /menu.txt and /llms.txt (#17). */
+export const availability = 'principal roles · Vancouver, BC';
+
 export const profiles = {
   linkedin: { label: 'LinkedIn', href: 'https://www.linkedin.com/in/dalmoveras' },
   github: { label: 'GitHub', href: 'https://github.com/ablationkitchen' },
