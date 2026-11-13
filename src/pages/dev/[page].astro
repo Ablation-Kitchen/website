@@ -1,0 +1,290 @@
+---
+/**
+ * Dev-only preview of the decorative pieces (#30), at /dev/art.
+ *
+ * Kept out of production by getStaticPaths: it returns no paths unless
+ * `import.meta.env.DEV`, so `astro build` emits nothing for this route.
+ *
+ * Every piece renders twice: once in the page's theme (Light) and once
+ * inside a `data-theme="dark"` wrapper. The token values below are a
+ * stand-in for #26 and are declared inside `:where()` (zero specificity),
+ * so the real tokens win as soon as they land.
+ */
+import type { GetStaticPaths } from 'astro';
+import '../../styles/global.css';
+import AblationGraphic from '../../components/art/AblationGraphic.astro';
+import ChaosTicket from '../../components/art/ChaosTicket.astro';
+import Egg from '../../components/art/Egg.astro';
+import LabPlanes from '../../components/art/LabPlanes.astro';
+import SplitBottle from '../../components/art/SplitBottle.astro';
+import StillLife from '../../components/art/StillLife.astro';
+
+export const getStaticPaths = (() =>
+  import.meta.env.DEV ? [{ params: { page: 'art' } }] : []) satisfies GetStaticPaths;
+
+const themes = [
+  { id: 'light', label: 'Light', attr: undefined },
+  { id: 'dark', label: 'Dark', attr: 'dark' },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Art preview (dev)</title>
+  </head>
+  <body>
+    <p class="note">
+      Dev-only preview of <code>src/components/art</code>. Every piece is <code>aria-hidden</code>{' '}
+      and hidden below 960px, so widen the window if this page looks empty.
+    </p>
+    {themes.map((t) => (
+      <section class="theme" data-theme={t.attr}>
+        <h2>{t.label}</h2>
+        <div class="grid">
+          <figure class="wide">
+            <div class="stage">
+              <StillLife width={360} />
+            </div>
+            <figcaption>StillLife · homepage hero · hover tilt</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage">
+              <div class="panel">
+                <LabPlanes />
+                <p class="panel-h">How an ablation reads</p>
+                <AblationGraphic />
+              </div>
+            </div>
+            <figcaption>LabPlanes + AblationGraphic · /research glance panel</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage">
+              <div class="panel">
+                <LabPlanes corner="top-right" width={200} />
+                <p class="panel-h">LabPlanes, top-right, 200px</p>
+              </div>
+            </div>
+            <figcaption>LabPlanes · corner prop</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage row">
+              <SplitBottle />
+              <SplitBottle width={160} rotate={6} float />
+            </div>
+            <figcaption>SplitBottle · 96px; 160px rotated 6° floating</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage row">
+              <p class="eyebrow">
+                <Egg size={20} crack={false} style="color:var(--color-meta,#6a6a66)" />
+                404 · not found
+              </p>
+              <Egg size={96} />
+              <Egg size={96} rotate={-8} tilt />
+            </div>
+            <figcaption>Egg · 20px uncracked in an eyebrow; 96px; tilted</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage row">
+              <ChaosTicket
+                rotate={-2}
+                width={250}
+                header={['the check', 'course i.']}
+                items={[
+                  { label: 'teams on the platform', value: '[N]' },
+                  { label: 'agent runs / wk', value: '[N]' },
+                ]}
+                footer
+              />
+              <ChaosTicket
+                rotate={3}
+                width={260}
+                header={['tasting menu', '4 courses']}
+                items={[
+                  { label: 'i.', value: 'iCounter' },
+                  { label: 'ii.', value: 'Fortinet' },
+                  { label: 'iii.', value: '313X' },
+                  { label: 'iv.', value: 'Cyberlabs' },
+                ]}
+                footer="chef's choice →"
+              />
+            </div>
+            <figcaption>ChaosTicket · the check (−2°); /work course list (3°)</figcaption>
+          </figure>
+
+          <figure>
+            <div class="stage row">
+              <ChaosTicket
+                width={200}
+                header={['specimen 01']}
+                items={[
+                  { label: '− one ingredient', strong: true },
+                  { label: '+ one measurement' },
+                ]}
+                footer="taste →"
+              />
+              <ChaosTicket
+                rotate={-6}
+                width={220}
+                items={[
+                  { label: '1× /that-page', strike: true, strong: true },
+                  { label: '— 86’d' },
+                ]}
+                footer="try the menu →"
+              >
+                <Fragment slot="header">
+                  <span>ticket 404</span>
+                  <Egg size={16} hideOnSmall={false} />
+                </Fragment>
+              </ChaosTicket>
+            </div>
+            <figcaption>
+              ChaosTicket · specimen (−3°, default); ticket 404 (−6°, header slot)
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    ))}
+  </body>
+</html>
+
+<style is:global>
+  /* Stand-in tokens until #26; zero specificity so the real ones win. */
+  :where(:root) {
+    --color-bg: #f7f6f3;
+    --color-surface: #ffffff;
+    --color-ink: #111111;
+    --color-soft: #3b3b38;
+    --color-meta: #6a6a66;
+    --color-rule: #e4e2dc;
+    --color-accent: #69908c;
+    --color-accent-text: #4a6562;
+    --color-plane-a: #c9a66b;
+    --color-plane-b: #5b7c99;
+  }
+
+  :where([data-theme='dark']) {
+    --color-bg: #0c0c0b;
+    --color-surface: #141413;
+    --color-ink: #edebe6;
+    --color-soft: #c7c4bc;
+    --color-meta: #9a9a95;
+    --color-rule: #262624;
+    --color-accent: #69908c;
+    --color-accent-text: #85a6a3;
+  }
+</style>
+
+<style>
+  body {
+    margin: 0;
+    background: var(--color-bg, #f7f6f3);
+    color: var(--color-ink, #111111);
+    font-family: var(--font-sans, system-ui, sans-serif);
+  }
+
+  .note {
+    margin: 0;
+    padding: 16px 40px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  .theme {
+    padding: 32px 40px 56px;
+    background: var(--color-bg, #f7f6f3);
+    color: var(--color-ink, #111111);
+  }
+
+  h2 {
+    margin: 0 0 24px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 24px;
+  }
+
+  figure {
+    margin: 0;
+  }
+
+  .wide {
+    grid-row: span 2;
+  }
+
+  .stage {
+    display: grid;
+    place-items: center;
+    min-height: 240px;
+    padding: 40px 24px;
+    border: 1px solid var(--color-rule, #e4e2dc);
+    border-radius: 12px;
+  }
+
+  .wide .stage {
+    min-height: 540px;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    width: 100%;
+    min-height: 240px;
+    padding: 28px;
+    box-sizing: border-box;
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-rule, #e4e2dc);
+    border-radius: 20px;
+  }
+
+  .panel-h {
+    margin: 0 0 20px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  figcaption {
+    margin-top: 8px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11.5px;
+    color: var(--color-meta, #6a6a66);
+  }
+</style>

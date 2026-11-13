@@ -1,0 +1,92 @@
+---
+/**
+ * The ablation dot graphic (/research glance panel, homepage Lab panel).
+ * One row per configuration, one dot per station:
+ *   on      → accent fill
+ *   removed → dashed accent circle (the part this row ablates)
+ *   gone    → rule outline (never in this configuration)
+ *
+ * Decorative and aria-hidden, so it carries no screen-reader text; the page
+ * explains ablation in prose next to it.
+ */
+import ArtFrame from './ArtFrame.astro';
+import type { ArtBehaviour } from './types';
+
+export type Dot = 'on' | 'removed' | 'gone';
+export interface AblationRow {
+  label: string;
+  dots: Dot[];
+}
+
+interface Props extends ArtBehaviour {
+  rows?: AblationRow[];
+}
+
+const DEFAULT_ROWS: AblationRow[] = [
+  { label: 'full brigade', dots: ['on', 'on', 'on', 'on'] },
+  { label: '− critic', dots: ['on', 'on', 'on', 'removed'] },
+  { label: '− orchestrator', dots: ['removed', 'on', 'on', 'on'] },
+  { label: 'single cook', dots: ['on', 'gone', 'gone', 'gone'] },
+];
+
+const { rows = DEFAULT_ROWS, ...behaviour } = Astro.props;
+---
+
+<ArtFrame {...behaviour}>
+  <div class="ablate">
+    {rows.map((row) => (
+      <div class="row">
+        <span class="label">{row.label}</span>
+        <span class="dots">
+          {row.dots.map((d) => (
+            <i class={d} />
+          ))}
+        </span>
+      </div>
+    ))}
+  </div>
+</ArtFrame>
+
+<style>
+  .ablate {
+    display: grid;
+    gap: 14px;
+    font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--color-meta, #6a6a66);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 8.5rem auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  i {
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+  }
+
+  .on {
+    background: var(--color-accent, #69908c);
+  }
+
+  .removed {
+    border: 1.5px dashed var(--color-accent, #69908c);
+  }
+
+  .gone {
+    /* The bare rule colour all but vanishes on the Dark surface; nudge it toward meta. */
+    border: 1.5px solid
+      color-mix(in srgb, var(--color-rule, #e4e2dc) 70%, var(--color-meta, #6a6a66));
+  }
+</style>
