@@ -4,19 +4,21 @@
  *
  * - Always `aria-hidden="true"`: pieces carry no content a reader needs.
  * - `hideOnSmall` (default on) hides the piece below 960px.
- * - `rotate` sets a resting rotation in degrees, kept in `--art-rot` so the
- *   float and the hover tilt both build on it (they use the individual
- *   `translate` / `rotate` / `scale` properties, so they never fight).
+ * - `rotate` sets a resting rotation in degrees (one of `ROTATIONS`), kept in
+ *   `--art-rot` so the float and the hover tilt both build on it (they use the
+ *   individual `translate` / `rotate` / `scale` properties, so they never
+ *   fight). It's set through `data-rot` and a stylesheet rule, never an inline
+ *   `style` attribute, which the CSP (#25) blocks.
  * - `float`: an 8px drift over 6s. `tilt`: hover tilt of −2° and scale 1.02
  *   over 0.8s. Both only run when the reader allows motion.
  *
- * No client JS.
+ * No client JS, no inline styles.
  */
 import type { HTMLAttributes } from 'astro/types';
 import type { ArtBehaviour } from './types';
 
 type Props = ArtBehaviour &
-  Omit<HTMLAttributes<'div'>, 'class' | 'style' | 'aria-hidden'> & {
+  Omit<HTMLAttributes<'div'>, 'class' | 'style' | 'aria-hidden' | 'data-rot'> & {
     /** `span` (inline-block) for pieces placed inside phrasing content. */
     as?: 'div' | 'span';
   };
@@ -28,11 +30,8 @@ const {
   tilt = false,
   hideOnSmall = true,
   class: className,
-  style,
   ...rest
 } = Astro.props;
-
-const vars = rotate ? `--art-rot:${rotate}deg;` : '';
 ---
 
 <Tag
@@ -43,7 +42,7 @@ const vars = rotate ? `--art-rot:${rotate}deg;` : '';
     className,
     { inline: Tag === 'span', float, tilt, 'hide-small': hideOnSmall },
   ]}
-  style={vars + (style ?? '') || undefined}
+  data-rot={rotate || undefined}
 >
   <slot />
 </Tag>
@@ -53,6 +52,55 @@ const vars = rotate ? `--art-rot:${rotate}deg;` : '';
     width: fit-content;
     max-width: 100%;
     rotate: var(--art-rot, 0deg);
+  }
+
+  /* One rule per value in ROTATIONS (types.ts). */
+  [data-rot='-8'] {
+    --art-rot: -8deg;
+  }
+
+  [data-rot='-6'] {
+    --art-rot: -6deg;
+  }
+
+  [data-rot='-4'] {
+    --art-rot: -4deg;
+  }
+
+  [data-rot='-3'] {
+    --art-rot: -3deg;
+  }
+
+  [data-rot='-2'] {
+    --art-rot: -2deg;
+  }
+
+  [data-rot='-1'] {
+    --art-rot: -1deg;
+  }
+
+  [data-rot='1'] {
+    --art-rot: 1deg;
+  }
+
+  [data-rot='2'] {
+    --art-rot: 2deg;
+  }
+
+  [data-rot='3'] {
+    --art-rot: 3deg;
+  }
+
+  [data-rot='4'] {
+    --art-rot: 4deg;
+  }
+
+  [data-rot='6'] {
+    --art-rot: 6deg;
+  }
+
+  [data-rot='8'] {
+    --art-rot: 8deg;
   }
 
   .inline {

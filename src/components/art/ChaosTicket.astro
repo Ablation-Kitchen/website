@@ -15,7 +15,7 @@
  * below 960px. Don't put anything a reader needs in here.
  */
 import ArtFrame from './ArtFrame.astro';
-import type { ArtBehaviour } from './types';
+import type { ArtBehaviour, TicketWidth } from './types';
 
 export interface TicketItem {
   label: string;
@@ -33,8 +33,8 @@ interface Props extends ArtBehaviour {
   items?: TicketItem[];
   /** Footer line in accent text; `true` gives "yes, chef →". */
   footer?: string | boolean;
-  /** CSS width, e.g. 240 (px) or '16rem'. */
-  width?: number | string;
+  /** Width in px, from `TICKET_WIDTHS` (a fixed set: inline styles are blocked by the CSP, #25). */
+  width?: TicketWidth;
 }
 
 const {
@@ -44,18 +44,16 @@ const {
   width = 240,
   rotate = -3,
   float = true,
-  style,
   ...behaviour
 } = Astro.props;
 
 const hasHeader = Boolean(header) || Astro.slots.has('header');
 const hasFooter = Boolean(footer) || Astro.slots.has('footer');
 const footerText = footer === true ? 'yes, chef →' : footer || '';
-const w = typeof width === 'number' ? `${width}px` : width;
 ---
 
-<ArtFrame rotate={rotate} float={float} {...behaviour} style={`width:${w};` + (style ?? '')}>
-  <div class="ticket">
+<ArtFrame rotate={rotate} float={float} {...behaviour}>
+  <div class="ticket" data-w={width}>
     {hasHeader && (
       <>
         <div class="head">
@@ -100,6 +98,40 @@ const w = typeof width === 'number' ? `${width}px` : width;
     line-height: 1.7;
     color: var(--color-soft, #3b3b38);
     text-align: left;
+    max-width: 100%;
+  }
+
+  /* One rule per value in TICKET_WIDTHS. */
+  .ticket[data-w='200'] {
+    width: 200px;
+  }
+
+  .ticket[data-w='220'] {
+    width: 220px;
+  }
+
+  .ticket[data-w='240'] {
+    width: 240px;
+  }
+
+  .ticket[data-w='250'] {
+    width: 250px;
+  }
+
+  .ticket[data-w='260'] {
+    width: 260px;
+  }
+
+  .ticket[data-w='280'] {
+    width: 280px;
+  }
+
+  .ticket[data-w='300'] {
+    width: 300px;
+  }
+
+  .ticket[data-w='320'] {
+    width: 320px;
   }
 
   .head {
