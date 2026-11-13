@@ -1,0 +1,9 @@
+dist/
+.astro/
+.wrangler/
+.claude/
+node_modules/
+pnpm-lock.yaml
+# Prose is written by hand; Prettier must not rewrap it.
+src/content/**/*.md
+src/content/**/*.mdx

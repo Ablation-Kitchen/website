@@ -13,7 +13,11 @@ pnpm install
 pnpm dev     # http://localhost:4321
 pnpm build   # static output in dist/
 pnpm check   # astro check (strict TypeScript)
+pnpm lint    # ESLint (astro + jsx-a11y)
+pnpm format  # Prettier (format:check in CI)
 ```
+
+CI and deploys run on GitHub Actions; see [`docs/deploy.md`](docs/deploy.md).
 
 ## License
 

@@ -1,0 +1,47 @@
+name: Setup
+description: Node from .nvmrc, pnpm with a cached store, dependencies, and optionally Playwright Chromium.
+
+inputs:
+  playwright:
+    description: Install Playwright Chromium (with system deps) and cache the browser.
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    # Version comes from "packageManager" in package.json.
+    - uses: pnpm/action-setup@v6
+
+    - uses: actions/setup-node@v7
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Read Playwright version
+      if: inputs.playwright == 'true'
+      id: pw
+      shell: bash
+      run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Playwright browsers
+      if: inputs.playwright == 'true'
+      id: pw-cache
+      uses: actions/cache@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.pw.outputs.version }}-chromium
+
+    - name: Install Playwright Chromium
+      if: inputs.playwright == 'true' && steps.pw-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: pnpm exec playwright install --with-deps chromium
+
+    # The browser binary is cached, but the OS libraries it needs are not.
+    - name: Install Chromium system dependencies
+      if: inputs.playwright == 'true' && steps.pw-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: pnpm exec playwright install-deps chromium
