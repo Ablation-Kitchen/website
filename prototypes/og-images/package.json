@@ -1,0 +1,16 @@
+{
+  "name": "prototype-og-images",
+  "private": true,
+  "type": "module",
+  "description": "PROTOTYPE (#19), throwaway, never merge",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/inter-tight": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.63.2"
+  }
+}

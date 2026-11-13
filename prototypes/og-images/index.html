@@ -1,0 +1,72 @@
+<!doctype html>
+<!-- PROTOTYPE (#19), throwaway, never merge. Three OG image variants, switchable via ?variant=A|B|C (or ← →).
+     The images are real Satori + resvg output from render.mjs, not CSS mockups. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROTOTYPE · OG images (#19)</title>
+<style>
+body{margin:0;background:#F7F6F3;color:#111;font:15px/1.5 ui-monospace,'JetBrains Mono',monospace;padding:32px 24px 120px}
+h1{font:400 28px/1.2 Georgia,serif;margin:0 0 6px}
+.sub{color:#6A6A66;margin:0 0 28px;max-width:900px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:32px 24px}
+figure{margin:0}
+figure img{display:block;width:100%;aspect-ratio:1200/630;border:1px solid #E4E2DC;border-radius:8px;background:#fff}
+figcaption{display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:#6A6A66;font-size:12.5px}
+figcaption b{color:#111;font-weight:400}
+h2{font:400 22px/1.2 Georgia,serif;margin:56px 0 6px}
+.feeds{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.card{width:500px;max-width:100%;background:#fff;border:1px solid #ddd;border-radius:10px;overflow:hidden;font-family:system-ui,sans-serif}
+.card img{display:block;width:100%;aspect-ratio:1200/630}
+.card .t{padding:10px 14px 12px}.card .d{font-size:12px;color:#666}.card .h{font-size:15px;font-weight:600;margin-top:2px}
+.chip{width:300px;display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;font-family:system-ui,sans-serif;font-size:13px}
+.chip img{width:120px;aspect-ratio:1200/630;border-radius:4px}
+#proto-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:4px;background:#1d4ed8;color:#fff;padding:6px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.25);font:13px/1 ui-monospace,monospace}
+#proto-bar button{all:unset;cursor:pointer;padding:8px 12px;border-radius:999px}
+#proto-bar button:hover{background:rgba(255,255,255,.25)}
+#proto-bar .lbl{padding:0 8px;white-space:nowrap}
+#proto-state{position:fixed;right:12px;bottom:76px;z-index:100;background:#1d4ed8;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:8px 12px;border-radius:8px;opacity:.92;white-space:pre-line}
+</style>
+<script src="out/manifest.js"></script>
+</head>
+<body>
+<h1>OG images · 1200 × 630</h1>
+<p class="sub">PROTOTYPE for #19. Every image below is real build output (Satori → SVG → resvg → PNG, in Node with no browser). Copy is draft; <code>[N]</code> slots wait on #8's numbers. Light tokens, basil palette. Run <code>npm run render</code> to regenerate.</p>
+<div class="grid" id="grid"></div>
+<h2>At feed size</h2>
+<p class="sub">How the card reads where it's actually seen: a large link preview (~500px) and a small chat/inline chip (~120px).</p>
+<div class="feeds" id="feeds"></div>
+
+<div id="proto-state" aria-hidden="true"></div>
+<div id="proto-bar" role="toolbar" aria-label="Prototype controls (not part of the design)">
+  <button type="button" id="prev" aria-label="Previous variant">←</button>
+  <span class="lbl" id="label"></span>
+  <button type="button" id="next" aria-label="Next variant">→</button>
+</div>
+<script>
+const M = window.MANIFEST, KEYS = Object.keys(M.variants);
+const q = new URLSearchParams(location.search);
+let v = KEYS.includes(q.get('variant')) ? q.get('variant') : 'A';
+function render() {
+  document.getElementById('label').textContent = `${v} (${M.variants[v]})`;
+  document.getElementById('grid').innerHTML = M.pages.map(p => {
+    const f = M.files[`${v}-${p.id}`];
+    return `<figure><img src="out/${v}-${p.id}.png?${f.kb}" alt="${p.title}"><figcaption><b>${p.path}</b><span>${f.kb} KB · ${f.ms} ms</span></figcaption></figure>`;
+  }).join('');
+  const pick = ['home', 'case-2', 'research'];
+  document.getElementById('feeds').innerHTML = pick.map(id => { const p = M.pages.find(x => x.id === id); return `
+    <div class="card"><img src="out/${v}-${id}.png" alt=""><div class="t"><div class="d">ablation.kitchen</div><div class="h">${p.title}</div></div></div>`; }).join('')
+    + `<div style="display:flex;flex-direction:column;gap:10px">${pick.map(id => `<div class="chip"><img src="out/${v}-${id}.png" alt=""><span>${M.pages.find(x => x.id === id).title}</span></div>`).join('')}</div>`;
+  const kbs = M.pages.map(p => M.files[`${v}-${p.id}`].kb), ms = M.pages.map(p => M.files[`${v}-${p.id}`].ms);
+  document.getElementById('proto-state').textContent = `variant ${v} · ${M.variants[v]}\n${M.pages.length} images\nPNG ${Math.min(...kbs)}–${Math.max(...kbs)} KB\nrender ${Math.min(...ms)}–${Math.max(...ms)} ms each\nall 3 variants: ${M.totalMs} ms`;
+  const u = new URL(location); u.searchParams.set('variant', v); history.replaceState(null, '', u);
+}
+const step = d => { v = KEYS[(KEYS.indexOf(v) + d + KEYS.length) % KEYS.length]; render(); };
+document.getElementById('prev').onclick = () => step(-1);
+document.getElementById('next').onclick = () => step(1);
+addEventListener('keydown', e => { if (e.target.closest('input,textarea,[contenteditable]')) return; if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+render();
+</script>
+</body>
+</html>
