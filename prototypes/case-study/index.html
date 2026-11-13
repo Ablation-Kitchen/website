@@ -40,8 +40,12 @@
   --accent:#F2B5D0;--accentText:#F4BFD7;
 }
 
-:root[data-palette="parchment"]{--bg:#DBDBC7;--surface:#E9E8DA;--ink:#231C17;--soft:#5C4538;--meta:#5A5B3E;--rule:#CAC6A8;--accent:#A76531;--accentText:#7E4719;--planeA:#CDAD5C;--planeB:#747E91;--tBg:#1D1814;--tInk:#DBDBC7;--tRole:#CDAD5C;--tMeta:#98967D;--tRule:#5C4538}
-:root[data-palette="parchment"][data-theme="dark"]{--bg:#1D1814;--surface:#2A231E;--ink:#DBDBC7;--soft:#CAC6A8;--meta:#98967D;--rule:#4A3A30;--accent:#A76531;--accentText:#D08A55;--tBg:#241E19}
+:root[data-palette="cobalt"]{--accent:#2F5BEA;--accentText:#1F44C4;--tRole:#8EA5FF}
+:root[data-palette="cobalt"][data-theme="dark"]{--accent:#5B7FFF;--accentText:#8EA5FF}
+:root[data-palette="basil"]{--accent:#2E8B57;--accentText:#1E6B41;--tRole:#6FD6A0}
+:root[data-palette="basil"][data-theme="dark"]{--accent:#3FBF7F;--accentText:#6FD6A0}
+:root[data-palette="beet"]{--accent:#C2185B;--accentText:#A3134C;--tRole:#F48AB7}
+:root[data-palette="beet"][data-theme="dark"]{--accent:#EE5A98;--accentText:#F48AB7}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
@@ -232,7 +236,7 @@ a{color:inherit;text-decoration:none}
     var q=new URLSearchParams(location.search);
     var t=q.get('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.dataset.theme=t;
-    document.documentElement.dataset.palette=q.get('palette')||'parchment';
+    document.documentElement.dataset.palette=q.get('palette')||'cobalt';
   })();
 </script>
 </head>
@@ -512,7 +516,7 @@ function render() {
   const root = document.documentElement;
   document.getElementById('main').innerHTML = VARIANTS[v]();
   document.getElementById('pv-label').textContent = `${v} · ${VARIANTS[v].label}`;
-  document.getElementById('pv-pal').textContent = `palette: ${root.dataset.palette}`;
+  document.getElementById('pv-pal').textContent = `accent: ${root.dataset.palette}`;
   const dark = root.dataset.theme === 'dark';
   const tb = document.getElementById('theme');
   tb.innerHTML = dark ? MOON : SUN;
@@ -542,7 +546,7 @@ function cycle(d) {
 document.getElementById('pv-prev').onclick = () => cycle(-1);
 document.getElementById('pv-next').onclick = () => cycle(1);
 document.getElementById('pv-pal').onclick = () => {
-  const r = document.documentElement; r.dataset.palette = {parchment:'spec',spec:'mockup',mockup:'parchment'}[r.dataset.palette] || 'parchment';
+  const r = document.documentElement; r.dataset.palette = {cobalt:'basil',basil:'beet',beet:'spec',spec:'cobalt'}[r.dataset.palette] || 'cobalt';
   setParam('palette', r.dataset.palette); render();
 };
 document.getElementById('theme').onclick = () => {
