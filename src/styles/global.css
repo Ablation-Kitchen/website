@@ -1,2 +1,106 @@
 @import 'tailwindcss';
-/* Colour tokens, fonts and theming land in #26. */
+
+/* Self-hosted fonts (CSP: font-src 'self'), latin subsets, font-display: swap. */
+@import '@fontsource/instrument-serif/latin-400.css';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
+@import '@fontsource/inter-tight/latin-300.css';
+@import '@fontsource/inter-tight/latin-400.css';
+@import '@fontsource/inter-tight/latin-500.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+
+/* `dark:` is only an escape hatch: the colour tokens swap on their own. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/*
+ * Light values. A plain (non-inline) @theme block, so utilities such as
+ * bg-bg / text-ink compile to var(--color-*) and the Dark overrides apply.
+ * `static` emits every token, so var(--color-*) works in any stylesheet.
+ * `accent` is for graphics only (3.26:1 on the Light bg): use `accent-text` for text.
+ */
+@theme static {
+  --color-bg: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-ink: #111111;
+  --color-soft: #3b3b38;
+  --color-meta: #6a6a66;
+  --color-rule: #e4e2dc;
+  --color-accent: #69908c;
+  --color-accent-text: #4a6562;
+
+  /* Cubist planes, same in both themes. */
+  --color-ochre: #c9a66b;
+  --color-slate: #5b7c99;
+
+  /* Trace panel: always dark. */
+  --color-trace-bg: #0e0e0d;
+  --color-trace-text: #e9e6df;
+  --color-trace-role: #85a6a3;
+  --color-trace-meta: #8f9196;
+
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-kitchen: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #0c0c0b;
+  --color-surface: #141413;
+  --color-ink: #edebe6;
+  --color-soft: #c7c4bc;
+  --color-meta: #9a9a95;
+  --color-rule: #262624;
+  --color-accent: #69908c;
+  --color-accent-text: #85a6a3;
+}
+
+/* No JS (or before the head script runs): follow the OS. Keep in sync with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-bg: #0c0c0b;
+    --color-surface: #141413;
+    --color-ink: #edebe6;
+    --color-soft: #c7c4bc;
+    --color-meta: #9a9a95;
+    --color-rule: #262624;
+    --color-accent: #69908c;
+    --color-accent-text: #85a6a3;
+  }
+}
+
+/* 0.5s cross-fade on toggle only: the class lives on <html> for ~500ms. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-fading,
+  .theme-fading *,
+  .theme-fading *::before,
+  .theme-fading *::after {
+    transition:
+      background-color 0.5s var(--ease-kitchen),
+      border-color 0.5s var(--ease-kitchen),
+      color 0.5s var(--ease-kitchen),
+      fill 0.5s var(--ease-kitchen),
+      stroke 0.5s var(--ease-kitchen) !important;
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-soft);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -7,5 +7,6 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   build: { inlineStylesheets: 'never' },
-  vite: { plugins: [tailwindcss()] },
+  // assetsInlineLimit 0: keep bundled scripts external, so the CSP (#25) only hashes the theme head script.
+  vite: { plugins: [tailwindcss()], build: { assetsInlineLimit: 0 } },
 });
