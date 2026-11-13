@@ -40,6 +40,8 @@
   --accent:#F2B5D0;--accentText:#F4BFD7;
 }
 
+:root[data-palette="olive"]{--bg:#F1F0E6;--surface:#FAF9F2;--ink:#1C1F1B;--soft:#2D2F23;--meta:#595E46;--rule:#D8D8C4;--accent:#777854;--accentText:#3D5345;--planeA:#777854;--planeB:#526A58;--tBg:#1C1F1B;--tInk:#E6E5D3;--tRole:#BEBF97;--tMeta:#929F99;--tRule:#404531}
+:root[data-palette="olive"][data-theme="dark"]{--bg:#1C1F1B;--surface:#2D2F23;--ink:#E6E5D3;--soft:#BEBF97;--meta:#929F99;--rule:#404531;--accent:#BEBF97;--accentText:#BEBF97;--tBg:#232720}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
@@ -211,6 +213,7 @@ a{color:inherit;text-decoration:none}
 .C-band{margin:0 calc(50% - 50vw);padding:88px calc(50vw - 50%);background:var(--tBg);color:var(--tInk)}
 .C-band .wrap2{max-width:1100px;margin:0 auto}
 .C-band .eyebrow{color:var(--tMeta)}
+.C-band .slot{color:var(--tRole);background:color-mix(in srgb,var(--tRole) 14%,transparent)}
 .C-band h2{margin:0 0 32px;font-family:var(--serif);font-weight:400;font-size:52px;line-height:1;color:var(--tInk)}
 .C-receipt{position:relative;width:300px;margin:8px 0 0;padding:22px 22px 26px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;--rot:-2deg;transform:rotate(-2deg);box-shadow:0 24px 50px -30px rgba(0,0,0,.45);font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--soft)}
 .C-receipt .ln{display:flex;gap:6px}.C-receipt .ln span:nth-child(2){flex:1;border-bottom:1px dotted var(--rule);transform:translateY(-5px)}
@@ -229,7 +232,7 @@ a{color:inherit;text-decoration:none}
     var q=new URLSearchParams(location.search);
     var t=q.get('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.dataset.theme=t;
-    document.documentElement.dataset.palette=q.get('palette')||'spec';
+    document.documentElement.dataset.palette=q.get('palette')||'olive';
   })();
 </script>
 </head>
@@ -539,7 +542,7 @@ function cycle(d) {
 document.getElementById('pv-prev').onclick = () => cycle(-1);
 document.getElementById('pv-next').onclick = () => cycle(1);
 document.getElementById('pv-pal').onclick = () => {
-  const r = document.documentElement; r.dataset.palette = r.dataset.palette === 'spec' ? 'mockup' : 'spec';
+  const r = document.documentElement; r.dataset.palette = {olive:'spec',spec:'mockup',mockup:'olive'}[r.dataset.palette] || 'olive';
   setParam('palette', r.dataset.palette); render();
 };
 document.getElementById('theme').onclick = () => {
