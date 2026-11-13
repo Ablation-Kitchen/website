@@ -1,0 +1,43 @@
+{
+  "id": "2026-11-12-run-01",
+  "project": "the-brigade",
+  "recorded_at": "2026-11-12T10:15:00Z",
+  "title": "Summarise a vendor security questionnaire",
+  "brigade_version": "0.3.0",
+  "steps": [
+    {
+      "t": 0,
+      "role": "task",
+      "text": "Summarise the attached questionnaire."
+    },
+    {
+      "t": 1.2,
+      "role": "sous-chef",
+      "text": "Split into retrieval and drafting.",
+      "model": "opus-5.5",
+      "tokens": 420,
+      "latency_ms": 1180,
+      "cost_usd": 0.004
+    },
+    {
+      "t": 4.8,
+      "role": "station",
+      "station": "retrieval",
+      "text": "Found 12 relevant passages.",
+      "model": "haiku-5.5",
+      "tokens": 900,
+      "latency_ms": 3500,
+      "cost_usd": 0.001
+    },
+    {
+      "t": 9.5,
+      "role": "pass",
+      "text": "Summary approved."
+    }
+  ],
+  "eval": {
+    "verdict": "maybe",
+    "score": 0.92,
+    "note": "Covers every section."
+  }
+}

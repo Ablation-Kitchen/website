@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-12-run-01",
+  "project": "the-brigade",
+  "recorded_at": "2026-11-12T10:15:00Z",
+  "title": "Summarise a vendor security questionnaire",
+  "brigade_version": "0.3.0",
+  "steps": [
+    {
+      "t": 0,
+      "role": "task",
+      "text": "Summarise the attached questionnaire."
+    }
+  ],
+  "eval": {
+    "verdict": "pass",
+    "score": 0.92,
+    "note": "Covers every section."
+  }
+}
