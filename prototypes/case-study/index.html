@@ -40,8 +40,8 @@
   --accent:#F2B5D0;--accentText:#F4BFD7;
 }
 
-:root[data-palette="olive"]{--bg:#F1F0E6;--surface:#FAF9F2;--ink:#1C1F1B;--soft:#2D2F23;--meta:#595E46;--rule:#D8D8C4;--accent:#777854;--accentText:#3D5345;--planeA:#777854;--planeB:#526A58;--tBg:#1C1F1B;--tInk:#E6E5D3;--tRole:#BEBF97;--tMeta:#929F99;--tRule:#404531}
-:root[data-palette="olive"][data-theme="dark"]{--bg:#1C1F1B;--surface:#2D2F23;--ink:#E6E5D3;--soft:#BEBF97;--meta:#929F99;--rule:#404531;--accent:#BEBF97;--accentText:#BEBF97;--tBg:#232720}
+:root[data-palette="parchment"]{--bg:#DBDBC7;--surface:#E9E8DA;--ink:#231C17;--soft:#5C4538;--meta:#5A5B3E;--rule:#CAC6A8;--accent:#A76531;--accentText:#7E4719;--planeA:#CDAD5C;--planeB:#747E91;--tBg:#1D1814;--tInk:#DBDBC7;--tRole:#CDAD5C;--tMeta:#98967D;--tRule:#5C4538}
+:root[data-palette="parchment"][data-theme="dark"]{--bg:#1D1814;--surface:#2A231E;--ink:#DBDBC7;--soft:#CAC6A8;--meta:#98967D;--rule:#4A3A30;--accent:#A76531;--accentText:#D08A55;--tBg:#241E19}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
@@ -232,7 +232,7 @@ a{color:inherit;text-decoration:none}
     var q=new URLSearchParams(location.search);
     var t=q.get('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.dataset.theme=t;
-    document.documentElement.dataset.palette=q.get('palette')||'olive';
+    document.documentElement.dataset.palette=q.get('palette')||'parchment';
   })();
 </script>
 </head>
@@ -542,7 +542,7 @@ function cycle(d) {
 document.getElementById('pv-prev').onclick = () => cycle(-1);
 document.getElementById('pv-next').onclick = () => cycle(1);
 document.getElementById('pv-pal').onclick = () => {
-  const r = document.documentElement; r.dataset.palette = {olive:'spec',spec:'mockup',mockup:'olive'}[r.dataset.palette] || 'olive';
+  const r = document.documentElement; r.dataset.palette = {parchment:'spec',spec:'mockup',mockup:'parchment'}[r.dataset.palette] || 'parchment';
   setParam('palette', r.dataset.palette); render();
 };
 document.getElementById('theme').onclick = () => {
