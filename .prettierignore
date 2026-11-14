@@ -9,3 +9,5 @@ src/content/**/*.md
 src/content/**/*.mdx
 test-results/
 playwright-report/
+.lighthouseci/
+.vale/styles/Glossary/

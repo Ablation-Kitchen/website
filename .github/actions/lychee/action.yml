@@ -1,0 +1,21 @@
+name: Install lychee
+description: The lychee link checker, a pinned release checked against its SHA-256.
+
+runs:
+  using: composite
+  steps:
+    - name: Install lychee
+      shell: bash
+      env:
+        VERSION: 0.24.2
+        SHA256: 1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
+      run: |
+        set -euo pipefail
+        dir="$RUNNER_TEMP/lychee"
+        name="lychee-x86_64-unknown-linux-gnu"
+        mkdir -p "$dir"
+        curl -sSfL -o "$dir/lychee.tar.gz" \
+          "https://github.com/lycheeverse/lychee/releases/download/lychee-v$VERSION/$name.tar.gz"
+        echo "$SHA256  $dir/lychee.tar.gz" | sha256sum -c -
+        tar -xzf "$dir/lychee.tar.gz" -C "$dir" --strip-components=1 "$name/lychee"
+        echo "$dir" >> "$GITHUB_PATH"

@@ -8,3 +8,5 @@ dist/
 .claude/worktrees/
 test-results/
 playwright-report/
+.lighthouseci/
+.vale/styles/Glossary/

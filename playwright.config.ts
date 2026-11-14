@@ -1,6 +1,7 @@
 // Browser checks against the built site, served by `wrangler dev` so
 // dist/_headers (the CSP and the rest) applies exactly as in production.
-// Run `pnpm build` first. Files are `*.e2e.ts` so Vitest doesn't collect them.
+// Run `pnpm build` first. Files are `*.e2e.ts` so Vitest doesn't collect them:
+// `pnpm test:csp` and `pnpm test:a11y` each run one file, `pnpm test:e2e` all of them.
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 8788;
