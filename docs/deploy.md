@@ -72,7 +72,7 @@ Settings → Rules → Rulesets → New branch ruleset, target `main`, enforceme
 - Restrict deletions
 - Require linear history
 - Require a pull request before merging (0 approvals is fine for a single maintainer)
-- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`, `Accessibility`, `Lighthouse CI`, `Internal links`. Not `Vale (warn only)`, which never blocks.
+- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`, `Accessibility`, `Lighthouse CI`, `Internal links`, `Draft preview`. Not `Vale (warn only)`, which never blocks.
 - Block force pushes
 - No bypass list, or only for emergencies
 
