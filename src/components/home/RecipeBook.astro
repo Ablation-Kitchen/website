@@ -2,28 +2,17 @@
 /**
  * "From the recipe book" on the homepage: two featured posts as cards
  * (spec: IA → Homepage section order). Rendered only once a non-draft post
- * exists and the /writing pages are built (see `homepageSections`, #44).
+ * exists (see `homepageSections`, #6, #44).
  */
 import type { CollectionEntry } from 'astro:content';
+import { postPath } from '../../lib/urls';
+import { isoDay, KIND_LABEL, postDate } from '../../lib/writing';
 
 interface Props {
   posts: CollectionEntry<'writing'>[];
 }
 
 const { posts } = Astro.props;
-
-const KIND: Record<CollectionEntry<'writing'>['data']['kind'], string> = {
-  essay: 'Essay',
-  'design-doc': 'Design doc',
-  playbook: 'Playbook',
-};
-const date = (d: Date) =>
-  d.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
 ---
 
 <section id="recipe-book" aria-labelledby="recipe-book-h" class="wrap py-16">
@@ -39,12 +28,12 @@ const date = (d: Date) =>
     </div>
     {posts.map((p) => (
       <a
-        href={`/writing/${p.id}`}
+        href={postPath(p.id)}
         class="card flex flex-col justify-between gap-10 rounded-[14px] border border-rule bg-surface p-8"
       >
         <span class="font-mono text-label-sm text-meta">
-          {KIND[p.data.kind]} ·{' '}
-          <time datetime={p.data.date.toISOString().slice(0, 10)}>{date(p.data.date)}</time>
+          {KIND_LABEL[p.data.kind]} ·{' '}
+          <time datetime={isoDay(p.data.date)}>{postDate(p.data.date)}</time>
         </span>
         <span class="font-serif text-[28px] leading-[1.15] text-ink">{p.data.title}</span>
       </a>

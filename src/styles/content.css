@@ -119,6 +119,49 @@
   margin: 1.4em 0;
 }
 
+/* ---------- posts (#44): one reading column ---------- */
+
+/* Links in the accent text colour; the underline stays the accent. */
+.post {
+  --prose-link: var(--color-accent-text);
+}
+
+.post h2 {
+  margin: 2.2em 0 0.6em;
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* hr: a hairline section break, so the heading that follows sits on its own margin. */
+.post hr {
+  margin: 3.5em 0;
+  border: 0;
+  border-top: 1px solid var(--prose-rule, var(--color-rule));
+}
+
+.post hr + :is(h2, h3) {
+  margin-top: 0;
+}
+
+/* A blockquote (the TL;DR) reads as a callout, not a pull quote. */
+.post blockquote {
+  margin: 1.6em 0 2em;
+  padding: 18px 22px;
+  border: 1px solid var(--prose-rule, var(--color-rule));
+  border-left: 3px solid var(--prose-accent, var(--color-accent));
+  border-radius: 6px 12px 12px 6px;
+  background: var(--color-surface);
+  color: var(--prose-text, var(--color-soft));
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+.post blockquote > :last-child {
+  margin-bottom: 0;
+}
+
 /* ---------- callouts ---------- */
 
 .callout {

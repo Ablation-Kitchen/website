@@ -10,15 +10,8 @@ import { getHasWriting } from '../../lib/visibility';
 import ThemeToggle from '../theme/ThemeToggle.astro';
 import ForkToque from './ForkToque.astro';
 
-/**
- * TODO(#44): set to true once /writing and the post pages are built. The
- * Writing link follows `getHasWriting()` (≥1 non-draft post, #6), but until
- * #44 lands it would point at a 404, so it stays hidden.
- */
-const WRITING_PAGES_BUILT: boolean = false;
-
-const showWriting = WRITING_PAGES_BUILT && (await getHasWriting());
-const items = navItems(showWriting);
+// The Writing link shows once ≥1 non-draft post exists (#6), never by hand.
+const items = navItems(await getHasWriting());
 const path = Astro.url.pathname;
 const atHome = isCurrent(path, '/');
 ---

@@ -2,8 +2,7 @@
 /**
  * The Pass: the homepage (#33). Sections and their order come from
  * `homepageSections()`; each conditional section reads its content through
- * the visibility helpers (#6), so nothing here is toggled by hand except the
- * #44 gate below.
+ * the visibility helpers (#6), so nothing here is toggled by hand.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
@@ -16,13 +15,6 @@ import { dishesHref, featuredPosts, homepageSections } from '../lib/homepage';
 import { linkedPreprintHref } from '../lib/research';
 import { getCourses, getLab, getPosts, getRail, getResearch } from '../lib/visibility';
 
-/**
- * TODO(#44): set to true once /writing and the post pages are built (same
- * gate as WRITING_PAGES_BUILT in Header.astro). Until then a recipe-book
- * card would link to a 404, so the section stays hidden.
- */
-const WRITING_PAGES_BUILT: boolean = false;
-
 const [rail, courses, posts, lab, research] = await Promise.all([
   getRail(),
   getCourses(),
@@ -31,12 +23,7 @@ const [rail, courses, posts, lab, research] = await Promise.all([
   getResearch(),
 ]);
 
-const sections = homepageSections({
-  rail,
-  courses,
-  posts,
-  writingPagesBuilt: WRITING_PAGES_BUILT,
-});
+const sections = homepageSections({ rail, courses, posts });
 
 const preprintHref = linkedPreprintHref(research);
 ---

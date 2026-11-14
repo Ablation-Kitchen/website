@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dishesHref, featuredPosts, homepageSections } from '../src/lib/homepage';
 
-const empty = { rail: [], courses: [], posts: [], writingPagesBuilt: true };
+const empty = { rail: [], courses: [], posts: [] };
 
 describe('homepageSections', () => {
   it('with no traces and no posts, goes hero → tasting menu → Lab → Kitchen rules', () => {
@@ -14,9 +14,14 @@ describe('homepageSections', () => {
   });
 
   it('shows every section, in spec order, once there is content for each', () => {
-    expect(
-      homepageSections({ rail: [{}], courses: [{}], posts: [{}], writingPagesBuilt: true }),
-    ).toEqual(['hero', 'whats-cooking', 'tasting-menu', 'recipe-book', 'lab', 'kitchen-rules']);
+    expect(homepageSections({ rail: [{}], courses: [{}], posts: [{}] })).toEqual([
+      'hero',
+      'whats-cooking',
+      'tasting-menu',
+      'recipe-book',
+      'lab',
+      'kitchen-rules',
+    ]);
   });
 
   it('shows What’s cooking only once a project has a trace', () => {
@@ -24,14 +29,9 @@ describe('homepageSections', () => {
     expect(homepageSections({ ...empty, rail: [{}] })).toContain('whats-cooking');
   });
 
-  it('hides the recipe book until a post exists', () => {
+  it('shows the recipe book once a post exists, and only then (#44)', () => {
     expect(homepageSections(empty)).not.toContain('recipe-book');
-  });
-
-  it('hides the recipe book while the /writing pages are not built (#44), even with a post', () => {
-    expect(homepageSections({ ...empty, posts: [{}], writingPagesBuilt: false })).not.toContain(
-      'recipe-book',
-    );
+    expect(homepageSections({ ...empty, posts: [{}] })).toContain('recipe-book');
   });
 
   it('never renders an empty tasting menu', () => {

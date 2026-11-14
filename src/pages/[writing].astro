@@ -1,0 +1,137 @@
+---
+/**
+ * /writing, the recipe book (#44, in the "Results first" language of #9/#12).
+ *
+ * A hero (eyebrow, H1, lede) with a tilted "recipe card" ticket listing the
+ * latest posts, then one heading-left row per non-draft post: date and kind
+ * on the left; title, description and tags on the right; an arrow that
+ * slides on hover. The whole row is the link's hit area.
+ *
+ * A dynamic route only so that it can build nothing: `/writing` exists once
+ * ≥1 non-draft post does (#6), like `/rss.xml`. With `build.format: 'file'`
+ * it is `writing.html`, otherwise `writing/index.html`.
+ */
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChaosTicket from '../components/art/ChaosTicket.astro';
+import { getPosts } from '../lib/visibility';
+import { postPath } from '../lib/urls';
+import { isoDay, KIND_LABEL, postDate, writingIndexPaths } from '../lib/writing';
+
+export const getStaticPaths = (async () =>
+  writingIndexPaths(await getCollection('writing'))) satisfies GetStaticPaths;
+
+const posts = await getPosts();
+
+/** The ticket lists the newest few, each by its short title (before any colon). */
+const ticketItems = posts.slice(0, 4).map((p) => ({
+  label: p.data.title.split(':')[0]!.trim(),
+  value: postDate(p.data.date).replace(/ \d{4}$/, ''),
+}));
+---
+
+<BaseLayout
+  title="From the recipe book"
+  description="Essays, design docs and playbooks by Dalmo Veras: how the dishes get made, written down so anyone can cook them."
+>
+  <div class="wrap">
+    <header class="grid grid-cols-1 items-start gap-10 pt-18 pb-14 min-[900px]:grid-cols-[minmax(0,1.4fr)_minmax(300px,1fr)] min-[900px]:gap-16 min-[900px]:pt-26 min-[900px]:pb-20">
+      <div>
+        <p class="rise mb-3.5 font-mono text-label text-meta">Recipes</p>
+        <h1 class="rise rise-1 text-[clamp(44px,5.8vw,80px)] leading-none tracking-[-0.025em]">
+          From the recipe book
+        </h1>
+        <p class="rise rise-2 mt-6 max-w-150 text-lede font-light">
+          Essays, design docs and playbooks: how the dishes get made, written down so anyone can
+          cook them.
+        </p>
+      </div>
+      <div class="flex justify-center pt-2">
+        <ChaosTicket
+          header={['recipe card', `${posts.length} on file`]}
+          items={ticketItems}
+          footer="bon appétit →"
+          width={280}
+          rotate={3}
+        />
+      </div>
+    </header>
+
+    <ol class="mb-24 border-b border-rule" aria-label="Posts, newest first">
+      {posts.map((p) => (
+        <li class="post relative grid grid-cols-1 gap-3 border-t border-rule py-12 min-[900px]:grid-cols-[300px_minmax(0,680px)] min-[900px]:gap-14 min-[900px]:py-16">
+          <p class="font-mono text-label text-meta">
+            <time datetime={isoDay(p.data.date)}>{postDate(p.data.date)}</time> ·{' '}
+            {KIND_LABEL[p.data.kind]}
+          </p>
+          <div>
+            <h2 class="post-title font-serif text-ink">
+              <a href={postPath(p.id)} class="post-link">
+                {p.data.title}
+                <span class="arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </h2>
+            <p class="mt-4 text-body">{p.data.description}</p>
+            {p.data.tags.length > 0 && (
+              <ul aria-label="Tags" class="mt-5 flex flex-wrap gap-2">
+                {p.data.tags.map((t) => (
+                  <li class="rounded-full border border-rule px-3 py-1 font-mono text-label-sm text-meta">
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</BaseLayout>
+
+<style>
+  .post-title {
+    font-size: clamp(32px, 1.5rem + 1.2vw, 40px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+
+  /* The title link covers the whole row. */
+  .post-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .post-link:focus-visible {
+    outline: none;
+  }
+
+  .post:has(.post-link:focus-visible) {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 4px;
+  }
+
+  .arrow {
+    display: inline-block;
+    color: var(--color-meta);
+  }
+
+  .post:hover .arrow {
+    color: var(--color-accent-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arrow {
+      transition:
+        translate 0.35s var(--ease-kitchen),
+        color 0.35s;
+    }
+
+    .post:hover .arrow {
+      translate: 6px 0;
+    }
+  }
+</style>
