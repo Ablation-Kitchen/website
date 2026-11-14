@@ -1,5 +1,5 @@
 // Runs after `lhci autorun` (#28). LHCI matches its per-page assertions on the
-// URL a page ends up at, so a listed path that redirects (e.g. /about → /about/)
+// URL a page ends up at, so a listed path that redirects (e.g. /about/ → /about)
 // would match no assertions and pass unchecked. This fails if any run ended on
 // a different URL than it asked for, or if a listed page has no runs.
 import { readdirSync, readFileSync } from 'node:fs';

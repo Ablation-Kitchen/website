@@ -19,7 +19,10 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   // 'never': no inline <style>, so the CSP's style-src stays 'self' (#25).
-  build: { inlineStylesheets: 'never' },
+  // format 'file': /about builds to about.html, which Workers static assets serve at
+  // /about with no redirect. The default 'directory' writes about/index.html, which
+  // gets a 307 to /about/ and breaks trailingSlash 'never' (canonical ≠ served URL).
+  build: { inlineStylesheets: 'never', format: 'file' },
   // The remark pipeline (not Sätteri): build-time Mermaid and the case-study
   // sections are remark plugins, and the later launch stack (remark-math,
   // rehype-citation, #11) is too. MDX inherits these plugins (#31).

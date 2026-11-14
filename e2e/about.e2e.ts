@@ -39,7 +39,7 @@ test('/about: CV and email CTAs, the privacy note and the analytics hooks', asyn
 test('/about: the footer privacy link lands on the note', async ({ page }) => {
   await page.goto('/about');
   await page.locator('footer').getByRole('link', { name: 'Privacy' }).click();
-  await expect(page).toHaveURL(/\/about\/?#privacy$/);
+  await expect(page).toHaveURL(/\/about#privacy$/);
   await expect(page.locator('#privacy')).toBeInViewport();
 });
 

@@ -9,9 +9,6 @@
 //   /work                     #32
 //   /work/<one case study>    #31 (use a public case study, e.g. /work/agent-platform)
 //   /research                 #34
-//   /about                    built (#35), but `wrangler dev` redirects it to /about/
-//                             (trailingSlash 'never' + directory output), which both
-//                             gates reject. Add it once that redirect is fixed.
 // Later tickets also add page states to the axe suite: the ⌘K dialog (#38) and
 // the trace panel (#37).
 import { existsSync } from 'node:fs';
@@ -35,6 +32,7 @@ export type AuditedPage = {
 
 export const PAGES: readonly AuditedPage[] = [
   { name: 'home', path: '/', file: 'index.html' },
+  { name: 'about', path: '/about', file: 'about.html' },
   { name: '404', path: '/quality-gate-missing-page', file: '404.html', status: 404 },
 ];
 
