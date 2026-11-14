@@ -8,6 +8,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { TRUSTED_TYPES_POLICY } from '../src/lib/security-headers.ts';
 
 const DIST = new URL('../dist/', import.meta.url).pathname;
+/** An unknown path: served dist/404.html with a 404 status (`not_found_handling`, #36). */
+const MISSING_PAGE = '/csp-check-missing-page';
 
 /** URL path for each built HTML file (`a/index.html` → `/a/`, `404.html` → a missing path). */
 function builtPages(): string[] {
@@ -18,7 +20,7 @@ function builtPages(): string[] {
   return files
     .map((f) => relative(DIST, join(DIST, f)).split(sep).join('/'))
     .map((f) => {
-      if (f === '404.html') return '/csp-check-missing-page';
+      if (f === '404.html') return MISSING_PAGE;
       if (f === 'index.html') return '/';
       if (f.endsWith('/index.html')) return `/${f.slice(0, -'index.html'.length)}`;
       return `/${f.slice(0, -'.html'.length)}`;
@@ -36,6 +38,9 @@ async function watch(page: Page) {
   // (Other warnings vary by browser build, e.g. "Unrecognized feature" for a
   // Permissions-Policy name this Chromium doesn't ship.)
   page.on('console', (m) => {
+    // The 404 page's own document status is logged as an error; that one is expected.
+    const notFoundDoc = /status of 404/.test(m.text()) && m.location().url.endsWith(MISSING_PAGE);
+    if (notFoundDoc) return;
     const csp = /content security policy|trusted ?type/i.test(m.text());
     if (m.type() === 'error' || (m.type() === 'warning' && csp)) {
       problems.push(`console ${m.type()}: ${m.text()}`);
@@ -67,6 +72,7 @@ for (const path of builtPages()) {
     const w = await watch(page);
     const res = await page.goto(path, { waitUntil: 'load' });
     expect(res, 'no response').not.toBeNull();
+    expect(res!.status()).toBe(path === MISSING_PAGE ? 404 : 200);
     const csp = res!.headers()['content-security-policy'] ?? '';
     expect(csp, 'CSP header missing').toContain("require-trusted-types-for 'script'");
     expect(res!.headers()['cross-origin-embedder-policy']).toBe('require-corp');
