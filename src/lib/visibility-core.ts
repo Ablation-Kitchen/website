@@ -162,6 +162,23 @@ export function showWhatsCooking(rail: readonly unknown[]): boolean {
   return rail.length > 0;
 }
 
+/**
+ * Non-draft research entries for /research, /menu.txt and the homepage:
+ * dated entries newest first, then spans without a date (e.g. the PhD);
+ * ties by id, for a stable order.
+ */
+export function visibleResearch<E extends Entry<Pick<Research, 'draft' | 'date'>>>(
+  entries: readonly E[],
+): E[] {
+  return entries
+    .filter(isPublished)
+    .sort(
+      (a, b) =>
+        (b.data.date?.getTime() ?? -Infinity) - (a.data.date?.getTime() ?? -Infinity) ||
+        a.id.localeCompare(b.id),
+    );
+}
+
 export interface LabTag {
   kind: Research['kind'];
   label: string;

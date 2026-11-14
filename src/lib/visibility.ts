@@ -14,6 +14,7 @@ import {
   statusSegments,
   visibleCourses,
   visiblePosts,
+  visibleResearch,
 } from './visibility-core';
 
 export * from './visibility-core';
@@ -59,8 +60,7 @@ export async function getShowWhatsCooking() {
 
 /** Non-draft research entries in date order (newest first; spans without a date last). */
 export async function getResearch() {
-  const entries = await getCollection('research', (e) => !e.data.draft);
-  return entries.sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
+  return visibleResearch(await getCollection('research'));
 }
 
 export async function getLab() {

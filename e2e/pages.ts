@@ -7,7 +7,6 @@
 //
 // Still to come, from the spec and #28:
 //   /work                     #32
-//   /research                 #34
 // Later tickets also add page states to the axe suite: the ⌘K dialog (#38) and
 // the trace panel (#37).
 import { existsSync } from 'node:fs';
@@ -32,6 +31,7 @@ export type AuditedPage = {
 export const PAGES: readonly AuditedPage[] = [
   { name: 'home', path: '/', file: 'index.html' },
   { name: 'about', path: '/about', file: 'about.html' },
+  { name: 'research', path: '/research', file: 'research.html' },
   // Still a draft (waits on #8): audited only in the Draft preview CI job, which
   // builds with PREVIEW_DRAFTS=1. Drop `pending` once it's published.
   {

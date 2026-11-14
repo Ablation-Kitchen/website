@@ -8,6 +8,7 @@
 import type { Research, Work, Writing } from './schemas';
 import type { Course, Entry } from './visibility-core';
 import { availability, person, profiles } from '../site.config';
+import { RESEARCH_KIND_LABELS } from './research';
 import { ABOUT_PATH, CV_PATH, RESEARCH_PATH, absoluteUrl, coursePath, postPath } from './urls';
 
 export interface Person {
@@ -41,14 +42,6 @@ export interface MenuInput {
   /** Visible posts, newest first (`getPosts()`). */
   posts: readonly Entry<Pick<Writing, 'title' | 'description' | 'date'>>[];
 }
-
-const RESEARCH_KIND_LABELS: Record<Research['kind'], string> = {
-  phd: 'PhD',
-  paper: 'Paper',
-  preprint: 'Preprint',
-  talk: 'Talk',
-  'open-source': 'Open source',
-};
 
 /** At most this many metrics follow a course's summary (#17). */
 export const MAX_COURSE_METRICS = 2;
