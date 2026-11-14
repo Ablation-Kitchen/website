@@ -20,7 +20,5 @@ exclude = [
   # a later ticket builds. The ticket that builds one deletes its line here.
   '/dist/work(/|#|$)',      # #32 (/work) and #31 (case studies)
   '/dist/research(/|#|$)',  # #34
-  '/dist/about(/|#|$)',     # #35
-  '/dist/cv\.pdf$',         # #35
   '/dist/writing(/|#|$)',   # #44
 ]
