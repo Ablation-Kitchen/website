@@ -1,0 +1,265 @@
+/*
+ * Long-form content from MDX (#31): prose, callouts and build-time Mermaid
+ * diagrams. Colours come from the tokens in global.css through the custom
+ * properties below, so a container (e.g. the always-dark brigade band) can
+ * re-colour its content by setting them. Each falls back to the page tokens.
+ *
+ *   --prose-text, --prose-strong, --prose-meta, --prose-rule, --prose-link, --prose-accent
+ *   --diagram-ink, --diagram-meta, --diagram-fill, --diagram-accent,
+ *   --diagram-panel, --diagram-panel-rule
+ */
+
+/* ---------- prose ---------- */
+
+.prose {
+  color: var(--prose-text, var(--color-soft));
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose :is(p, ul, ol) {
+  margin: 0 0 1.1em;
+}
+
+.prose :is(ul, ol) {
+  padding-left: 1.2em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li {
+  margin: 0.3em 0;
+}
+
+.prose li::marker {
+  color: var(--prose-meta, var(--color-meta));
+}
+
+.prose strong {
+  color: var(--prose-strong, var(--color-ink));
+  font-weight: 500;
+}
+
+.prose a {
+  color: var(--prose-link, var(--color-ink));
+  text-decoration: underline;
+  text-decoration-color: var(--prose-accent, var(--color-accent));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.prose h3 {
+  margin: 1.6em 0 0.5em;
+  color: var(--prose-strong, var(--color-ink));
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.prose :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--prose-rule, var(--color-rule));
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+.prose blockquote {
+  margin: 1.4em 0;
+  padding-left: 20px;
+  border-left: 2px solid var(--prose-accent, var(--color-accent));
+  color: var(--prose-strong, var(--color-ink));
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+/* Tables scroll sideways on their own instead of widening the page. */
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 8px 0 1.4em;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose th {
+  padding: 10px 16px 10px 0;
+  border-bottom: 1px solid var(--prose-rule, var(--color-rule));
+  color: var(--prose-meta, var(--color-meta));
+  font-family: var(--font-mono);
+  font-size: var(--text-label-sm);
+  font-weight: 400;
+  text-align: left;
+}
+
+.prose td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--prose-rule, var(--color-rule));
+  vertical-align: top;
+}
+
+.prose td:first-child {
+  color: var(--prose-strong, var(--color-ink));
+}
+
+.prose .expressive-code {
+  margin: 1.4em 0;
+}
+
+/* ---------- callouts ---------- */
+
+.callout {
+  margin: 1.4em 0;
+  padding: 16px 20px;
+  border: 1px solid var(--prose-rule, var(--color-rule));
+  border-left: 3px solid var(--prose-accent, var(--color-accent));
+  border-radius: 6px 12px 12px 6px;
+  break-inside: avoid;
+}
+
+.callout[data-kind='tip'] {
+  border-left-color: var(--color-ochre);
+}
+
+.callout[data-kind='caution'] {
+  border-left-color: var(--prose-strong, var(--color-ink));
+}
+
+.callout-title {
+  margin: 0 0 6px;
+  color: var(--prose-meta, var(--color-meta));
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Mermaid diagrams (inline SVG, cleaned of Mermaid's own styles) ---------- */
+
+.diagram {
+  margin: 1.6em 0;
+  padding: 28px;
+  white-space: normal;
+  background: var(--diagram-panel, var(--color-surface));
+  border: 1px solid var(--diagram-panel-rule, var(--color-rule));
+  border-radius: 14px;
+}
+
+.diagram-scroll {
+  overflow-x: auto;
+}
+
+.diagram-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  font-family: var(--font-sans);
+  font-size: 15px;
+}
+
+/* Phones: keep labels legible and let the diagram scroll sideways. */
+@media (width < 600px) {
+  .diagram {
+    padding: 20px 16px;
+  }
+
+  .diagram-svg {
+    min-width: 640px;
+  }
+}
+
+.diagram figcaption {
+  margin-top: 14px;
+  color: var(--diagram-meta, var(--color-meta));
+  font-family: var(--font-mono);
+  font-size: var(--text-label-sm);
+}
+
+.diagram-svg text {
+  fill: var(--diagram-ink, var(--color-ink));
+}
+
+.diagram-svg :is(.node, .edgeLabel) text {
+  text-anchor: middle;
+}
+
+/* Node shapes. */
+.diagram-svg .node :is(rect, circle, ellipse, polygon, path) {
+  fill: var(--diagram-fill, var(--color-bg));
+  stroke: var(--diagram-ink, var(--color-ink));
+  stroke-width: 1.2px;
+}
+
+/* `class <ids> accent` in the diagram source. */
+.diagram-svg .node.accent :is(rect, circle, ellipse, polygon, path) {
+  stroke: var(--diagram-accent, var(--color-accent));
+  stroke-width: 1.8px;
+}
+
+/* Label backgrounds Mermaid draws inside nodes and on edges. */
+.diagram-svg .node .label rect,
+.diagram-svg .label rect.background {
+  fill: none;
+  stroke: none;
+}
+
+.diagram-svg .edgeLabel rect.background {
+  fill: var(--diagram-panel, var(--color-surface));
+}
+
+.diagram-svg .edgeLabel text,
+.diagram-svg .cluster-label text {
+  fill: var(--diagram-meta, var(--color-meta));
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* Subgraphs: a dashed outline. */
+.diagram-svg .cluster rect {
+  fill: none;
+  stroke: var(--diagram-meta, var(--color-meta));
+  stroke-width: 1px;
+  stroke-dasharray: 4 5;
+}
+
+/* Edges and arrowheads. */
+.diagram-svg .flowchart-link {
+  fill: none;
+  stroke: var(--diagram-meta, var(--color-meta));
+  stroke-width: 1.2px;
+}
+
+.diagram-svg .edge-pattern-dotted {
+  stroke-dasharray: 2 4;
+}
+
+.diagram-svg .edge-pattern-dashed {
+  stroke-dasharray: 3 4;
+}
+
+.diagram-svg .edge-thickness-thick {
+  stroke-width: 2.5px;
+}
+
+.diagram-svg .marker,
+.diagram-svg .arrowMarkerPath {
+  fill: var(--diagram-meta, var(--color-meta));
+  stroke: var(--diagram-meta, var(--color-meta));
+  stroke-width: 1px;
+}

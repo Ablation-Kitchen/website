@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   courseNumeral,
+  coursePages,
   hasLinkedPreprint,
   hasWriting,
   labTags,
@@ -51,6 +52,35 @@ describe('courseNumeral', () => {
   it('rejects 0 and fractions', () => {
     expect(() => courseNumeral(0)).toThrow();
     expect(() => courseNumeral(1.5)).toThrow();
+  });
+});
+
+describe('coursePages', () => {
+  const entries = [course('b', 20), course('draft', 15, true), course('a', 10), course('c', 30)];
+
+  it('builds pages for visible courses only, each pointing at the next and wrapping', () => {
+    const pages = coursePages(entries, { includeDrafts: false });
+    expect(pages.map((p) => [p.course.id, p.course.numeral, p.next?.id, p.draft])).toEqual([
+      ['a', 'i.', 'b', false],
+      ['b', 'ii.', 'c', false],
+      ['c', 'iii.', 'a', false],
+    ]);
+  });
+
+  it('has no next course when there is only one', () => {
+    const [only] = coursePages([course('a', 1), course('x', 2, true)], { includeDrafts: false });
+    expect(only?.next).toBeUndefined();
+  });
+
+  it('in a preview, numbers drafts as if published and flags them', () => {
+    const pages = coursePages(entries, { includeDrafts: true });
+    expect(pages.map((p) => [p.course.id, p.course.numeral, p.draft])).toEqual([
+      ['a', 'i.', false],
+      ['draft', 'ii.', true],
+      ['b', 'iii.', false],
+      ['c', 'iv.', false],
+    ]);
+    expect(pages[1]?.course.data.draft).toBe(true);
   });
 });
 

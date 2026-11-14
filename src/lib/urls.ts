@@ -3,6 +3,9 @@
  * agree. Paths have no trailing slash (`trailingSlash: 'never'`).
  */
 
+/** The tasting menu: every case study (#32 builds the route). */
+export const WORK_PATH = '/work';
+
 /** A case study (course) page: `/work/<id>`. */
 export const coursePath = (id: string) => `/work/${id}`;
 

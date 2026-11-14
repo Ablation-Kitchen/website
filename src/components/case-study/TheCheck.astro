@@ -1,0 +1,30 @@
+---
+/**
+ * "The check": the case-study page's chaos element (#9). A receipt rotated
+ * −2° in the Service row that lists the metrics with dotted leaders and ends
+ * "yes, chef →". Decorative like every ChaosTicket: aria-hidden (the metrics
+ * are in the glance panel for everyone), floats when motion is allowed,
+ * hidden below 960px.
+ */
+import ChaosTicket from '../art/ChaosTicket.astro';
+
+export interface Check {
+  /** Course numeral, e.g. "i." */
+  numeral: string;
+  years: string;
+  metrics: { label: string; value: string }[];
+}
+
+type Props = Check;
+
+const { numeral, years, metrics } = Astro.props;
+---
+
+<ChaosTicket
+  rotate={-2}
+  width={300}
+  header={[`the check · ${numeral}`, years]}
+  items={metrics.map((m) => ({ label: m.label, value: m.value }))}
+  footer
+  class="mt-2 shrink-0"
+/>
