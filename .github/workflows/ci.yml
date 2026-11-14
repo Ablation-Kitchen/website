@@ -15,7 +15,8 @@ concurrency:
 
 # Every blocking job below is a required status check on main (docs/deploy.md):
 # Astro check, ESLint, Prettier, Build, CSP check, Accessibility, Lighthouse CI,
-# Internal links, Draft preview, Unit tests, E2E. Keep their names stable: branch protection matches on them.
+# Internal links, Draft preview, Unit tests, E2E, Trace secret scan, Trace fixture.
+# Keep their names stable: branch protection matches on them.
 # Vale only warns and is not required.
 jobs:
   check:
@@ -206,6 +207,41 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  # Blocking (#10, #37): the same secret check as `pnpm trace:sanitize`, over
+  # every committed trace and the rail test fixture. Any match fails.
+  traces:
+    name: Trace secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm trace:scan
+
+  # Blocking (#37): What's cooking renders only once a real trace exists (#6), so
+  # this builds with the rail test fixture (TRACE_FIXTURE=1, never deployed) and
+  # runs the CSP check, axe and the rail's own tests (replay, selection, axe on
+  # each panel state in both themes and reduced motion) against it.
+  rail:
+    name: Trace fixture
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          playwright: 'true'
+      - run: pnpm build
+        env:
+          TRACE_FIXTURE: '1'
+      - run: pnpm test:csp
+      - run: pnpm test:a11y
+      - run: pnpm test:rail
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: trace-fixture-test-results
+          path: test-results/
+          retention-days: 7
+
   # Warn only (#28): the GLOSSARY.md vocabulary on src/content/**. Findings are
   # annotations on the PR; the job never fails on them.
   prose:
@@ -286,7 +322,7 @@ jobs:
   deploy:
     name: Deploy production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [check, lint, format, unit, build, csp, a11y, lhci, links, e2e, drafts]
+    needs: [check, lint, format, unit, build, csp, a11y, lhci, links, e2e, drafts, traces, rail]
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

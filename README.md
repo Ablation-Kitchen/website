@@ -20,6 +20,8 @@ pnpm test    # unit tests (Vitest)
 
 `pnpm build` renders Mermaid diagrams in headless Chromium (`pnpm exec playwright install chromium` once). Draft case studies get pages in `pnpm dev`; to build them too, run `PREVIEW_DRAFTS=1 pnpm build` (never deployed).
 
+Traces: run `pnpm trace:sanitize <raw-run.json> --write` on a run export before committing it; `pnpm trace:scan` is the secret check CI runs. The homepage's ticket rail shows only once a real trace exists, so to see it before then, run `TRACE_FIXTURE=1 pnpm build` (test fixture, never deployed) and `pnpm test:rail`.
+
 Browser and quality gates run against `dist/`, so build first: `pnpm test:csp`, `pnpm test:a11y` (axe), `pnpm test:lhci` (Lighthouse CI), `pnpm test:links` (lychee) and `pnpm lint:prose` (Vale, warn only). Pages to audit are listed in `e2e/pages.ts`; see [`docs/deploy.md`](docs/deploy.md#quality-gates-28).
 
 CI and deploys run on GitHub Actions; see [`docs/deploy.md`](docs/deploy.md).

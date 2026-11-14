@@ -1,0 +1,63 @@
+{
+  "id": "trace-fixture-002",
+  "project": "the-brigade",
+  "recorded_at": "2026-11-12T10:15:00Z",
+  "title": "Fixture run: summarise a vendor security questionnaire",
+  "brigade_version": "fixture",
+  "steps": [
+    {
+      "t": 0,
+      "role": "task",
+      "text": "Summarise the attached 40-question vendor security questionnaire for the review board.",
+      "tokens": 0,
+      "cost_usd": 0
+    },
+    {
+      "t": 1.2,
+      "role": "sous-chef",
+      "text": "Split into retrieval, drafting and a fact check before the summary goes out.",
+      "model": "opus-5.5",
+      "tokens": 420,
+      "latency_ms": 1180,
+      "cost_usd": 0.004
+    },
+    {
+      "t": 4.8,
+      "role": "station",
+      "station": "retrieval",
+      "text": "Found 12 relevant passages across the policy pack and last year's answers.",
+      "model": "haiku-5.5",
+      "tokens": 900,
+      "latency_ms": 3500,
+      "cost_usd": 0.001
+    },
+    {
+      "t": 31.4,
+      "role": "station",
+      "station": "drafting",
+      "text": "Drafted a one-page summary: 34 answers carried over, 6 need a human owner.",
+      "model": "sonnet-5.5",
+      "tokens": 2310,
+      "latency_ms": 26300,
+      "cost_usd": 0.0185
+    },
+    {
+      "t": 38.9,
+      "role": "station",
+      "station": "fact-check",
+      "text": "Every claim traced to a cited passage; one stale date corrected.",
+      "model": "haiku-5.5",
+      "tokens": 640,
+      "latency_ms": 7400,
+      "cost_usd": 0.0008
+    },
+    {
+      "t": 72.05,
+      "role": "pass",
+      "text": "Summary approved for the review board.",
+      "tokens": 150,
+      "cost_usd": 0.0002
+    }
+  ],
+  "eval": { "verdict": "pass", "score": 0.92, "note": "Covers every section." }
+}

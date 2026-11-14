@@ -1,22 +1,30 @@
 ---
 /**
- * "What's cooking" on the homepage (spec: IA → Homepage section order; #6,
- * #10). Rendered only once a project has a committed real trace (see
- * `homepageSections`), so at launch it is absent.
- *
- * TODO(#37): replace the static list with the ticket rail (one pressable
- * card per project) and the trace replay of the selected project's latest
- * run. Until then this lists the rail projects as server-rendered text, so
- * the section is wired to the same data and never shows a placeholder.
+ * "What's cooking" on the homepage (spec: IA → Homepage section order;
+ * Interactions → Ticket rail, Trace replay; #6, #10, #37). Rendered only once
+ * a project has a committed real trace (see `homepageSections`), so at launch
+ * it is absent. One card per project with a trace; the replay shows the
+ * selected project's latest run.
  */
 import type { CollectionEntry } from 'astro:content';
 import type { RailProject } from '../../lib/visibility';
+import { STATUS_LABEL, toReplay } from '../../lib/trace-view';
+import TicketRail from '../trace/TicketRail.astro';
 
 interface Props {
   rail: RailProject<CollectionEntry<'projects'>, CollectionEntry<'traces'>>[];
 }
 
 const { rail } = Astro.props;
+const cards = rail.map(({ project }) => ({
+  project: project.id,
+  ticket: project.data.ticket,
+  name: project.data.name,
+  status: STATUS_LABEL[project.data.status],
+}));
+const replays = Object.fromEntries(
+  rail.map(({ project, latestTrace }) => [project.id, toReplay(latestTrace.data)]),
+);
 ---
 
 <section aria-labelledby="whats-cooking-h" class="border-y border-rule bg-surface">
@@ -28,16 +36,10 @@ const { rail } = Astro.props;
     >
       What's cooking
     </h2>
-    <ul class="mt-12 grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-4">
-      {rail.map(({ project, latestTrace }) => (
-        <li class="rounded-[14px] border border-rule bg-bg p-6">
-          <span class="font-mono text-label-sm text-meta">Ticket {project.data.ticket}</span>
-          <span class="mt-7 mb-2 block font-serif text-[30px] leading-[1.05] text-ink">
-            {project.data.name}
-          </span>
-          <span class="block text-ui text-meta">Latest run: {latestTrace.data.title}</span>
-        </li>
-      ))}
-    </ul>
+    <p class="mt-4 max-w-[620px] font-light">
+      Current projects, each with the latest recorded run of its brigade. Pick a ticket to replay
+      its run step by step.
+    </p>
+    <TicketRail cards={cards} replays={replays} />
   </div>
 </section>

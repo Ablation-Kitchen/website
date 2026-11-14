@@ -11,6 +11,10 @@ import {
   workSchema,
   writingSchema,
 } from './lib/schemas';
+import { railContentBases, traceFixtureEnabled } from './lib/trace-fixture';
+
+/** `TRACE_FIXTURE=1` swaps in the rail test fixture (test/fixtures/rail/, #37). Never deployed. */
+const railBases = railContentBases(traceFixtureEnabled());
 
 const work = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/work' }),
@@ -28,7 +32,7 @@ const research = defineCollection({
 });
 
 const projects = defineCollection({
-  loader: glob({ pattern: '*.json', base: './src/content/projects' }),
+  loader: glob({ pattern: '*.json', base: railBases.projects }),
   schema: projectSchema,
 });
 
@@ -36,7 +40,7 @@ const projects = defineCollection({
 const traces = defineCollection({
   loader: glob({
     pattern: '**/*.json',
-    base: './src/content/traces',
+    base: railBases.traces,
     generateId: ({ entry, data }) => traceEntryId(entry, data),
   }),
   schema: traceSchema,

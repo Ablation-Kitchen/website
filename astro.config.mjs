@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import expressiveCode, { ExpressiveCodeTheme } from 'astro-expressive-code';
 import securityHeaders from './integrations/security-headers.ts';
+import traceFixtureGuard from './integrations/trace-fixture-guard.ts';
 import {
   codeStyleOverrides,
   codeTheme,
@@ -45,6 +46,8 @@ export default defineConfig({
     // sitemap writes /sitemap-index.xml + /sitemap-0.xml; securityHeaders then writes the
     // security headers and the CSP's inline-script hashes into dist/_headers (#25).
     securityHeaders(),
+    // Fails a normal build that contains the trace test fixture (#37).
+    traceFixtureGuard(),
   ],
   // assetsInlineLimit 0: keep bundled scripts external, so the CSP (#25) only hashes the theme head script.
   vite: { plugins: [tailwindcss()], build: { assetsInlineLimit: 0 } },

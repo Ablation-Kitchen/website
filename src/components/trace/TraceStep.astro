@@ -1,0 +1,56 @@
+---
+/**
+ * One step of the trace replay. Rendered on the server for the selected
+ * project, and once empty inside a <template> that the client clones for the
+ * others (ticket-rail.ts fills the `data-slot` parts by textContent).
+ */
+import type { ReplayStep } from '../../lib/trace-view';
+
+interface Props {
+  step?: ReplayStep;
+}
+
+const { step } = Astro.props;
+const blank = !step;
+---
+
+<li class="step grid grid-cols-[6ch_minmax(0,1fr)] gap-x-4 py-2.5" data-step>
+  <span class="text-trace-meta tabular-nums" data-slot="stamp">
+    {step?.stamp}
+  </span>
+  <span class="min-w-0">
+    <span class="text-trace-role" data-slot="label">
+      {step?.label}
+    </span>
+    {(blank || step?.model) && (
+      <span class="text-trace-meta" data-slot="model">
+        {step?.model ? ` · ${step.model}` : ''}
+      </span>
+    )}
+    {(blank || step?.verdict) && (
+      <span
+        class="verdict ml-2 inline-block rounded-full border px-2 text-label-sm"
+        data-slot="verdict"
+        data-verdict={step?.verdict}
+      >
+        {step?.verdictLabel ?? ''}
+      </span>
+    )}
+    <span class="mt-0.5 block text-trace-text" data-slot="text">
+      {step?.text}
+    </span>
+  </span>
+</li>
+
+<style>
+  .verdict[data-verdict='pass'] {
+    border-color: var(--color-trace-role);
+    color: var(--color-trace-role);
+  }
+
+  .verdict[data-verdict='fail'] {
+    border-color: var(--color-trace-text);
+    background-color: var(--color-trace-text);
+    color: var(--color-trace-bg);
+  }
+</style>
