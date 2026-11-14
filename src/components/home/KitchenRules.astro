@@ -1,0 +1,63 @@
+---
+/**
+ * Kitchen rules on the homepage (spec: Content → About): the story, the PhD
+ * and education beside the five numbered kitchen rules (an `<ol>`), with the
+ * split bottle above the heading (decorative, hidden below 960px).
+ */
+import SplitBottle from '../art/SplitBottle.astro';
+
+const rules = [
+  { rule: 'Nothing leaves the pass untasted.', why: 'Every change has an eval.' },
+  { rule: 'Mise en place before fire.', why: 'Design the context before the prompt.' },
+  { rule: 'One station, one job.', why: 'Narrow agents beat general ones.' },
+  { rule: 'Clean as you go.', why: 'Observability is not a later task.' },
+  { rule: 'The chef cooks too.', why: 'Principals still write code.' },
+];
+
+const education = [
+  'PhD, Computer Science · University of Warwick · 2026–2028 (expected)',
+  'MSc, Cybersecurity · New York Institute of Technology · 2024',
+  'BSc, Information Systems · UNISINOS, Brazil · 2020',
+];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section id="kitchen-rules" aria-labelledby="kitchen-rules-h" class="border-t border-rule">
+  <div class="wrap grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-18 py-26 lg:py-34">
+    <div>
+      <p class="font-mono text-label text-meta">Meet the chef · about + CV</p>
+      <SplitBottle class="mt-2 mb-5" />
+      <h2 id="kitchen-rules-h" class="mt-3.5 text-h2">
+        Kitchen rules
+      </h2>
+      <p class="mt-6 max-w-[440px] font-light">
+        Ten years building software across Brazil, Cyprus and Canada: founding engineer, company
+        founder, applied-AI engineer at Fortinet, and now leading the AI team at iCounter. I like
+        the moment a research idea survives contact with production.
+      </p>
+      <p class="mt-5 max-w-[440px] font-light">
+        In parallel, I'm doing a PhD at the University of Warwick on topology-aware machine
+        learning, applied to threat detection in critical infrastructure.
+      </p>
+      <ul class="mt-7 flex flex-col gap-2 font-mono text-label text-meta" aria-label="Education">
+        {education.map((e) => (
+          <li>{e}</li>
+        ))}
+      </ul>
+    </div>
+    <ol class="self-start">
+      {rules.map((r, i) => (
+        <li class="grid grid-cols-[44px_minmax(0,1fr)] gap-3 border-b border-rule py-5.5">
+          <span class="pt-1.5 font-mono text-label-sm text-accent-text" aria-hidden="true">
+            {pad(i + 1)}
+          </span>
+          <span>
+            <span class="block font-serif text-[26px] leading-[1.2] text-ink">{r.rule}</span>
+            <span class="block text-[15px] text-meta">{r.why}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

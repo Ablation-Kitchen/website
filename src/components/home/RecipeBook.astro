@@ -1,0 +1,69 @@
+---
+/**
+ * "From the recipe book" on the homepage: two featured posts as cards
+ * (spec: IA → Homepage section order). Rendered only once a non-draft post
+ * exists and the /writing pages are built (see `homepageSections`, #44).
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'writing'>[];
+}
+
+const { posts } = Astro.props;
+
+const KIND: Record<CollectionEntry<'writing'>['data']['kind'], string> = {
+  essay: 'Essay',
+  'design-doc': 'Design doc',
+  playbook: 'Playbook',
+};
+const date = (d: Date) =>
+  d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+---
+
+<section id="recipe-book" aria-labelledby="recipe-book-h" class="wrap py-16">
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
+    <div class="pt-2 pr-2 pb-6">
+      <p class="font-mono text-label text-meta">Recipes · writing</p>
+      <h2
+        id="recipe-book-h"
+        class="mt-3.5 text-[clamp(40px,2.5rem+1vw,52px)] leading-none tracking-[-0.02em]"
+      >
+        From the recipe book
+      </h2>
+    </div>
+    {posts.map((p) => (
+      <a
+        href={`/writing/${p.id}`}
+        class="card flex flex-col justify-between gap-10 rounded-[14px] border border-rule bg-surface p-8"
+      >
+        <span class="font-mono text-label-sm text-meta">
+          {KIND[p.data.kind]} ·{' '}
+          <time datetime={p.data.date.toISOString().slice(0, 10)}>{date(p.data.date)}</time>
+        </span>
+        <span class="font-serif text-[28px] leading-[1.15] text-ink">{p.data.title}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .card {
+      transition:
+        translate 0.45s var(--ease-kitchen),
+        box-shadow 0.45s var(--ease-kitchen),
+        border-color 0.3s;
+    }
+
+    .card:hover {
+      translate: 0 -4px;
+      box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.35);
+    }
+  }
+</style>
