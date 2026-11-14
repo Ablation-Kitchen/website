@@ -13,6 +13,7 @@ import {
 } from './src/lib/markdown/code-theme.ts';
 import remarkCaseStudy from './src/lib/markdown/remark-case-study.ts';
 import remarkMermaid from './src/lib/markdown/remark-mermaid.ts';
+import remarkPostTitle from './src/lib/markdown/remark-post-title.ts';
 
 export default defineConfig({
   site: 'https://ablation.kitchen',
@@ -25,8 +26,11 @@ export default defineConfig({
   build: { inlineStylesheets: 'never', format: 'file' },
   // The remark pipeline (not Sätteri): build-time Mermaid and the case-study
   // sections are remark plugins, and the later launch stack (remark-math,
-  // rehype-citation, #11) is too. MDX inherits these plugins (#31).
-  markdown: { processor: unified({ remarkPlugins: [remarkMermaid, remarkCaseStudy] }) },
+  // rehype-citation, #11) is too. MDX inherits these plugins (#31). Posts drop
+  // a leading H1 that repeats their title, so the page has one H1 (#44).
+  markdown: {
+    processor: unified({ remarkPlugins: [remarkMermaid, remarkCaseStudy, remarkPostTitle] }),
+  },
   integrations: [
     // Before mdx(), so code blocks in .mdx get Expressive Code too (#31).
     expressiveCode({

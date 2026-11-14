@@ -13,6 +13,7 @@ import {
   postCard,
   titleSize,
   workCard,
+  writingCard,
   type OgCard,
 } from '../src/lib/og/cards';
 import { renderCard } from '../src/lib/og/render';
@@ -78,6 +79,21 @@ describe('card builders', () => {
       meta: '12 Nov 2026 · design doc',
       art: { kind: 'recipe', label: 'design doc', tags: ['a', 'b'] },
     });
+  });
+
+  it('/writing counts the posts and pools their tags', () => {
+    const post = (id: string, tags: string[]) => ({
+      id,
+      data: { title: id, date: new Date('2026-11-12'), kind: 'essay', tags },
+    });
+    const card = writingCard([post('a', ['x', 'y']), post('b', ['y', 'z'])]);
+    expect(card).toMatchObject({
+      path: '/writing',
+      eyebrow: 'Recipes · writing',
+      meta: '2 recipes',
+      art: { kind: 'recipe', label: 'the index', tags: ['x', 'y', 'z'] },
+    });
+    expect(writingCard([post('a', [])]).meta).toBe('1 recipe');
   });
 
   it('/work lists the courses', () => {

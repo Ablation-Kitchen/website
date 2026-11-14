@@ -1,0 +1,102 @@
+---
+/**
+ * A post: /writing/<id> (#44, in the "Results first" language of #9).
+ *
+ * Eyebrow `Recipes · <kind>`, the serif H1 from frontmatter (a leading body
+ * H1 that repeats it is dropped by `remark-post-title`, so there is one H1),
+ * a mono meta line (date · reading time · tags), then one reading column of
+ * at most 680px. Closes with "← All recipes" and the "Order up" email line.
+ * One page per visible post; drafts only in a preview, and then `noindex`.
+ */
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPostPages } from '../../lib/visibility';
+import { WRITING_PATH } from '../../lib/urls';
+import { isoDay, KIND_LABEL, postDate, readingMinutes } from '../../lib/writing';
+import { person } from '../../site.config';
+import '../../styles/content.css';
+
+export const getStaticPaths = (async () =>
+  (await getPostPages()).map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }))) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post } = Astro.props;
+const { data } = post;
+const { Content } = await render(post);
+const minutes = readingMinutes(post.body ?? '');
+const emailEvent = { 'data-umami-event': 'email-click', 'data-umami-event-location': 'post' };
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  ogType="article"
+  noindex={data.draft}
+  image={data.draft ? null : undefined}
+>
+  <article class="wrap">
+    <div class="mx-auto max-w-170">
+      {data.draft && (
+        <p class="mt-6 inline-block rounded-full border border-rule px-3 py-1 font-mono text-label-sm text-meta">
+          Draft preview · not published
+        </p>
+      )}
+      <header class="pt-18 pb-12 min-[900px]:pt-26 min-[900px]:pb-14">
+        <p class="rise mb-3.5 font-mono text-label text-meta">
+          <a href={WRITING_PATH} class="underline-offset-4 hover:underline">
+            Recipes
+          </a>{' '}
+          · {KIND_LABEL[data.kind]}
+        </p>
+        <h1 class="rise rise-1 title">{data.title}</h1>
+        <p class="rise rise-2 mt-6 font-mono text-label text-meta">
+          <time datetime={isoDay(data.date)}>{postDate(data.date)}</time> · {minutes} min read
+          {data.tags.length > 0 && (
+            <>
+              {' '}
+              · <span class="sr-only">Tags: </span>
+              {data.tags.join(', ')}
+            </>
+          )}
+        </p>
+      </header>
+
+      <div class="prose post text-body">
+        <Content />
+      </div>
+
+      <footer class="mt-16 mb-24 flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-rule pt-8">
+        <a
+          href={WRITING_PATH}
+          class="inline-flex min-h-11 items-center font-mono text-label text-meta hover:text-ink"
+        >
+          <span aria-hidden="true">←&nbsp;</span>All recipes
+        </a>
+        <p class="text-ui text-meta">
+          Order up: reply by email at{' '}
+          <a
+            href={`mailto:${person.email}`}
+            class="text-ink underline decoration-rule underline-offset-4 hover:decoration-current"
+            {...emailEvent}
+          >
+            {person.email}
+          </a>
+        </p>
+      </footer>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .title {
+    margin: 0;
+    font-size: clamp(40px, 4.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+  }
+</style>

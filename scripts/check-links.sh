@@ -4,7 +4,10 @@
 #   scripts/check-links.sh internal   every link between files in dist/ and every #anchor,
 #                                     offline. The site's own absolute URLs (canonical,
 #                                     sitemap, feeds, /menu.txt) are mapped onto dist/, so
-#                                     they're checked too. Blocking.
+#                                     they're checked too. An extensionless page link
+#                                     maps to its .html (`build.format: 'file'`), so
+#                                     /writing is writing.html, not the writing/ folder.
+#                                     Blocking.
 #   scripts/check-links.sh external   only links off the site, over the network. Weekly.
 #
 # Extra arguments go to lychee (e.g. --format markdown --output report.md).
@@ -22,7 +25,9 @@ dist="$root/dist"
 case "$mode" in
   internal)
     exec lychee --config "$root/lychee.toml" --offline --root-dir "$dist" \
+      --remap "^https://ablation\\.kitchen/((?:[^#?]*/)?[^/#?.]+)(#.*)?\$ file://$dist/\$1.html\$2" \
       --remap "^https://ablation\\.kitchen/(.*)\$ file://$dist/\$1" \
+      --remap "^(file://$dist/(?:[^#?]*/)?[^/#?.]+)(#.*)?\$ \$1.html\$2" \
       "$@" "$dist"
     ;;
   external)

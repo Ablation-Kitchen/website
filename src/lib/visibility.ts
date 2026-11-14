@@ -16,6 +16,7 @@ import {
   visiblePosts,
   visibleResearch,
 } from './visibility-core';
+import { postPages } from './writing';
 
 export * from './visibility-core';
 
@@ -39,6 +40,11 @@ export async function getCoursePages() {
 /** Non-draft posts, newest first. */
 export async function getPosts() {
   return visiblePosts(await getCollection('writing'));
+}
+
+/** One page per post, newest first (drafts only in a preview). */
+export async function getPostPages() {
+  return postPages(await getCollection('writing'), { includeDrafts: PREVIEW_DRAFTS });
 }
 
 export async function getHasWriting() {

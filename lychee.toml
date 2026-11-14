@@ -5,6 +5,9 @@
 # Check #anchors against the ids in the target page.
 include_fragments = "anchor-only"
 # A directory link resolves to its index.html; an extensionless path may be a .html file.
+# (Pages build as files, `build.format: 'file'`; scripts/check-links.sh remaps an
+# extensionless page link to its .html, since /writing is both writing.html and a
+# writing/ directory, and lychee would pick the directory.)
 index_files = ["index.html"]
 fallback_extensions = ["html"]
 
@@ -18,6 +21,5 @@ exclude = [
 
   # Pages the nav, /menu.txt, /llms.txt or the feeds already link to, but which
   # a later ticket builds. The ticket that builds one deletes its line here.
-  '/dist/work(/|#|$)',      # #32 (/work) and #31 (case studies)
-  '/dist/writing(/|#|$)',   # #44
+  '/dist/work(\.html|/|#|$)',      # #32 (/work) and #31 (case studies)
 ]

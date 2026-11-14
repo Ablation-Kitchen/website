@@ -23,12 +23,6 @@ export interface HomeContent {
   courses: readonly unknown[];
   /** Non-draft posts, from `getPosts()`. */
   posts: readonly unknown[];
-  /**
-   * Whether `/writing` and the post pages exist yet (#44). Until they do, a
-   * recipe-book card would link to a 404, so the section stays hidden even
-   * with a post, exactly like the header's Writing link.
-   */
-  writingPagesBuilt: boolean;
 }
 
 /**
@@ -42,7 +36,7 @@ export function homepageSections(content: HomeContent): HomeSection[] {
     hero: true,
     'whats-cooking': showWhatsCooking(content.rail),
     'tasting-menu': content.courses.length > 0,
-    'recipe-book': content.writingPagesBuilt && content.posts.length > 0,
+    'recipe-book': content.posts.length > 0,
     lab: true,
     'kitchen-rules': true,
   };

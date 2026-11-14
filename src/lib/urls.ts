@@ -9,8 +9,11 @@ export const WORK_PATH = '/work';
 /** A case study (course) page: `/work/<id>`. */
 export const coursePath = (id: string) => `/work/${id}`;
 
-/** A post page: `/writing/<id>` (#44 builds the route). */
-export const postPath = (id: string) => `/writing/${id}`;
+/** The recipe book: every post (#44). Built only once a non-draft post exists (#6). */
+export const WRITING_PATH = '/writing';
+
+/** A post page: `/writing/<id>` (#44). */
+export const postPath = (id: string) => `${WRITING_PATH}/${id}`;
 
 export const RESEARCH_PATH = '/research';
 export const ABOUT_PATH = '/about';

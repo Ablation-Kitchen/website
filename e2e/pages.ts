@@ -40,6 +40,12 @@ export const PAGES: readonly AuditedPage[] = [
     file: 'work/agent-platform.html',
     pending: '#8',
   },
+  { name: 'writing', path: '/writing', file: 'writing.html' },
+  {
+    name: 'post',
+    path: '/writing/catching-nation-state-hackers-in-power-plants',
+    file: 'writing/catching-nation-state-hackers-in-power-plants.html',
+  },
   { name: '404', path: '/quality-gate-missing-page', file: '404.html', status: 404 },
 ];
 
