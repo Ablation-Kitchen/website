@@ -7,12 +7,9 @@
  * which are computed from the built HTML, never pasted in by hand.
  */
 
-/**
- * The one Trusted Types policy the site may create. The ⌘K palette uses it to
- * turn Pagefind's `<mark>` excerpts into allowlisted DOM. Any other policy name,
- * and any raw string assigned to an HTML/script sink, is blocked.
- */
-export const TRUSTED_TYPES_POLICY = 'search-excerpt';
+import { TRUSTED_TYPES_POLICY } from './trusted-types.ts';
+
+export { TRUSTED_TYPES_POLICY };
 
 /** Builds the CSP. `scriptHashes` are `sha256-<base64>` values, without quotes. */
 export function buildCsp(scriptHashes: readonly string[]): string {

@@ -5,6 +5,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import expressiveCode, { ExpressiveCodeTheme } from 'astro-expressive-code';
+import pagefind from './integrations/pagefind.ts';
 import securityHeaders from './integrations/security-headers.ts';
 import traceFixtureGuard from './integrations/trace-fixture-guard.ts';
 import {
@@ -43,6 +44,8 @@ export default defineConfig({
     }),
     mdx(),
     sitemap(),
+    // The ⌘K palette's search index, from the built pages, into dist/pagefind/ (#38).
+    pagefind(),
     // sitemap writes /sitemap-index.xml + /sitemap-0.xml; securityHeaders then writes the
     // security headers and the CSP's inline-script hashes into dist/_headers (#25).
     securityHeaders(),

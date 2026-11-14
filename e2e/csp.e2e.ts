@@ -1,5 +1,7 @@
 // Blocking CSP check (#21, #25): every built page loads under the real headers
 // with no CSP or Trusted Types violation, no console error and no blocked request.
+// The palette test loads Pagefind (WASM, 'wasm-unsafe-eval') and renders its
+// excerpts through the one Trusted Types policy (#38).
 // The last test proves the check bites: an inline script the build didn't hash
 // is refused and reported.
 import { readdirSync } from 'node:fs';
@@ -102,6 +104,21 @@ test('home: fonts load under COEP and the theme toggle works', async ({ page }) 
   await page.reload();
   await expect(html).toHaveAttribute('data-theme', after);
 
+  expect(await w.violations()).toEqual([]);
+  expect(w.problems).toEqual([]);
+});
+
+test('⌘K palette: Pagefind loads and searches with no CSP or Trusted Types violation', async ({
+  page,
+}) => {
+  const w = await watch(page);
+  await page.goto('/');
+  const dialog = page.getByRole('dialog', { name: 'Call an order' });
+  await page.getByRole('button', { name: 'Call an order' }).click();
+  // A word on /about, so the results carry <mark> excerpts through the named policy.
+  await dialog.getByRole('combobox').fill('Warwick');
+  const hit = dialog.getByRole('group', { name: 'Search' }).getByRole('option').first();
+  await expect(hit.locator('mark').first()).toBeVisible();
   expect(await w.violations()).toEqual([]);
   expect(w.problems).toEqual([]);
 });

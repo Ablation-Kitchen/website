@@ -3,7 +3,7 @@
  * Site footer: the status strip from `src/data/status.json` (a segment only
  * when its field is set, #6), then email, profiles and the privacy note link
  * (#7, #15). The `data-umami-event*` attributes are the #15 events; they do
- * nothing until the Umami script lands (#41).
+ * nothing until the Umami script lands (#41). Kept out of the search index (#38).
  */
 import { person, profiles } from '../../site.config';
 import { getStatusSegments } from '../../lib/visibility';
@@ -33,7 +33,7 @@ const links: FooterLink[] = [
 ];
 ---
 
-<footer class="border-t border-rule font-mono text-label text-meta">
+<footer class="border-t border-rule font-mono text-label text-meta" data-pagefind-ignore="all">
   <div class="wrap flex flex-col gap-3 pt-5 pb-16 sm:pb-22">
     <p class="flex flex-wrap items-center gap-x-7 gap-y-1 py-2">
       {segments.map((s, i) => (

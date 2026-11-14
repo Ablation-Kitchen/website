@@ -1,12 +1,14 @@
 ---
 /**
- * Sticky site header: fork-toque logo + wordmark, plain nav, CV ↓ and the
- * theme toggle (spec: Information architecture). No client JS of its own;
- * the toggle brings its external module script.
+ * Sticky site header: fork-toque logo + wordmark, plain nav, CV ↓, the ⌘K
+ * "Call an order" button and the theme toggle (spec: Information
+ * architecture). No client JS of its own; the palette and the toggle bring
+ * their external module scripts. Kept out of the search index (#38).
  */
 import { cv } from '../../site.config';
 import { isCurrent, navItems } from '../../lib/seo';
 import { getHasWriting } from '../../lib/visibility';
+import CallOrder from '../palette/CallOrder.astro';
 import ThemeToggle from '../theme/ThemeToggle.astro';
 import ForkToque from './ForkToque.astro';
 
@@ -16,11 +18,16 @@ const path = Astro.url.pathname;
 const atHome = isCurrent(path, '/');
 ---
 
-<header class="sticky top-0 z-20 border-b border-rule bg-bg">
-  <div class="wrap flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2.5 sm:py-3.5">
+<header class="sticky top-0 z-20 border-b border-rule bg-bg" data-pagefind-ignore="all">
+  {/*
+    Below md the controls sit beside the logo and the nav takes its own row;
+    from md on it's logo, nav, controls. DOM order (and so tab order) stays
+    logo, nav, controls.
+  */}
+  <div class="wrap flex flex-wrap items-center gap-x-5 gap-y-1 py-2.5 sm:py-3.5 md:gap-x-7">
     <a
       href="/"
-      class="-ml-1 inline-flex min-h-11 items-center gap-2.5 rounded-full px-1 text-ink"
+      class="-ml-1 mr-auto inline-flex min-h-11 items-center gap-2.5 rounded-full px-1 text-ink"
       aria-current={atHome ? 'page' : undefined}
     >
       <ForkToque />
@@ -29,36 +36,36 @@ const atHome = isCurrent(path, '/');
       </span>
     </a>
 
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:gap-x-7">
-      <nav aria-label="Main">
-        <ul class="flex flex-wrap items-center gap-x-5 text-ui sm:gap-x-7">
-          {items.map((item) => (
-            <li>
-              <a
-                href={item.href}
-                class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 text-ink"
-                aria-current={isCurrent(path, item.href) ? 'page' : undefined}
-              >
-                <span>{item.label}</span>
-              </a>
-            </li>
-          ))}
+    <nav aria-label="Main" class="order-last w-full md:order-none md:w-auto">
+      <ul class="flex flex-wrap items-center gap-x-5 text-ui sm:gap-x-7">
+        {items.map((item) => (
           <li>
             <a
-              href={cv.href}
-              download={cv.downloadName}
-              class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 font-medium text-ink"
-              data-umami-event="cv-download"
+              href={item.href}
+              class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 text-ink"
+              aria-current={isCurrent(path, item.href) ? 'page' : undefined}
             >
-              <span>
-                CV<span aria-hidden="true"> ↓</span>
-                <span class="sr-only"> (PDF)</span>
-              </span>
+              <span>{item.label}</span>
             </a>
           </li>
-        </ul>
-      </nav>
-      {/* The ⌘K "Call an order" button joins here, before the toggle (#38). */}
+        ))}
+        <li>
+          <a
+            href={cv.href}
+            download={cv.downloadName}
+            class="navlink -mx-1.5 inline-flex min-h-11 items-center px-1.5 font-medium text-ink"
+            data-umami-event="cv-download"
+          >
+            <span>
+              CV<span aria-hidden="true"> ↓</span>
+              <span class="sr-only"> (PDF)</span>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="flex items-center gap-2">
+      <CallOrder />
       <ThemeToggle />
     </div>
   </div>
