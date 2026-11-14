@@ -1,0 +1,180 @@
+---
+/**
+ * One case-study section (#9, variant C). Not used by hand: the remark plugin
+ * (`src/lib/markdown/remark-case-study.ts`) wraps each `## …` section of a
+ * case study's MDX in `<CaseSection section="…">`, and the page passes this
+ * component to `<Content components={…} />`.
+ *
+ * - Most sections are heading-left rows: a 300px sticky column with the
+ *   italic serif letter, the kitchen-name H2 and the plain-meaning mono line,
+ *   beside content at most 680px wide. Rows stack below 900px.
+ * - The brigade is a full-bleed band in the always-dark trace-panel colours,
+ *   prose in two columns over a wide diagram.
+ * - Service carries "the check" beside its prose, when there are metrics.
+ */
+import { section as sectionFor, type SectionKey } from '../../lib/case-study';
+import TheCheck, { type Check } from './TheCheck.astro';
+
+interface Props {
+  section: SectionKey;
+  /** Only on Service: the receipt's data (`undefined` when there are no metrics). */
+  check?: Check | undefined;
+}
+
+const { section: key, check } = Astro.props;
+const s = sectionFor(key);
+const headingId = `${s.id}-heading`;
+---
+
+{key === 'brigade' ? (
+  <section id={s.id} aria-labelledby={headingId} class="band">
+    <div class="band-inner">
+      <header class="mb-10">
+        <span class="letter" aria-hidden="true">
+          {s.letter}
+        </span>
+        <h2 id={headingId} class="band-title">
+          {s.kitchen}
+        </h2>
+        <p class="plain">{s.plain}</p>
+      </header>
+      <div class="prose band-prose">
+        <slot />
+      </div>
+    </div>
+  </section>
+) : (
+  <section id={s.id} aria-labelledby={headingId} class="row">
+    <header class="row-head">
+      <span class="letter" aria-hidden="true">
+        {s.letter}
+      </span>
+      <h2 id={headingId} class="text-row">
+        {s.kitchen}
+      </h2>
+      <p class="plain">{s.plain}</p>
+    </header>
+    {check ? (
+      <div class="flex flex-wrap items-start gap-12">
+        <div class="prose min-w-0 flex-[1_1_320px]">
+          <slot />
+        </div>
+        <TheCheck {...check} />
+      </div>
+    ) : (
+      <div class="prose min-w-0">
+        <slot />
+      </div>
+    )}
+  </section>
+)}
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 680px);
+    gap: 56px;
+    padding-block: 72px;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .row-head {
+    position: sticky;
+    top: 6rem;
+    align-self: start;
+  }
+
+  @media (width < 900px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+      padding-block: 56px;
+    }
+
+    .row-head {
+      position: static;
+    }
+  }
+
+  .letter {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--color-meta);
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .plain {
+    margin: 10px 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    color: var(--color-meta);
+  }
+
+  /*
+   * Full-bleed band. The article is the 1180px .wrap, so the band breaks out
+   * to the viewport edges (body has overflow-x: clip).
+   */
+  .band {
+    margin-inline: calc(50% - 50vw);
+    padding: 88px 40px;
+    background: var(--color-trace-bg);
+    color: var(--color-trace-text);
+    /* Read by content.css: prose and diagrams take the trace-panel colours. */
+    --prose-text: var(--color-trace-text);
+    --prose-strong: var(--color-trace-text);
+    --prose-meta: var(--color-trace-meta);
+    --prose-rule: color-mix(in srgb, var(--color-trace-text) 18%, transparent);
+    --prose-link: var(--color-trace-text);
+    --prose-accent: var(--color-trace-role);
+    --diagram-ink: var(--color-trace-text);
+    --diagram-meta: var(--color-trace-meta);
+    --diagram-fill: color-mix(in srgb, var(--color-trace-text) 6%, var(--color-trace-bg));
+    --diagram-accent: var(--color-trace-role);
+    --diagram-panel: var(--color-trace-bg);
+    --diagram-panel-rule: color-mix(in srgb, var(--color-trace-text) 14%, transparent);
+  }
+
+  @media (width < 600px) {
+    .band {
+      padding: 64px 16px;
+    }
+  }
+
+  .band-inner {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+
+  .band .letter,
+  .band .plain {
+    color: var(--color-trace-meta);
+  }
+
+  .band-title {
+    color: var(--color-trace-text);
+    font-size: clamp(40px, 2.5rem + 1.5vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Prose in two columns; diagrams, code and tables span both. */
+  .band-prose {
+    columns: 2 300px;
+    column-gap: 40px;
+  }
+
+  .band-prose :global(:is(.diagram, .expressive-code, table, .callout)) {
+    column-span: all;
+  }
+
+  .band-prose :global(.diagram) {
+    margin-block: 16px 0;
+  }
+</style>

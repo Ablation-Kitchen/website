@@ -13,7 +13,7 @@ import {
 } from './lib/schemas';
 
 const work = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/work' }),
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/work' }),
   schema: workSchema,
 });
 

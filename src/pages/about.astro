@@ -1,0 +1,192 @@
+---
+/**
+ * /about (#35, design: #12 variant A "Glance + rules rows").
+ *
+ * Hero: H1, keyword line, story + PhD paragraphs and the CTAs, beside the
+ * "At a glance" panel. Then three heading-left rows: Kitchen rules (split
+ * bottle above the heading), Order up (plain mailto, "order up" chaos ticket)
+ * and the privacy note at #privacy, which the footer links to (#15).
+ *
+ * The `data-umami-event*` attributes are the #15 events; they do nothing until
+ * the Umami script lands (#41). No client JS, no inline styles.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChaosTicket from '../components/art/ChaosTicket.astro';
+import SplitBottle from '../components/art/SplitBottle.astro';
+import { cv, location, openTo, person, profiles } from '../site.config';
+import { education, keywordLine, kitchenRules, story } from '../data/about';
+
+const mailto = `mailto:${person.email}`;
+const emailEvent = { 'data-umami-event': 'email-click', 'data-umami-event-location': 'about' };
+const profileLinks = (['linkedin', 'github'] as const).map((key) => ({
+  key,
+  ...profiles[key],
+}));
+const capitalised = openTo.charAt(0).toUpperCase() + openTo.slice(1);
+
+const link = 'text-ink underline decoration-rule underline-offset-4 hover:decoration-current';
+const pill =
+  'inline-flex min-h-11 items-center gap-2.5 rounded-full border px-[22px] text-[15px] font-medium motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-kitchen motion-safe:hover:-translate-y-px';
+const row =
+  'grid grid-cols-1 gap-5 border-t border-rule py-14 min-[900px]:grid-cols-[300px_minmax(0,680px)] min-[900px]:gap-14 min-[900px]:py-18';
+const rowHead = 'self-start min-[900px]:sticky min-[900px]:top-26';
+const rowH2 = 'text-row';
+const plain = 'mt-2.5 font-mono text-label text-meta';
+---
+
+<BaseLayout
+  title="About"
+  description="Dalmo Veras, Lead AI Engineer in Vancouver: ten years of software, a PhD at Warwick on topology-aware ML, five kitchen rules, the CV and how to get in touch."
+>
+  <div class="wrap">
+    <header class="grid grid-cols-1 items-start gap-10 pt-18 min-[900px]:grid-cols-[minmax(0,1.4fr)_minmax(300px,1fr)] min-[900px]:gap-16 min-[900px]:pt-26">
+      <div>
+        <p class="rise mb-3.5 font-mono text-label text-meta">Meet the chef · about</p>
+        <h1 class="rise rise-1 text-[clamp(44px,5.8vw,80px)] leading-none tracking-[-0.025em]">
+          {person.name}
+        </h1>
+        <p class="rise rise-1 mt-5 text-body font-medium text-ink">{keywordLine}</p>
+        <div class="rise rise-2 mt-6 flex max-w-[600px] flex-col gap-[1.1em]">
+          {story.map((p) => (
+            <p class="text-lede font-light">{p}</p>
+          ))}
+        </div>
+        <div class="rise rise-3 mt-8 flex flex-wrap gap-3">
+          <a
+            href={cv.href}
+            download={cv.downloadName}
+            class:list={[pill, 'border-ink bg-ink text-bg']}
+            data-umami-event="cv-download"
+          >
+            Download CV <span aria-hidden="true">↓</span>
+            <span class="sr-only">(PDF)</span>
+          </a>
+          <a href={mailto} class:list={[pill, 'border-rule text-ink']} {...emailEvent}>
+            Email me
+          </a>
+        </div>
+      </div>
+
+      <aside
+        class="rise rise-2 rounded-[20px] border border-rule bg-surface p-6 sm:p-8"
+        aria-labelledby="glance-h"
+      >
+        <h2 id="glance-h" class="mb-5 font-mono text-label text-meta">
+          At a glance
+        </h2>
+        <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2.5 text-[15px] text-ink">
+          <dt class="pt-[3px] font-mono text-label-sm text-meta">Now</dt>
+          <dd>
+            {person.jobTitle}, {person.worksFor.name}
+          </dd>
+          <dt class="pt-[3px] font-mono text-label-sm text-meta">Based</dt>
+          <dd>{location}</dd>
+          <dt class="pt-[3px] font-mono text-label-sm text-meta">Open to</dt>
+          <dd>{capitalised}</dd>
+          <dt class="pt-[3px] font-mono text-label-sm text-meta">Email</dt>
+          <dd class="break-words">
+            <a href={mailto} class={link} {...emailEvent}>
+              {person.email}
+            </a>
+          </dd>
+          <dt class="pt-[3px] font-mono text-label-sm text-meta">Profiles</dt>
+          <dd>
+            {profileLinks.map((p, i) => (
+              <>
+                {i > 0 && <span aria-hidden="true"> · </span>}
+                <a
+                  href={p.href}
+                  rel="me"
+                  class={link}
+                  data-umami-event="profile-click"
+                  data-umami-event-profile={p.key}
+                >
+                  {p.label}
+                </a>
+              </>
+            ))}
+          </dd>
+        </dl>
+        <hr class="my-6 border-rule" />
+        <h2 class="mb-5 font-mono text-label text-meta">Education</h2>
+        <ul class="flex flex-col gap-2.5 font-mono text-[12.5px] text-meta">
+          {education.map((e) => (
+            <li>
+              {e.degree} · {e.school} · {e.years}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </header>
+
+    <section class:list={[row, 'mt-18 min-[900px]:mt-26']} aria-labelledby="rules-h">
+      <header class={rowHead}>
+        <SplitBottle />
+        <h2 id="rules-h" class:list={[rowH2, 'min-[960px]:mt-5']}>
+          Kitchen rules
+        </h2>
+        <p class={plain}>How I run an engineering team</p>
+      </header>
+      <ol class="border-t border-rule">
+        {kitchenRules.map((r) => (
+          <li class="grid grid-cols-[44px_minmax(0,1fr)] gap-3 border-b border-rule py-[22px]">
+            <span class="pt-2 font-mono text-label-sm text-accent-text">{r.n}</span>
+            <span>
+              <span class="block font-serif text-[28px] leading-[1.2] text-ink">{r.rule}</span>
+              <span class="block text-[15px] text-meta">{r.meaning}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class={row} aria-labelledby="order-up-h">
+      <header class={rowHead}>
+        <h2 id="order-up-h" class={rowH2}>
+          Order up
+        </h2>
+        <p class={plain}>Contact</p>
+      </header>
+      <div class="flex flex-wrap items-center gap-10">
+        <p class="min-w-0 flex-[1_1_300px]">
+          The fastest way to reach me is email:{' '}
+          <a href={mailto} class={link} {...emailEvent}>
+            {person.email}
+          </a>
+          . I read everything and reply from my personal address.
+        </p>
+        <ChaosTicket
+          header={['order up', 'to: chef']}
+          items={[
+            { label: '1× conversation', strong: true },
+            { label: '— principal role' },
+            { label: '— agents, evals, retrieval' },
+          ]}
+          footer
+        />
+      </div>
+    </section>
+
+    <section id="privacy" class:list={[row, 'border-b']} aria-labelledby="privacy-h">
+      <header class={rowHead}>
+        <h2 id="privacy-h" class={rowH2}>
+          Privacy
+        </h2>
+        <p class={plain}>What this site counts</p>
+      </header>
+      <div class="flex flex-col gap-[1.1em]">
+        <p>
+          This site counts visits with Umami, served from this domain. It sets no cookies, collects
+          no personal data and doesn't follow you across other sites.
+        </p>
+        <p>
+          I see aggregate counts only: pages viewed, where visits came from, and a handful of clicks
+          (the CV download, the email address, the profile links, the next case study and opening
+          search). The counts are kept for 6 months.
+        </p>
+      </div>
+    </section>
+
+    <div class="h-18 min-[900px]:h-26"></div>
+  </div>
+</BaseLayout>

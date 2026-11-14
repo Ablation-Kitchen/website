@@ -1,0 +1,69 @@
+---
+/**
+ * Closes a case study (#9): a full-width "Next course" banner (large serif
+ * title and the course numeral) and a small "← All case studies" link.
+ *
+ * The banner carries `data-umami-event="case-study-next"`, the hook the
+ * analytics ticket (#41) picks up; nothing here sends anything.
+ */
+import { coursePath, WORK_PATH } from '../../lib/urls';
+import type { Work } from '../../lib/schemas';
+
+interface Props {
+  /** The next course; omitted when this is the only one. */
+  next?: { id: string; numeral: string; data: Pick<Work, 'title' | 'org' | 'years'> } | undefined;
+}
+
+const { next } = Astro.props;
+---
+
+<nav aria-label="More courses" class="border-t border-rule">
+  {next && (
+    <a href={coursePath(next.id)} class="next block pt-26 pb-6" data-umami-event="case-study-next">
+      <span class="block font-mono text-label text-meta">
+        Next course · {next.data.org} · {next.data.years}
+      </span>
+      <span class="next-title mt-4 block font-serif text-ink">
+        <em class="text-meta">{next.numeral}</em> {next.data.title}{' '}
+        <span class="arrow" aria-hidden="true">
+          →
+        </span>
+      </span>
+    </a>
+  )}
+  <a
+    href={WORK_PATH}
+    class:list={[
+      'mb-10 inline-flex min-h-11 items-center font-mono text-label text-meta hover:text-ink',
+      { 'mt-10': !next },
+    ]}
+  >
+    <span aria-hidden="true">←&nbsp;</span>All case studies
+  </a>
+</nav>
+
+<style>
+  .next-title {
+    font-size: clamp(44px, 6vw, 84px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .next-title em {
+    font-style: italic;
+  }
+
+  .arrow {
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arrow {
+      transition: translate 0.35s var(--ease-kitchen);
+    }
+
+    .next:hover .arrow {
+      translate: 6px 0;
+    }
+  }
+</style>

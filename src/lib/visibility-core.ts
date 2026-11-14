@@ -67,6 +67,36 @@ export function visibleCourses<E extends Entry<Pick<Work, 'draft' | 'order'>>>(
   return sorted.map((e, i) => ({ ...e, numeral: courseNumeral(i + 1) }));
 }
 
+export type CoursePage<E> = {
+  course: Course<E>;
+  /** The course after this one, wrapping to the first; none when it's the only course. */
+  next: Course<E> | undefined;
+  /** True for a draft shown only in a preview (dev, or `PREVIEW_DRAFTS=1`). */
+  draft: boolean;
+};
+
+/**
+ * One page per case study (`/work/<id>`), with its "Next course". Normally
+ * only the visible courses. With `includeDrafts` (a preview, never the
+ * deployed build) drafts get pages too, numbered as if they were published,
+ * so a draft previews with the numeral it will launch with.
+ */
+export function coursePages<E extends Entry<Pick<Work, 'draft' | 'order'>>>(
+  entries: readonly E[],
+  opts: { includeDrafts: boolean },
+): CoursePage<E>[] {
+  const courses = opts.includeDrafts
+    ? visibleCourses(entries.map((e) => ({ ...e, data: { ...e.data, draft: false } }))).map(
+        (c) => ({ ...entries.find((e) => e.id === c.id)!, numeral: c.numeral }),
+      )
+    : visibleCourses(entries);
+  return courses.map((course, i) => ({
+    course,
+    next: courses.length > 1 ? courses[(i + 1) % courses.length] : undefined,
+    draft: course.data.draft,
+  }));
+}
+
 /** Non-draft posts, newest first (ties by id, for a stable order). */
 export function visiblePosts<E extends Entry<Pick<Writing, 'draft' | 'date'>>>(
   entries: readonly E[],
