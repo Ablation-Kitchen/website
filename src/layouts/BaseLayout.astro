@@ -13,6 +13,7 @@ import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import { absoluteUrl, canonicalUrl, pageTitle, personJsonLd, serializeJsonLd } from '../lib/seo';
 import { getHasWriting } from '../lib/visibility';
+import { ogImageFor } from '../lib/og/pages';
 import { FEED_TITLE } from '../lib/feed';
 import '../styles/global.css';
 // Preloaded so text renders in its own font on first paint: a late swap shifts
@@ -45,8 +46,12 @@ export interface Props {
   title?: string;
   /** Meta description; every page needs one (spec: Deployment → SEO). */
   description: string;
-  /** OG image (1200×630). Generated per page by #39; omitted until then. */
-  image?: OgImage;
+  /**
+   * OG image (1200×630). By default the page's own card from `src/lib/og`
+   * (#39), or the home card when it has none. `null` for no image at all:
+   * a draft preview, which never gets a card.
+   */
+  image?: OgImage | null | undefined;
   /** `article` for case studies and posts. */
   ogType?: 'website' | 'article';
   /** Keep the page out of search (e.g. dev-only pages). */
@@ -59,11 +64,12 @@ const { title, description, image, ogType = 'website', noindex = false } = Astro
 const hasFeed = await getHasWriting();
 const fullTitle = pageTitle(title);
 const canonical = canonicalUrl(Astro.url.pathname);
-const og = image && {
-  url: absoluteUrl(image.src),
-  alt: image.alt,
-  width: image.width ?? 1200,
-  height: image.height ?? 630,
+const ogImage: OgImage | null = image === undefined ? await ogImageFor(Astro.url.pathname) : image;
+const og = ogImage && {
+  url: absoluteUrl(ogImage.src),
+  alt: ogImage.alt,
+  width: ogImage.width ?? 1200,
+  height: ogImage.height ?? 630,
 };
 ---
 

@@ -8,6 +8,7 @@
  * panel, `overflow: hidden` so the planes follow its corner.
  */
 import ArtFrame from './ArtFrame.astro';
+import { LAB_PLANES, heightFor } from './shapes';
 import type { ArtBehaviour } from './types';
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -28,7 +29,7 @@ const CORNER: Record<Corner, string> = {
 };
 
 const { corner = 'bottom-right', width = 260, class: className, ...behaviour } = Astro.props;
-const height = Math.round((width * 200) / 260);
+const height = heightFor(LAB_PLANES, width);
 const [v, h] = corner.split('-') as ['top' | 'bottom', 'left' | 'right'];
 ---
 
@@ -40,19 +41,15 @@ const [v, h] = corner.split('-') as ['top' | 'bottom', 'left' | 'right'];
     class:list={['planes', { 'flip-x': h === 'left', 'flip-y': v === 'top' }]}
     width={width}
     height={height}
-    viewBox="0 0 260 200"
+    viewBox={LAB_PLANES.viewBox}
     focusable="false"
   >
-    <polygon class="a" opacity="0.24" points="260,36 158,92 198,200 260,200" />
-    <polygon class="b" opacity="0.18" points="112,200 188,108 260,146 260,200" />
-    <polygon class="a" opacity="0.14" points="196,200 226,128 260,118 260,200" />
-    <polygon class="accent" opacity="0.13" points="206,0 260,0 260,72 228,60" />
-    <polyline class="line" points="158,92 188,108 226,128" />
-    <line class="line" x1="188" y1="108" x2="168" y2="200" />
+    <Fragment set:html={LAB_PLANES.body} />
   </svg>
 </ArtFrame>
 
 <style>
+  /* Paint for the shapes.ts classes. The OG cards repeat these rules with the Light values (src/lib/og/art.ts). */
   .planes {
     display: block;
     scale: var(--flip-x, 1) var(--flip-y, 1);
@@ -66,19 +63,19 @@ const [v, h] = corner.split('-') as ['top' | 'bottom', 'left' | 'right'];
     --flip-y: -1;
   }
 
-  .a {
+  .planes :global(.a) {
     fill: var(--color-plane-a, #c9a66b);
   }
 
-  .b {
+  .planes :global(.b) {
     fill: var(--color-plane-b, #5b7c99);
   }
 
-  .accent {
+  .planes :global(.accent) {
     fill: var(--color-accent, #69908c);
   }
 
-  .line {
+  .planes :global(.line) {
     fill: none;
     stroke: var(--color-ink, #111111);
     stroke-width: 0.8;

@@ -4,6 +4,8 @@
  * tine in accent. 2px square-cap strokes. Decorative: the wordmark beside it
  * names the link.
  */
+import { FORK_TOQUE } from '../art/shapes';
+
 interface Props {
   size?: number;
   class?: string;
@@ -15,7 +17,7 @@ const { size = 26, class: className } = Astro.props;
   class={className}
   width={size}
   height={size}
-  viewBox="0 0 64 64"
+  viewBox={FORK_TOQUE.viewBox}
   fill="none"
   stroke="currentColor"
   stroke-width="2"
@@ -23,11 +25,5 @@ const { size = 26, class: className } = Astro.props;
   aria-hidden="true"
   focusable="false"
 >
-  <line x1="20" y1="28" x2="20" y2="12"></line>
-  <line x1="26" y1="28" x2="26" y2="8"></line>
-  <line x1="32" y1="28" x2="32" y2="5" class="stroke-accent"></line>
-  <line x1="38" y1="28" x2="38" y2="8"></line>
-  <line x1="44" y1="28" x2="44" y2="12"></line>
-  <rect x="17" y="28" width="30" height="7"></rect>
-  <polyline points="27,35 30,40 30,58 34,58 34,40 37,35"></polyline>
+  <Fragment set:html={FORK_TOQUE.body} />
 </svg>

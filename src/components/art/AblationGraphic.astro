@@ -10,26 +10,16 @@
  * explains ablation in prose next to it.
  */
 import ArtFrame from './ArtFrame.astro';
+import { ABLATION_ROWS, type AblationRow } from './shapes';
 import type { ArtBehaviour } from './types';
 
-export type Dot = 'on' | 'removed' | 'gone';
-export interface AblationRow {
-  label: string;
-  dots: Dot[];
-}
+export type { AblationRow, Dot } from './shapes';
 
 interface Props extends ArtBehaviour {
   rows?: AblationRow[];
 }
 
-const DEFAULT_ROWS: AblationRow[] = [
-  { label: 'full brigade', dots: ['on', 'on', 'on', 'on'] },
-  { label: '− critic', dots: ['on', 'on', 'on', 'removed'] },
-  { label: '− orchestrator', dots: ['removed', 'on', 'on', 'on'] },
-  { label: 'single cook', dots: ['on', 'gone', 'gone', 'gone'] },
-];
-
-const { rows = DEFAULT_ROWS, ...behaviour } = Astro.props;
+const { rows = ABLATION_ROWS, ...behaviour } = Astro.props;
 ---
 
 <ArtFrame {...behaviour}>
