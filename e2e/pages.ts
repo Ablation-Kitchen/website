@@ -7,8 +7,8 @@
 //
 // Still to come, from the spec and #28:
 //   /work                     #32
-// Later tickets also add page states to the axe suite: the ⌘K dialog (#38). The
-// trace panel's states are audited in e2e/trace-rail.e2e.ts (#37).
+// Page states are audited beside the pages: the ⌘K dialog in e2e/a11y.e2e.ts
+// (#38), the trace panel's states in e2e/trace-rail.e2e.ts (#37).
 import { existsSync } from 'node:fs';
 
 export type AuditedPage = {

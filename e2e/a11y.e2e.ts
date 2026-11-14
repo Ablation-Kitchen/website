@@ -1,11 +1,12 @@
 // Blocking axe check (#28, decision #20): every page in e2e/pages.ts, in Light
 // and Dark, each with and without reduced motion. Any WCAG 2.2 A/AA or axe
-// best-practice violation fails it. Later tickets add page states here: the ⌘K
-// dialog open (#38). The trace panel's states are audited in trace-rail.e2e.ts
-// against a fixture build (#37).
+// best-practice violation fails it. The ⌘K dialog is audited open, with Go to
+// and Actions, with search results and with the no-match line (#38). The trace
+// panel's states are audited in trace-rail.e2e.ts against a fixture build (#37).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { auditedPages } from './pages.ts';
+import { noMatch } from '../src/lib/palette.ts';
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa', 'best-practice'];
 
@@ -43,6 +44,46 @@ for (const page of auditedPages()) {
         ),
       );
 
+      const { violations } = await new AxeBuilder({ page: tab }).withTags(TAGS).analyze();
+      const summary = violations.map((v) => ({
+        rule: v.id,
+        impact: v.impact,
+        help: v.helpUrl,
+        targets: v.nodes.map((n) => n.target.join(' ')),
+      }));
+      expect(summary).toEqual([]);
+    });
+  }
+}
+
+/** The ⌘K dialog's states: what the reader can see in it at once. */
+const PALETTE_STATES = [
+  { name: 'Go to and Actions', query: '' },
+  { name: 'search results', query: 'Warwick' },
+  { name: 'no match', query: 'zzqxvplonk' },
+] as const;
+
+for (const { theme, reducedMotion } of VARIANTS) {
+  for (const state of PALETTE_STATES) {
+    const motion = reducedMotion === 'reduce' ? ', reduced motion' : '';
+    test(`⌘K dialog open, ${state.name}: no axe violations (${theme}${motion})`, async ({
+      page: tab,
+    }) => {
+      await tab.emulateMedia({ colorScheme: theme, reducedMotion });
+      await tab.goto('/');
+      await expect(tab.locator('html')).toHaveAttribute('data-theme', theme);
+      await tab.getByRole('button', { name: 'Call an order' }).click();
+      const dialog = tab.getByRole('dialog', { name: 'Call an order' });
+      await expect(dialog).toBeVisible();
+      if (state.query) await dialog.getByRole('combobox').fill(state.query);
+      if (state.name === 'search results') {
+        await expect(
+          dialog.getByRole('group', { name: 'Search' }).getByRole('option').first(),
+        ).toBeVisible();
+      } else if (state.name === 'no match') {
+        await expect(dialog.getByRole('status')).toHaveText(noMatch(state.query));
+      }
+      await tab.evaluate(() => document.fonts.ready);
       const { violations } = await new AxeBuilder({ page: tab }).withTags(TAGS).analyze();
       const summary = violations.map((v) => ({
         rule: v.id,

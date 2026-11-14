@@ -1,0 +1,248 @@
+---
+/**
+ * The ⌘K "Call an order" palette (#38; spec: Interactions → ⌘K): the header
+ * button and the `<dialog>` it opens. Opened by the button, ⌘K / Ctrl+K, or
+ * `/` when the reader isn't typing.
+ *
+ * Inside: an ARIA combobox (the input) driving a listbox in three groups, Go
+ * to, Search and Actions. The server renders only the empty shell and a JSON
+ * data block (Go to and the action details); call-order.ts builds every row
+ * with DOM APIs, and loads Pagefind on the first open, never before.
+ *
+ * Hidden (space kept) until the element is defined, so it never shows without JS.
+ * Icon: Phosphor "magnifying-glass", regular weight (MIT).
+ */
+import { cv, person } from '../../site.config';
+import { navItems } from '../../lib/seo';
+import { getCoursePages, getHasWriting } from '../../lib/visibility';
+import { coursePath } from '../../lib/urls';
+import { inlineJson } from '../../lib/trace-view';
+import type { PaletteData, PaletteItem } from '../../lib/palette';
+
+// Go to: the nav's pages, with each case study after Work (drafts only in a
+// preview build, where their pages exist).
+const courses = (await getCoursePages()).map(({ course }): PaletteItem => ({
+  kind: 'goto',
+  label: course.data.title,
+  href: coursePath(course.id),
+  hint: `${course.data.org} · course ${course.numeral}`,
+}));
+const goto = navItems(await getHasWriting()).flatMap((item): PaletteItem[] => {
+  const page: PaletteItem = { kind: 'goto', label: item.label, href: item.href };
+  return item.href === '/work' ? [{ ...page, hint: 'the tasting menu' }, ...courses] : [page];
+});
+
+const data: PaletteData = {
+  goto,
+  actions: [
+    { kind: 'action', action: 'theme', label: 'Toggle theme', hint: 'Light / Dark' },
+    { kind: 'action', action: 'email', label: 'Copy email', hint: person.email },
+    { kind: 'action', action: 'cv', label: 'Download CV', hint: 'PDF' },
+  ],
+  email: person.email,
+  cv: { href: cv.href, downloadName: cv.downloadName },
+};
+---
+
+<call-order class="inline-flex">
+  <button
+    type="button"
+    class="ease-kitchen inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-rule text-ui text-ink transition-colors duration-200 hover:bg-surface lg:px-4"
+    aria-haspopup="dialog"
+    aria-keyshortcuts="Meta+K Control+K /"
+    data-trigger
+  >
+    <svg
+      class="size-5 lg:size-4"
+      viewBox="0 0 256 256"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+    </svg>
+    <span class="sr-only lg:not-sr-only">Call an order</span>
+    <kbd class="hidden font-mono text-label text-meta lg:inline" aria-hidden="true" data-kbd>
+      ⌘K
+    </kbd>
+  </button>
+
+  <dialog class="palette" aria-label="Call an order">
+    <div class="field">
+      <svg
+        class="size-5 shrink-0 text-meta"
+        viewBox="0 0 256 256"
+        fill="currentColor"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+      </svg>
+      <input
+        type="text"
+        role="combobox"
+        aria-label="Call an order: search pages and actions"
+        aria-expanded="true"
+        aria-controls="call-order-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Search, or pick an order…"
+        data-input
+      />
+      <kbd class="hidden font-mono text-label text-meta sm:inline" aria-hidden="true">
+        esc
+      </kbd>
+    </div>
+    <p class="status" role="status" data-status></p>
+    <div id="call-order-list" class="list" role="listbox" aria-label="Orders" data-list></div>
+    <script type="application/json" data-palette set:html={inlineJson(data)} />
+  </dialog>
+</call-order>
+
+<style>
+  call-order:not(:defined) button {
+    visibility: hidden;
+  }
+
+  .palette {
+    width: min(640px, calc(100vw - 32px));
+    max-height: min(560px, calc(100dvh - 32px));
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 1px solid var(--color-rule);
+    border-radius: 14px;
+    background: var(--color-bg);
+    color: var(--color-soft);
+    box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.35);
+    overflow: hidden;
+  }
+
+  .palette[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .palette::backdrop {
+    background: rgb(12 12 11 / 0.45);
+  }
+
+  @media (width < 600px) {
+    .palette {
+      margin-top: 16px;
+    }
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .field:focus-within {
+    border-bottom-color: var(--color-accent-text);
+  }
+
+  .field input {
+    flex: 1;
+    min-width: 0;
+    min-height: 32px;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-lede);
+    font-weight: 300;
+  }
+
+  .field input::placeholder {
+    color: var(--color-meta);
+  }
+
+  /* The field's own border marks focus (above); the caret is in it. */
+  .field input:focus-visible {
+    outline: none;
+  }
+
+  .status {
+    padding: 0 18px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    color: var(--color-meta);
+  }
+
+  .status:not(:empty) {
+    padding-block: 12px;
+  }
+
+  .list {
+    overflow-y: auto;
+    padding: 0 8px 8px;
+  }
+
+  .list[hidden] {
+    display: none;
+  }
+
+  .list :global([role='group']) {
+    padding-top: 8px;
+  }
+
+  .list :global(.group-label) {
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-meta);
+  }
+
+  .list :global([role='option']) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 16px;
+    min-height: 44px;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .list :global([role='option'][aria-selected='true']) {
+    background: var(--color-rule);
+  }
+
+  .list :global(.hint) {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    color: var(--color-meta);
+  }
+
+  /* Meta on the Light rule colour is under 4.5:1; soft is not. */
+  .list :global([aria-selected='true'] .hint),
+  .list :global([aria-selected='true'] .excerpt) {
+    color: var(--color-soft);
+  }
+
+  .list :global(.excerpt) {
+    flex-basis: 100%;
+    font-size: var(--text-ui);
+    color: var(--color-soft);
+  }
+
+  .list :global(.excerpt mark) {
+    background: transparent;
+    color: var(--color-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 3px;
+  }
+</style>
+
+<script>
+  import './call-order';
+</script>

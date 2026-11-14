@@ -129,7 +129,8 @@ const og = ogImage && {
       Skip to content
     </a>
     <Header />
-    <main id="main" class="flex-1">
+    {/* Search indexes <main> only, and never a noindex page (#38, integrations/pagefind.ts). */}
+    <main id="main" class="flex-1" data-pagefind-body={noindex ? undefined : ''}>
       <slot />
     </main>
     <Footer />

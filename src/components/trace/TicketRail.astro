@@ -5,7 +5,8 @@
  * without JS every step is listed. The client (ticket-rail.ts) replays it on a
  * compressed clock once the panel enters the viewport, offers Replay, and
  * swaps in another project's run from the inline JSON when its card is
- * pressed. Under reduced motion every step shows at once.
+ * pressed. Under reduced motion every step shows at once. Kept out of the
+ * ⌘K search index (#38): a trace is a replay, not page copy.
  */
 import type { Replay } from '../../lib/trace-view';
 import { inlineJson } from '../../lib/trace-view';
@@ -30,7 +31,7 @@ if (!first || !initial) throw new Error('TicketRail needs at least one project w
 const panelId = 'trace-replay';
 ---
 
-<ticket-rail class="mt-12 block">
+<ticket-rail class="mt-12 block" data-pagefind-ignore="all">
   <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-4">
     {cards.map((c) => (
       <li>

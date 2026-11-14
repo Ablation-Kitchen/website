@@ -3,6 +3,8 @@
  * Shared wrapper for every decorative piece: the art and the chaos tickets.
  *
  * - Always `aria-hidden="true"`: pieces carry no content a reader needs.
+ *   For the same reason they're `data-pagefind-ignore`d: ⌘K search (#38)
+ *   never matches a chaos ticket's text.
  * - `hideOnSmall` (default on) hides the piece below 960px.
  * - `rotate` sets a resting rotation in degrees (one of `ROTATIONS`), kept in
  *   `--art-rot` so the float and the hover tilt both build on it (they use the
@@ -37,6 +39,7 @@ const {
 <Tag
   {...rest}
   aria-hidden="true"
+  data-pagefind-ignore="all"
   class:list={[
     'art',
     className,

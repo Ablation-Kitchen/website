@@ -18,7 +18,7 @@ pnpm format  # Prettier (format:check in CI)
 pnpm test    # unit tests (Vitest)
 ```
 
-`pnpm build` renders Mermaid diagrams in headless Chromium (`pnpm exec playwright install chromium` once). Draft case studies get pages in `pnpm dev`; to build them too, run `PREVIEW_DRAFTS=1 pnpm build` (never deployed).
+`pnpm build` renders Mermaid diagrams in headless Chromium (`pnpm exec playwright install chromium` once). It also writes the ⌘K palette's Pagefind search index to `dist/pagefind/` (`integrations/pagefind.ts`), so search only works on a built site, not in `pnpm dev`. Draft case studies get pages in `pnpm dev`; to build them too, run `PREVIEW_DRAFTS=1 pnpm build` (never deployed).
 
 Traces: run `pnpm trace:sanitize <raw-run.json> --write` on a run export before committing it; `pnpm trace:scan` is the secret check CI runs. The homepage's ticket rail shows only once a real trace exists, so to see it before then, run `TRACE_FIXTURE=1 pnpm build` (test fixture, never deployed) and `pnpm test:rail`.
 
