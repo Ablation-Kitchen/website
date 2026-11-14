@@ -11,6 +11,7 @@
  */
 import ChaosTicket from '../art/ChaosTicket.astro';
 import StillLife from '../art/StillLife.astro';
+import { keywordLine } from '../../data/about';
 import { availability, cv } from '../../site.config';
 
 interface Props {
@@ -41,9 +42,7 @@ const statusLine = `Open to ${availability}`;
     <br />
     where <em class="text-accent-text">agents</em> cook.
   </h1>
-  <p class="rise rise-1 mt-7 font-medium tracking-[0.01em] text-ink">
-    Lead AI Engineer · AI agents, retrieval systems, applied ML in production
-  </p>
+  <p class="rise rise-1 mt-7 font-medium tracking-[0.01em] text-ink">{keywordLine}</p>
   <p class="rise rise-2 mt-5 max-w-[520px] text-lede font-light">
     I'm Dalmo Veras. I turn the latest AI research into production software: agent platforms,
     retrieval systems and optimization engines, often in high-stakes domains like security and
