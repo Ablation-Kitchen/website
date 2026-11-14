@@ -1,0 +1,81 @@
+---
+/**
+ * The 404 page, "86'd" (spec: Page designs → 404; decision #12, variant A).
+ *
+ * Served with a 404 status for any unknown path by Workers static assets
+ * (`assets.not_found_handling: "404-page"` in wrangler.jsonc, decision #2).
+ *
+ * Kept out of search and discovery: `noindex`, no sitemap entry (the sitemap
+ * integration skips 404 pages), and no `data-pagefind-body`, with
+ * `data-pagefind-ignore="all"` as well so ⌘K (#38) never indexes it.
+ *
+ * Chaos: "ticket 404" rotated −6° with the requested path struck through. The
+ * path is filled in client-side by a bundled module (CSP: script-src 'self',
+ * no inline style; `textContent`, so Trusted Types has nothing to check).
+ * Without JS the ticket reads "/that-page", and the ticket is decorative
+ * (aria-hidden, hidden below 960px), so nothing a reader needs depends on it.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChaosTicket from '../components/art/ChaosTicket.astro';
+import Egg from '../components/art/Egg.astro';
+import { TICKET_PATH_FALLBACK } from '../lib/not-found';
+
+const pill =
+  'inline-flex min-h-11 items-center gap-2.5 rounded-full border px-5.5 text-[15px] font-medium motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-kitchen motion-safe:hover:-translate-y-px';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page is off the menu. It may have moved, or it never made it out of the kitchen."
+  noindex
+>
+  <div
+    class="wrap grid min-h-[calc(100dvh-160px)] place-items-center py-24"
+    data-pagefind-ignore="all"
+  >
+    <div class="relative w-full text-center">
+      <p class="rise inline-flex items-center gap-2.5 font-mono text-label text-meta">
+        <Egg size={20} crack={false} hideOnSmall={false} />
+        404 · not found
+      </p>
+      <h1 class="rise rise-1 mt-3.5 text-[clamp(120px,22vw,300px)] leading-[0.85] tracking-[-0.04em]">
+        86’d
+      </h1>
+      <p class="rise rise-2 mx-auto mt-6 mb-9 max-w-[600px] text-lede font-light text-soft">
+        That page is off the menu. It may have moved, or it never made it out of the kitchen.
+      </p>
+      <div class="rise rise-3 flex flex-wrap justify-center gap-3">
+        <a href="/" class:list={[pill, 'border-ink bg-ink text-bg']}>
+          Back to the pass <span aria-hidden="true">→</span>
+        </a>
+        <a href="/work" class:list={[pill, 'border-rule text-ink']}>
+          See the tasting menu
+        </a>
+      </div>
+
+      <div class="absolute top-8 right-0" data-requested-path>
+        <ChaosTicket
+          rotate={-6}
+          width={220}
+          items={[
+            { label: `1× ${TICKET_PATH_FALLBACK}`, strike: true, strong: true },
+            { label: '— 86’d' },
+          ]}
+          footer="try the menu →"
+        >
+          <Fragment slot="header">
+            <span>ticket 404</span>
+            <Egg size={16} hideOnSmall={false} />
+          </Fragment>
+        </ChaosTicket>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { ticketPath } from '../lib/not-found';
+
+  const line = document.querySelector('[data-requested-path] .strike');
+  if (line) line.textContent = `1× ${ticketPath(location.pathname)}`;
+</script>
