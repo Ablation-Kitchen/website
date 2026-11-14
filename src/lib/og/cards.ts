@@ -12,7 +12,7 @@
  * card's `path` is the page's URL path, which is how the layout finds it.
  */
 import { normalizePath } from '../seo';
-import { ABOUT_PATH, RESEARCH_PATH, coursePath, postPath } from '../urls';
+import { ABOUT_PATH, RESEARCH_PATH, WRITING_PATH, coursePath, postPath } from '../urls';
 import { person } from '../../site.config';
 
 /** What the 420px panel shows. One kind per template (#19). */
@@ -128,6 +128,21 @@ export function postCard(post: PostLike): OgCard {
     title,
     meta: `${POST_DATE.format(date)} · ${label}`,
     art: { kind: 'recipe', label, tags: tags.slice(0, 4) },
+  };
+}
+
+/**
+ * The /writing card. pages.ts adds it only when there is a visible post, since
+ * /writing is built only then (#6).
+ */
+export function writingCard(posts: readonly PostLike[]): OgCard {
+  const tags = [...new Set(posts.flatMap((p) => p.data.tags))].slice(0, 4);
+  return {
+    path: WRITING_PATH,
+    eyebrow: 'Recipes · writing',
+    title: 'From the recipe book',
+    meta: `${posts.length} ${posts.length === 1 ? 'recipe' : 'recipes'}`,
+    art: { kind: 'recipe', label: 'the index', tags },
   };
 }
 

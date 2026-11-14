@@ -13,12 +13,18 @@ import {
   ogImageAlt,
   ogImagePath,
   postCard,
+  writingCard,
   type OgCard,
 } from './cards';
 
 export async function getOgCards(): Promise<readonly OgCard[]> {
   const [courses, posts] = await Promise.all([getCourses(), getPosts()]);
-  return checkCards([...STATIC_CARDS, ...courses.map(courseCard), ...posts.map(postCard)]);
+  return checkCards([
+    ...STATIC_CARDS,
+    ...courses.map(courseCard),
+    ...(posts.length > 0 ? [writingCard(posts)] : []),
+    ...posts.map(postCard),
+  ]);
 }
 
 /** BaseLayout's `og:image` for a page: its own card, or the home card. */

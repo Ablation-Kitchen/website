@@ -32,7 +32,13 @@ const minutes = readingMinutes(post.body ?? '');
 const emailEvent = { 'data-umami-event': 'email-click', 'data-umami-event-location': 'post' };
 ---
 
-<BaseLayout title={data.title} description={data.description} ogType="article" noindex={data.draft}>
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  ogType="article"
+  noindex={data.draft}
+  image={data.draft ? null : undefined}
+>
   <article class="wrap">
     <div class="mx-auto max-w-170">
       {data.draft && (
