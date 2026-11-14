@@ -12,7 +12,7 @@
  * card's `path` is the page's URL path, which is how the layout finds it.
  */
 import { normalizePath } from '../seo';
-import { ABOUT_PATH, RESEARCH_PATH, WRITING_PATH, coursePath, postPath } from '../urls';
+import { ABOUT_PATH, RESEARCH_PATH, WORK_PATH, WRITING_PATH, coursePath, postPath } from '../urls';
 import { person } from '../../site.config';
 
 /** What the 420px panel shows. One kind per template (#19). */
@@ -53,10 +53,7 @@ export const HOME_CARD: OgCard = {
   art: { kind: 'still-life' },
 };
 
-/**
- * Cards for pages that aren't built from a collection. #32 adds `/work` (see
- * `workCard`).
- */
+/** Cards for pages that aren't built from a collection. `/work` has `workCard`. */
 export const STATIC_CARDS: readonly OgCard[] = [
   HOME_CARD,
   {
@@ -93,15 +90,20 @@ export function courseCard(course: CourseLike): OgCard {
   };
 }
 
-/** The /work card, for #32: `workCard(courses)` in pages.ts once /work is built. */
+/**
+ * The /work card (#32), from the visible courses only. /work is always built
+ * (it's in the nav), so with no course yet the meta line just says what it is.
+ */
 export function workCard(courses: readonly CourseLike[]): OgCard {
   const first = courses[0]?.numeral;
   const last = courses.at(-1)?.numeral;
+  const count = `${courses.length} ${courses.length === 1 ? 'course' : 'courses'}`;
+  const range = first && last && first !== last ? ` · ${first}–${last}` : '';
   return {
-    path: '/work',
+    path: WORK_PATH,
     eyebrow: 'Signature dishes · case studies',
     title: 'The tasting menu',
-    meta: `${courses.length} ${courses.length === 1 ? 'course' : 'courses'}${first && last && first !== last ? ` · ${first}–${last}` : ''}`,
+    meta: courses.length > 0 ? `${count}${range}` : 'Case studies',
     art: { kind: 'menu', courses: courses.map((c) => ({ numeral: c.numeral, org: c.data.org })) },
   };
 }

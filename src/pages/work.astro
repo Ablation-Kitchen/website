@@ -1,0 +1,152 @@
+---
+/**
+ * /work, the tasting menu (#32, in the "Results first" language of #9/#12).
+ *
+ * A hero (eyebrow, italic H1, lede) with the course-list ticket tilted 3°,
+ * then one row per non-draft course: a 300px left column with the italic
+ * numeral, the 40px serif title and mono `org · years`; the summary and up to
+ * two metrics (serif values) on the right; an arrow that slides 6px on hover.
+ * The whole row is the link's hit area. Numerals come from `visibleCourses()`
+ * (#6), so drafts never leave a gap. In a draft preview (`PREVIEW_DRAFTS`)
+ * drafts are listed too, badged; the deployed build never has them.
+ *
+ * No client JS, no inline styles.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChaosTicket from '../components/art/ChaosTicket.astro';
+import { getMenuCourses } from '../lib/visibility';
+import { ABOUT_PATH } from '../lib/urls';
+import { menuRows, menuTicket, TASTING_MENU_LEDE } from '../lib/work';
+
+const courses = await getMenuCourses();
+const rows = menuRows(courses);
+const ticket = menuTicket(courses);
+---
+
+<BaseLayout
+  title="The tasting menu"
+  description="Case studies by Dalmo Veras: agent platforms, retrieval systems and applied ML, each with the scope, the decision, the alternatives and the measured result."
+>
+  <div class="wrap">
+    <header class="grid grid-cols-1 items-start gap-10 pt-18 pb-14 min-[900px]:grid-cols-[minmax(0,1.4fr)_minmax(300px,1fr)] min-[900px]:gap-16 min-[900px]:pt-26 min-[900px]:pb-20">
+      <div>
+        <p class="rise mb-3.5 font-mono text-label text-meta">Signature dishes · case studies</p>
+        <h1 class="rise rise-1 text-[clamp(44px,5.8vw,80px)] leading-none tracking-[-0.025em]">
+          <em>The tasting menu</em>
+        </h1>
+        <p class="rise rise-2 mt-6 max-w-150 text-lede font-light">{TASTING_MENU_LEDE}</p>
+      </div>
+      {rows.length > 0 && (
+        <div class="flex justify-center pt-2" data-pagefind-ignore>
+          <ChaosTicket
+            header={ticket.header}
+            items={ticket.items}
+            footer={ticket.footer}
+            width={260}
+            rotate={3}
+          />
+        </div>
+      )}
+    </header>
+
+    {rows.length > 0 ? (
+      <ol class="mb-24 border-b border-rule" aria-label="Courses, in menu order" data-menu>
+        {rows.map((r) => (
+          <li
+            class="course relative grid grid-cols-1 gap-5 border-t border-rule py-12 min-[900px]:grid-cols-[300px_minmax(0,1fr)_auto] min-[900px]:gap-14 min-[900px]:py-16"
+            data-course={r.id}
+          >
+            <div class="flex flex-col gap-2">
+              <p class="font-serif text-[28px] leading-none text-meta italic" data-numeral>
+                <span class="sr-only">Course </span>
+                {r.numeral}
+              </p>
+              <h2 class="font-serif text-title text-ink min-[900px]:text-row">
+                <a href={r.href} class="course-link">
+                  {r.title}
+                </a>
+              </h2>
+              <p class="font-mono text-label text-meta">{r.meta}</p>
+              {r.draft && (
+                <p class="mt-1 self-start rounded-full border border-rule px-3 py-1 font-mono text-label-sm text-meta">
+                  Draft preview · not published
+                </p>
+              )}
+            </div>
+            <div class="min-[900px]:pt-2">
+              <p class="max-w-170 text-body font-light">{r.summary}</p>
+              {r.metrics.length > 0 && (
+                <dl class="mt-6 flex flex-wrap gap-x-10 gap-y-4">
+                  {r.metrics.map((m) => (
+                    <div class="flex flex-col-reverse gap-1">
+                      <dt class="text-ui text-meta">{m.label}</dt>
+                      <dd class="font-serif text-[36px] leading-none text-ink">{m.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+            <span
+              class="arrow hidden text-2xl min-[900px]:block min-[900px]:pt-2"
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="mb-24 max-w-150 border-t border-rule pt-12 text-body font-light">
+        No case study is on the menu yet. The career so far is on the{' '}
+        <a
+          href={ABOUT_PATH}
+          class="text-accent-text underline underline-offset-4 hover:decoration-current"
+        >
+          About page
+        </a>
+        .
+      </p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  /* The title link covers the whole row. */
+  .course-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .course-link:focus-visible {
+    outline: none;
+  }
+
+  .course:has(.course-link:focus-visible) {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 4px;
+  }
+
+  .arrow {
+    font-family: var(--font-sans);
+    color: var(--color-meta);
+  }
+
+  .course:hover .arrow,
+  .course:has(.course-link:focus-visible) .arrow {
+    color: var(--color-accent-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arrow {
+      transition:
+        translate 0.35s var(--ease-kitchen),
+        color 0.35s;
+    }
+
+    .course:hover .arrow,
+    .course:has(.course-link:focus-visible) .arrow {
+      translate: 6px 0;
+    }
+  }
+</style>
