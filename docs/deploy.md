@@ -3,7 +3,7 @@
 GitHub Actions builds, checks and deploys (`.github/workflows/ci.yml`). Workers Builds stays off.
 
 - **Pull requests:** `wrangler versions upload --preview-alias pr-<n>` gives a preview at `https://pr-<n>-ablation-kitchen.<subdomain>.workers.dev`. The URL is in the job summary.
-- **`main`:** `wrangler deploy`, after every blocking check passes: Astro check, ESLint, Prettier, Build, CSP check, Accessibility, Lighthouse CI and Internal links.
+- **`main`:** `wrangler deploy`, after every blocking check passes: Astro check, ESLint, Prettier, Unit tests, Build, CSP check, Accessibility, Lighthouse CI, Internal links, E2E and Draft preview.
 - Without the Cloudflare secrets (fork PRs, or before setup) both deploy jobs skip their steps and pass.
 - **Preview noindex:** `public/_headers` sends `X-Robots-Tag: noindex` on every `*.*.workers.dev` host (previews and the Worker's own workers.dev URL). `ablation.kitchen` doesn't match the rule, so production stays indexable.
 - **Security headers (#25):** defined in `src/lib/security-headers.ts`. At build, `integrations/security-headers.ts` hashes every inline script in `dist/**/*.html` and appends a `/*` rule with the CSP and the other headers to `dist/_headers`. Never paste a hash or a CSP into `public/_headers`: the build fails if it finds one. The Worker sets the same headers on `/_a/*`, because `_headers` doesn't apply to Worker responses.
@@ -11,13 +11,14 @@ GitHub Actions builds, checks and deploys (`.github/workflows/ci.yml`). Workers 
 
 ## Quality gates (#28)
 
-Run `pnpm build` first. Each gate runs as its own CI job after Build.
+Run `pnpm build` first. Each gate runs as its own CI job after Build. Vitest (`pnpm test`) runs as the Unit tests job, which needs no build.
 
 | Gate                                                         | Local command                     | CI job                       | Blocks merge |
 | ------------------------------------------------------------ | --------------------------------- | ---------------------------- | ------------ |
 | axe, in Light and Dark, each with and without reduced motion | `pnpm test:a11y`                  | Accessibility                | yes          |
 | Lighthouse, mobile, 3 runs (median)                          | `pnpm test:lhci`                  | Lighthouse CI                | yes          |
 | Internal links and `#anchors` in `dist/`, offline            | `pnpm test:links`                 | Internal links               | yes          |
+| Every `e2e/*.e2e.ts`, including the page tests               | `pnpm test:e2e`                   | E2E                          | yes          |
 | GLOSSARY.md vocabulary on `src/content/**`                   | `pnpm lint:prose`                 | Vale (warn only)             | no           |
 | External links, weekly                                       | `scripts/check-links.sh external` | External links (`links.yml`) | no           |
 
@@ -72,7 +73,7 @@ Settings → Rules → Rulesets → New branch ruleset, target `main`, enforceme
 - Restrict deletions
 - Require linear history
 - Require a pull request before merging (0 approvals is fine for a single maintainer)
-- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`, `Accessibility`, `Lighthouse CI`, `Internal links`, `Draft preview`. Not `Vale (warn only)`, which never blocks.
+- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`, `Accessibility`, `Lighthouse CI`, `Internal links`, `Draft preview`, `Unit tests`, `E2E`. Not `Vale (warn only)`, which never blocks.
 - Block force pushes
 - No bypass list, or only for emergencies
 
