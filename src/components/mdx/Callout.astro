@@ -1,0 +1,29 @@
+---
+/**
+ * A callout box for MDX content (#31). Available in case studies without an
+ * import (the page passes it to `<Content components={…} />`):
+ *
+ *   <Callout>Plain note.</Callout>
+ *   <Callout kind="tip" title="Chef's tip">…</Callout>
+ *   <Callout kind="caution">…</Callout>
+ *
+ * `role="note"`, not <aside>: inside <main>, a named aside would be a nested
+ * complementary landmark, which axe flags.
+ */
+const LABELS = { note: 'Note', tip: 'Tip', caution: 'Caution' } as const;
+
+interface Props {
+  kind?: keyof typeof LABELS;
+  /** Label shown above the body; defaults to the kind's name. */
+  title?: string;
+}
+
+const { kind = 'note', title } = Astro.props;
+---
+
+<div class="callout" data-kind={kind} role="note">
+  <p class="callout-title">{title ?? LABELS[kind]}</p>
+  <div class="callout-body">
+    <slot />
+  </div>
+</div>

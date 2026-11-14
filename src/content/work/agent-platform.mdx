@@ -5,24 +5,105 @@ role: Lead AI Engineer
 years: 2025–now
 summary: "Leading the AI team at iCounter, reporting to the CTO: a sandboxed agent platform on AWS AgentCore and Kubernetes that serves the entire company, from data-collection pipelines to the mobile app."
 tags: [agents, platform, AWS AgentCore, Kubernetes]
-metrics: []
+metrics:
+  - { value: "[N]", label: teams building on the platform }
+  - { value: "[N/wk]", label: agent runs in production }
+  - { value: "[−X%]", label: time to ship a new agent }
 featured: true
 order: 1
 draft: true
 ---
 
-<!-- Draft stub. Sections follow the case-study page (#9, variant C). Numbers, and what may be said publicly, wait on #8. -->
+{/* Draft copy from the #9 prototype. [Brackets] are slots that wait on #8: real numbers, and what may be said publicly. */}
 
 ## Service
 
+<Callout kind="caution" title="Draft">
+  The copy is a draft. Every [bracketed] value waits on the numbers from #8.
+</Callout>
+
+The platform now serves the whole company. [Adoption: which teams, how fast.] [Measured impact: hours saved, cost or latency, or a relative result.]
+
+**Beyond the team.** [Influence: standards adopted elsewhere, decisions it changed.]
+
 ## The order
+
+Every team at iCounter wanted to run AI agents: the data-collection pipelines, the mobile app, internal tooling. Each was about to build its own, with its own secrets handling, its own model keys and no shared way to check output. [What triggered the project, and who asked.]
+
+**The constraints.** Agents touch customer data, so every run had to be isolated and auditable. [Budget and headcount.] [Deadline or forcing event.]
+
+**Scope.** I owned the platform end to end: the architecture, the team building it, and the bar for what's allowed into production. Out of scope: [what was explicitly not taken on].
 
 ## Mise en place
 
+Before the first agent ran, three things had to exist: a sandbox per run, a way to give agents tools without giving them credentials, and a shared set of evals each team could extend.
+
+- **Team:** [size and shape of the AI team], reporting to the CTO.
+- **Infrastructure:** AWS AgentCore for the agent runtime, Kubernetes for everything around it.
+- **Data:** [which sources the first agents needed].
+
+```yaml title="agent.yaml"
+# [What a team writes to put an agent on the platform: from #8.]
+name: "[agent name]"
+tools: ["[tool]"]
+evals: ["[eval suite]"]
+```
+
 ## The brigade
+
+Requests from any team go through one orchestrator, which applies policy and routes the work to sandboxed agents. Output clears an eval-and-guardrail gate before it goes back to the team that asked.
+
+**Who did what.** I set the architecture and wrote [which parts I built myself]; [who owned which component].
+
+```mermaid caption="Fig. 1 · Placeholder architecture, drawn from the summary only"
+flowchart LR
+  accTitle: Agent platform architecture (placeholder)
+  accDescr: Company teams send tasks to an orchestrator, which routes them to sandboxed agents with tools and models on Kubernetes. Output passes evals and guardrails before it goes back to the team.
+  subgraph order["the order"]
+    direction TB
+    pipelines["Data pipelines"]
+    app["Mobile app"]
+    internal["Internal tools"]
+  end
+  sous["Orchestrator<br/>routing · policy"]
+  subgraph stations["stations · sandboxed on Kubernetes"]
+    direction TB
+    runtime["Agent runtime<br/>AgentCore"]
+    tools["Tools + memory"]
+    models["Model gateway"]
+  end
+  pass{{"Evals + guardrails<br/>human review"}}
+  pipelines --> sous
+  app --> sous
+  internal --> sous
+  sous --> runtime
+  sous --> tools
+  sous --> models
+  runtime --> pass
+  pass -. order up .-> order
+  class sous,pass accent
+```
 
 ## Tasting notes
 
+Every agent ships with evals, and the platform runs them on every change. The failures that taught us the most:
+
+| Failure mode  | How we caught it  | Fix              |
+| ------------- | ----------------- | ---------------- |
+| [Failure one] | [Eval or signal]  | [What changed]   |
+| [Failure two] | [Eval or signal]  | [What changed]   |
+| [Failure three] | [Eval or signal] | [What changed]  |
+
 ## Off the menu
 
+| Option                          | Why it lost |
+| ------------------------------- | ----------- |
+| Each team builds its own agents | [Reason]    |
+| [A vendor platform]             | [Reason]    |
+| [A self-hosted framework only]  | [Reason]    |
+
 ## What I'd cook differently
+
+[The main thing I would change, and why.]
+
+[A second, smaller lesson.]

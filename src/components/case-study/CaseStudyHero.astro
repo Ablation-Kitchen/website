@@ -1,0 +1,113 @@
+---
+/**
+ * Case-study hero (#9, variant C, "Results first"): eyebrow, H1, the summary
+ * as a 19px/300 lede and two pill CTAs on the left; the "At a glance ·
+ * service" panel on the right (metrics as serif values over labels, a `dl`
+ * of org / role / years, tag pills, a faint cubist plane in its corner).
+ * Stacks below 900px.
+ */
+import LabPlanes from '../art/LabPlanes.astro';
+import { section } from '../../lib/case-study';
+import { WORK_PATH } from '../../lib/urls';
+import type { Work } from '../../lib/schemas';
+
+interface Props {
+  numeral: string;
+  work: Work;
+}
+
+const { numeral, work } = Astro.props;
+const facts: [string, string][] = [
+  ['Org', work.org],
+  ['Role', work.role],
+  ['Years', work.years],
+];
+const pill =
+  'inline-flex min-h-11 items-center gap-2.5 rounded-full border px-5.5 text-[15px] font-medium';
+---
+
+<header class="hero">
+  <div>
+    <p class="rise mb-3.5 font-mono text-label text-meta">
+      <a href={WORK_PATH} class="underline-offset-4 hover:underline">
+        Signature dishes
+      </a>{' '}
+      · course {numeral}
+    </p>
+    <h1 class="rise rise-1 title">{work.title}</h1>
+    <p class="rise rise-2 mt-6 mb-8 max-w-150 text-lede font-light">{work.summary}</p>
+    <div class="rise rise-3 flex flex-wrap gap-3">
+      <a href={`#${section('brigade').id}`} class:list={[pill, 'border-ink bg-ink text-bg']}>
+        See the architecture <span aria-hidden="true">→</span>
+      </a>
+      <a href={`#${section('off').id}`} class:list={[pill, 'border-rule text-ink']}>
+        Alternatives considered
+      </a>
+    </div>
+  </div>
+
+  <section
+    aria-labelledby="glance-heading"
+    class="rise rise-2 relative isolate overflow-hidden rounded-[20px] border border-rule bg-surface p-8"
+  >
+    <LabPlanes corner="top-right" width={160} />
+    <h2 id="glance-heading" class="mb-5 font-mono text-label text-meta">
+      At a glance · service
+    </h2>
+    {work.metrics.length > 0 && (
+      <dl class="metrics mb-6 grid gap-4.5">
+        {work.metrics.map((m) => (
+          <div class="flex flex-col-reverse gap-0.5 border-b border-rule pb-4.5">
+            <dt class="text-ui text-meta">{m.label}</dt>
+            <dd class="font-serif text-[44px] leading-none text-ink">{m.value}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
+    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-ui">
+      {facts.map(([k, v]) => (
+        <>
+          <dt class="pt-0.5 font-mono text-label-sm text-meta">{k}</dt>
+          <dd class="text-ink">{v}</dd>
+        </>
+      ))}
+    </dl>
+    {work.tags.length > 0 && (
+      <ul aria-label="Tags" class="mt-4.5 flex flex-wrap gap-2">
+        {work.tags.map((t) => (
+          <li class="rounded-full border border-rule px-3 py-1 font-mono text-label-sm text-meta">
+            {t}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</header>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+    gap: 64px;
+    align-items: start;
+    padding-top: 104px;
+    padding-bottom: 104px;
+  }
+
+  @media (width < 900px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+      padding-top: 64px;
+      padding-bottom: 72px;
+    }
+  }
+
+  /* Smaller than the homepage display H1: it shares the row with the glance panel (#9 prototype). */
+  .title {
+    margin: 0;
+    font-size: clamp(44px, 5.8vw, 80px);
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+</style>

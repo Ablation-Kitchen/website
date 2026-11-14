@@ -1,0 +1,50 @@
+---
+/**
+ * A case study: /work/<id> (#31; design #9, variant C "Results first").
+ *
+ * Hero with the glance panel; the seven sections from the MDX body, Service
+ * first (regrouped by `remark-case-study`); "Next course" and "← All case
+ * studies". One page per visible course; drafts only in a preview (see
+ * `PREVIEW_DRAFTS` in lib/visibility.ts), and then `noindex`.
+ */
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseSection from '../../components/case-study/CaseSection.astro';
+import CaseStudyHero from '../../components/case-study/CaseStudyHero.astro';
+import NextCourse from '../../components/case-study/NextCourse.astro';
+import type { Check } from '../../components/case-study/TheCheck.astro';
+import Callout from '../../components/mdx/Callout.astro';
+import { getCoursePages } from '../../lib/visibility';
+import '../../styles/content.css';
+
+export const getStaticPaths = (async () =>
+  (await getCoursePages()).map((page) => ({
+    params: { slug: page.course.id },
+    props: page,
+  }))) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { course, next, draft } = Astro.props;
+const { data } = course;
+const { Content } = await render(course);
+
+const check: Check | undefined =
+  data.metrics.length > 0
+    ? { numeral: course.numeral, years: data.years, metrics: data.metrics }
+    : undefined;
+---
+
+<BaseLayout title={data.title} description={data.summary} ogType="article" noindex={draft}>
+  <article class="wrap">
+    {draft && (
+      <p class="mt-6 inline-block rounded-full border border-rule px-3 py-1 font-mono text-label-sm text-meta">
+        Draft preview · not published
+      </p>
+    )}
+    <CaseStudyHero numeral={course.numeral} work={data} />
+    <Content components={{ CaseSection, Callout }} check={check} />
+    <NextCourse next={next} />
+  </article>
+</BaseLayout>

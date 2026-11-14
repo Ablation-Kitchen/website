@@ -5,6 +5,7 @@
  */
 import { getCollection, getEntry } from 'astro:content';
 import {
+  coursePages,
   hasLinkedPreprint,
   hasWriting,
   labTags,
@@ -20,6 +21,18 @@ export * from './visibility-core';
 /** Non-draft case studies in menu order, with course numerals. */
 export async function getCourses() {
   return visibleCourses(await getCollection('work'));
+}
+
+/**
+ * Drafts get preview pages in `astro dev`, or in a build run with
+ * `PREVIEW_DRAFTS=1` (for checking a draft locally, never deployed: CI builds
+ * without it). Everywhere else drafts stay hidden.
+ */
+export const PREVIEW_DRAFTS = import.meta.env.DEV || process.env['PREVIEW_DRAFTS'] === '1';
+
+/** One page per case study, with its "Next course" (drafts only in a preview). */
+export async function getCoursePages() {
+  return coursePages(await getCollection('work'), { includeDrafts: PREVIEW_DRAFTS });
 }
 
 /** Non-draft posts, newest first. */
