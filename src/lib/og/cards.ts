@@ -12,7 +12,7 @@
  * card's `path` is the page's URL path, which is how the layout finds it.
  */
 import { normalizePath } from '../seo';
-import { ABOUT_PATH, coursePath, postPath } from '../urls';
+import { ABOUT_PATH, RESEARCH_PATH, coursePath, postPath } from '../urls';
 import { person } from '../../site.config';
 
 /** What the 420px panel shows. One kind per template (#19). */
@@ -54,8 +54,8 @@ export const HOME_CARD: OgCard = {
 };
 
 /**
- * Cards for pages that aren't built from a collection. #34 adds `/research`
- * (`art: { kind: 'ablation' }`) and #32 adds `/work` (see `workCard`).
+ * Cards for pages that aren't built from a collection. #32 adds `/work` (see
+ * `workCard`).
  */
 export const STATIC_CARDS: readonly OgCard[] = [
   HOME_CARD,
@@ -65,6 +65,13 @@ export const STATIC_CARDS: readonly OgCard[] = [
     title: person.name,
     meta: `${person.jobTitle}, ${person.worksFor.name} · PhD at Warwick`,
     art: { kind: 'bottle' },
+  },
+  {
+    path: RESEARCH_PATH,
+    eyebrow: 'The Ablation Lab · research',
+    title: 'Take one ingredient out. Taste the difference.',
+    meta: 'Ablation experiments · PhD at Warwick',
+    art: { kind: 'ablation' },
   },
 ];
 

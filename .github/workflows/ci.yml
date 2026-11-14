@@ -194,6 +194,9 @@ jobs:
       - run: pnpm build
         env:
           PREVIEW_DRAFTS: '1'
+      - run: pnpm test:og
+        env:
+          PREVIEW_DRAFTS: '1'
       - run: pnpm test:csp
       - run: pnpm test:a11y
       - if: failure()
