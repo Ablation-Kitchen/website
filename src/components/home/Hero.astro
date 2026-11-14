@@ -1,0 +1,120 @@
+---
+/**
+ * Homepage hero (spec: Positioning and copy). Status line, H1, keyword line,
+ * intro, the two CTAs and the proof strip (a `<dl>`), with the floating order
+ * ticket (the page's chaos element) and the cubist still life beside them.
+ * Both pieces are decorative, aria-hidden and hidden below 960px.
+ *
+ * Entrance: `rise` with the 0.08 / 0.18 / 0.30 / 0.45s stagger (global.css),
+ * only when motion is allowed; with reduced motion or no JS everything is
+ * already in place.
+ */
+import ChaosTicket from '../art/ChaosTicket.astro';
+import StillLife from '../art/StillLife.astro';
+import { availability, cv } from '../../site.config';
+
+interface Props {
+  /** Where "See the dishes →" goes: the tasting menu on this page, or /work. */
+  dishesHref: string;
+}
+
+const { dishesHref } = Astro.props;
+
+/** Facts from the CV only (spec: Positioning and copy → Proof strip). */
+const proof = [
+  { value: '10 years', label: 'shipping software, from founding engineer to AI lead' },
+  { value: 'Company-wide', label: 'agent platform I lead at iCounter, on AWS AgentCore' },
+  { value: 'Founder', label: 'built and ran my own software company' },
+  { value: 'PhD', label: 'machine learning research at the University of Warwick' },
+];
+
+const statusLine = `Open to ${availability}`;
+---
+
+<section aria-labelledby="hero-h" class="wrap relative pt-20 pb-24 sm:pt-26 lg:pt-34 lg:pb-30">
+  <p class="rise flex items-center gap-2.5 font-mono text-label text-meta">
+    <span class="pulse size-[7px] shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+    {statusLine}
+  </p>
+  <h1 id="hero-h" class="rise rise-1 mt-9 max-w-[900px] text-display">
+    I run the kitchen
+    <br />
+    where <em class="text-accent-text">agents</em> cook.
+  </h1>
+  <p class="rise rise-1 mt-7 font-medium tracking-[0.01em] text-ink">
+    Lead AI Engineer · AI agents, retrieval systems, applied ML in production
+  </p>
+  <p class="rise rise-2 mt-5 max-w-[520px] text-lede font-light">
+    I'm Dalmo Veras. I turn the latest AI research into production software: agent platforms,
+    retrieval systems and optimization engines, often in high-stakes domains like security and
+    logistics. I run them like a brigade: clear stations, prepared context, and an eval at the pass
+    before anything ships.
+  </p>
+  <div class="rise rise-3 mt-11 flex flex-wrap gap-3">
+    <a
+      href={dishesHref}
+      class="pill inline-flex min-h-12 items-center gap-2.5 rounded-full bg-ink px-6.5 text-[15px] font-medium text-bg"
+    >
+      See the dishes <span aria-hidden="true">→</span>
+    </a>
+    <a
+      href={cv.href}
+      download={cv.downloadName}
+      class="pill inline-flex min-h-12 items-center rounded-full border border-rule px-6.5 text-[15px] font-medium text-ink"
+      data-umami-event="cv-download"
+      data-umami-event-location="hero"
+    >
+      Download CV<span class="sr-only"> (PDF)</span>
+    </a>
+  </div>
+
+  <dl class="rise rise-4 mt-18 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-7 border-t border-rule pt-7">
+    {proof.map((p) => (
+      <div class="flex flex-col-reverse justify-end gap-1">
+        <dt class="text-ui text-meta">{p.label}</dt>
+        <dd class="font-serif text-[40px] leading-none text-ink">{p.value}</dd>
+      </div>
+    ))}
+  </dl>
+
+  {/*
+    Decorative pieces (each aria-hidden, hidden below 960px by ArtFrame). The
+    wrappers carry the position and the rise; the pieces keep their own float/tilt.
+  */}
+  <div class="rise rise-3 pointer-events-none absolute top-[400px] right-[110px] xl:top-[430px]">
+    <StillLife width={260} class="pointer-events-auto" />
+  </div>
+  <div class="rise rise-4 absolute top-[150px] right-10">
+    <ChaosTicket
+      rotate={3}
+      width={200}
+      header={['ticket 001', '12:04']}
+      items={[
+        { label: '1× research agent', strong: true },
+        { label: '— extra evals' },
+        { label: '— hold the hallucinations' },
+      ]}
+      footer="fire →"
+    />
+  </div>
+</section>
+
+<style>
+  .pill {
+    transition:
+      translate 0.3s var(--ease-kitchen),
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .pill:hover {
+    translate: 0 -1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pill {
+      transition: none;
+    }
+  }
+</style>

@@ -1,10 +1,62 @@
 ---
+/**
+ * The Pass: the homepage (#33). Sections and their order come from
+ * `homepageSections()`; each conditional section reads its content through
+ * the visibility helpers (#6), so nothing here is toggled by hand except the
+ * #44 gate below.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import WhatsCooking from '../components/home/WhatsCooking.astro';
+import TastingMenu from '../components/home/TastingMenu.astro';
+import RecipeBook from '../components/home/RecipeBook.astro';
+import LabPanel from '../components/home/LabPanel.astro';
+import KitchenRules from '../components/home/KitchenRules.astro';
+import { dishesHref, featuredPosts, homepageSections } from '../lib/homepage';
+import { getCourses, getLab, getPosts, getRail, getResearch } from '../lib/visibility';
+
+/**
+ * TODO(#44): set to true once /writing and the post pages are built (same
+ * gate as WRITING_PAGES_BUILT in Header.astro). Until then a recipe-book
+ * card would link to a 404, so the section stays hidden.
+ */
+const WRITING_PAGES_BUILT: boolean = false;
+
+const [rail, courses, posts, lab, research] = await Promise.all([
+  getRail(),
+  getCourses(),
+  getPosts(),
+  getLab(),
+  getResearch(),
+]);
+
+const sections = homepageSections({
+  rail,
+  courses,
+  posts,
+  writingPagesBuilt: WRITING_PAGES_BUILT,
+});
+
+const preprintHref = lab.tooManyCooks
+  ? research.find((r) => r.data.kind === 'preprint' && r.data.links[0])?.data.links[0]?.href
+  : undefined;
 ---
 
 <BaseLayout description="Dalmo Veras, Lead AI Engineer: agent platforms, retrieval systems and applied ML in production. Case studies, research and writing.">
-  {/* Placeholder: the homepage sections (hero, tasting menu, Lab, Kitchen rules) arrive in #33. */}
-  <div class="wrap py-26">
-    <h1 class="text-display">ablation.kitchen</h1>
-  </div>
+  {sections.map((s) => {
+    switch (s) {
+      case 'hero':
+        return <Hero dishesHref={dishesHref(sections)} />;
+      case 'whats-cooking':
+        return <WhatsCooking rail={rail} />;
+      case 'tasting-menu':
+        return <TastingMenu courses={courses} />;
+      case 'recipe-book':
+        return <RecipeBook posts={featuredPosts(posts)} />;
+      case 'lab':
+        return <LabPanel tags={lab.tags} preprintHref={preprintHref} />;
+      case 'kitchen-rules':
+        return <KitchenRules />;
+    }
+  })}
 </BaseLayout>
