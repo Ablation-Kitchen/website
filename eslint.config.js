@@ -15,6 +15,7 @@ export default defineConfig(
       '.claude/',
       'test-results/',
       'playwright-report/',
+      '.lighthouseci/',
     ],
   },
   js.configs.recommended,

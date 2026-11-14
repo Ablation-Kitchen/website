@@ -15,6 +15,22 @@ import { absoluteUrl, canonicalUrl, pageTitle, personJsonLd, serializeJsonLd } f
 import { getHasWriting } from '../lib/visibility';
 import { FEED_TITLE } from '../lib/feed';
 import '../styles/global.css';
+// Preloaded so text renders in its own font on first paint: a late swap shifts
+// centred layouts (CLS over the 0.02 budget on the 404 in Lighthouse CI, #28).
+// Same files as the @fontsource CSS, so Vite emits each once.
+import instrumentSerif400 from '@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url';
+import interTight300 from '@fontsource/inter-tight/files/inter-tight-latin-300-normal.woff2?url';
+import interTight400 from '@fontsource/inter-tight/files/inter-tight-latin-400-normal.woff2?url';
+import interTight500 from '@fontsource/inter-tight/files/inter-tight-latin-500-normal.woff2?url';
+import jetbrainsMono400 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url';
+
+const PRELOAD_FONTS = [
+  instrumentSerif400,
+  interTight300,
+  interTight400,
+  interTight500,
+  jetbrainsMono400,
+];
 
 export interface OgImage {
   /** Path on the site (e.g. `/og/work.png`) or absolute URL. */
@@ -57,9 +73,14 @@ const og = image && {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <ThemeHead />
+    {PRELOAD_FONTS.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {/* Without it the browser asks for /favicon.ico, whose 404 fails Lighthouse Best Practices (#28). */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     {hasFeed && (

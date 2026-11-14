@@ -18,7 +18,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:csp": "playwright test"
+    "test:csp": "playwright test csp",
+    "test:a11y": "playwright test a11y",
+    "test:e2e": "playwright test",
+    "test:lhci": "lhci autorun && node scripts/lhci-check-urls.ts",
+    "test:links": "scripts/check-links.sh internal",
+    "lint:prose": "node scripts/vale-rules.ts && vale src/content"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.9",
@@ -38,7 +43,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.0",
     "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
