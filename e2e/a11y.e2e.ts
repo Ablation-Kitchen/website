@@ -1,7 +1,8 @@
 // Blocking axe check (#28, decision #20): every page in e2e/pages.ts, in Light
 // and Dark, each with and without reduced motion. Any WCAG 2.2 A/AA or axe
 // best-practice violation fails it. Later tickets add page states here: the ⌘K
-// dialog open (#38) and the trace panel (#37).
+// dialog open (#38). The trace panel's states are audited in trace-rail.e2e.ts
+// against a fixture build (#37).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { auditedPages } from './pages.ts';

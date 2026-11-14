@@ -24,6 +24,9 @@
     "test:lhci": "lhci autorun && node scripts/lhci-check-urls.ts",
     "test:links": "scripts/check-links.sh internal",
     "test:og": "node scripts/check-og.ts",
+    "test:rail": "playwright test trace-rail",
+    "trace:sanitize": "node scripts/trace-sanitize.ts",
+    "trace:scan": "node scripts/trace-scan.ts",
     "lint:prose": "node scripts/vale-rules.ts && vale src/content"
   },
   "dependencies": {

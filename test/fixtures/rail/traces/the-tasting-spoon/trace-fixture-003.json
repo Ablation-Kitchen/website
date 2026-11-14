@@ -1,0 +1,32 @@
+{
+  "id": "trace-fixture-003",
+  "project": "the-tasting-spoon",
+  "recorded_at": "2026-11-10T16:40:00Z",
+  "title": "Fixture run: grade a retrieval answer against its sources",
+  "brigade_version": "fixture",
+  "steps": [
+    {
+      "t": 0,
+      "role": "task",
+      "text": "Grade the answer to 'Which plants run the legacy SCADA firmware?' against its sources.",
+      "cost_usd": 0
+    },
+    {
+      "t": 2.5,
+      "role": "station",
+      "station": "critique",
+      "text": "Two of five cited plants are not in the sources.",
+      "model": "sonnet-5.5",
+      "tokens": 1200,
+      "cost_usd": 0.009
+    },
+    {
+      "t": 6,
+      "role": "pass",
+      "text": "Rejected: unsupported claims.",
+      "tokens": 80,
+      "cost_usd": 0.0001
+    }
+  ],
+  "eval": { "verdict": "fail", "note": "Unsupported claims." }
+}

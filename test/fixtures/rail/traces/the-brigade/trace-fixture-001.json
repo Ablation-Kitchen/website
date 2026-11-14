@@ -1,0 +1,12 @@
+{
+  "id": "trace-fixture-001",
+  "project": "the-brigade",
+  "recorded_at": "2026-11-01T09:00:00Z",
+  "title": "Fixture run (older): never shown, a later run exists",
+  "brigade_version": "fixture",
+  "steps": [
+    { "t": 0, "role": "task", "text": "Older fixture task." },
+    { "t": 3, "role": "pass", "text": "Older fixture verdict." }
+  ],
+  "eval": { "verdict": "pass" }
+}

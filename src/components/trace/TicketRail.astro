@@ -1,0 +1,128 @@
+---
+/**
+ * The ticket rail and the trace replay: one vanilla custom element (#4, #37).
+ * The server renders the rail and the first project's latest run in full, so
+ * without JS every step is listed. The client (ticket-rail.ts) replays it on a
+ * compressed clock once the panel enters the viewport, offers Replay, and
+ * swaps in another project's run from the inline JSON when its card is
+ * pressed. Under reduced motion every step shows at once.
+ */
+import type { Replay } from '../../lib/trace-view';
+import { inlineJson } from '../../lib/trace-view';
+import TraceStep from './TraceStep.astro';
+
+export interface RailCard {
+  project: string;
+  ticket: string;
+  name: string;
+  status?: string | undefined;
+}
+
+interface Props {
+  cards: RailCard[];
+  replays: Record<string, Replay>;
+}
+
+const { cards, replays } = Astro.props;
+const first = cards[0];
+const initial = first ? replays[first.project] : undefined;
+if (!first || !initial) throw new Error('TicketRail needs at least one project with a run');
+const panelId = 'trace-replay';
+---
+
+<ticket-rail class="mt-12 block">
+  <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-4">
+    {cards.map((c) => (
+      <li>
+        <button
+          type="button"
+          class="card flex min-h-11 w-full cursor-pointer flex-col rounded-[14px] border border-rule bg-bg p-6 text-left aria-pressed:border-ink"
+          aria-pressed={c.project === first.project ? 'true' : 'false'}
+          aria-controls={panelId}
+          data-project={c.project}
+        >
+          <span class="font-mono text-label-sm text-meta">Ticket {c.ticket}</span>
+          <span class="mt-7 mb-2 block font-serif text-[30px] leading-[1.05] text-ink">
+            {c.name}
+          </span>
+          {c.status && <span class="block text-ui text-meta">{c.status}</span>}
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <div
+    id={panelId}
+    class="trace mt-6 rounded-[14px] bg-trace-bg p-6 font-mono text-ui text-trace-text sm:p-8"
+    data-state="static"
+    data-run={initial.runId}
+  >
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3">
+      <p class="text-trace-text" aria-live="polite" data-slot="title">
+        {initial.title}
+      </p>
+      <button
+        type="button"
+        class="min-h-11 cursor-pointer rounded-full border border-trace-meta px-4 text-label text-trace-text hover:border-trace-text focus-visible:outline-trace-role"
+        data-replay
+        hidden
+      >
+        Replay
+      </button>
+    </div>
+    <ol class="mt-4 border-t border-trace-meta/30 pt-2" data-slot="steps">
+      {initial.steps.map((step) => (
+        <TraceStep step={step} />
+      ))}
+    </ol>
+    <p class="mt-4 border-t border-trace-meta/30 pt-4 text-trace-meta" data-slot="summary">
+      {initial.summary.join(' · ')}
+    </p>
+  </div>
+
+  <template data-step-template>
+    <TraceStep />
+  </template>
+  <script type="application/json" data-replays set:html={inlineJson(replays)} />
+</ticket-rail>
+
+<style>
+  ticket-rail .card:focus-visible {
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card {
+      transition:
+        translate 0.45s var(--ease-kitchen),
+        box-shadow 0.45s var(--ease-kitchen),
+        border-color 0.3s;
+    }
+
+    .card:hover {
+      translate: 0 -4px;
+      box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.35);
+    }
+
+    /* Replay: steps not yet reached keep their space (no layout shift) but stay hidden. */
+    .trace:is([data-state='armed'], [data-state='playing']) :global([data-step]:not([data-shown])),
+    .trace:is([data-state='armed'], [data-state='playing']) [data-slot='summary'] {
+      visibility: hidden;
+    }
+
+    .trace:is([data-state='playing'], [data-state='done']) :global([data-step][data-shown]) {
+      animation: step-in 0.35s var(--ease-kitchen) both;
+    }
+
+    @keyframes step-in {
+      from {
+        opacity: 0;
+        translate: 0 6px;
+      }
+    }
+  }
+</style>
+
+<script>
+  import './ticket-rail';
+</script>
