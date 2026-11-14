@@ -13,6 +13,7 @@ import {
   ogImageAlt,
   ogImagePath,
   postCard,
+  workCard,
   writingCard,
   type OgCard,
 } from './cards';
@@ -21,6 +22,7 @@ export async function getOgCards(): Promise<readonly OgCard[]> {
   const [courses, posts] = await Promise.all([getCourses(), getPosts()]);
   return checkCards([
     ...STATIC_CARDS,
+    workCard(courses),
     ...courses.map(courseCard),
     ...(posts.length > 0 ? [writingCard(posts)] : []),
     ...posts.map(postCard),

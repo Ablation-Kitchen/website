@@ -5,8 +5,6 @@
 // the same PR, so the page is audited from its first build. One entry per
 // template is enough; for collections (case studies, posts) pick one real entry.
 //
-// Still to come, from the spec and #28:
-//   /work                     #32
 // Later tickets also add page states to the axe suite: the ⌘K dialog (#38). The
 // trace panel's states are audited in e2e/trace-rail.e2e.ts (#37).
 import { existsSync } from 'node:fs';
@@ -32,6 +30,7 @@ export const PAGES: readonly AuditedPage[] = [
   { name: 'home', path: '/', file: 'index.html' },
   { name: 'about', path: '/about', file: 'about.html' },
   { name: 'research', path: '/research', file: 'research.html' },
+  { name: 'work', path: '/work', file: 'work.html' },
   // Still a draft (waits on #8): audited only in the Draft preview CI job, which
   // builds with PREVIEW_DRAFTS=1. Drop `pending` once it's published.
   {

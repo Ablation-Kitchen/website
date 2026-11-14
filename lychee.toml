@@ -18,8 +18,4 @@ accept = ["200..=299"]
 exclude = [
   # LinkedIn answers every automated request with status 999.
   '^https://(www\.)?linkedin\.com/',
-
-  # Pages the nav, /menu.txt, /llms.txt or the feeds already link to, but which
-  # a later ticket builds. The ticket that builds one deletes its line here.
-  '/dist/work(\.html|/|#|$)',      # #32 (/work) and #31 (case studies)
 ]

@@ -37,6 +37,15 @@ export async function getCoursePages() {
   return coursePages(await getCollection('work'), { includeDrafts: PREVIEW_DRAFTS });
 }
 
+/**
+ * The courses /work lists: the visible ones, plus drafts (badged, numbered as
+ * they would launch) only in a preview, so the Draft preview CI job audits the
+ * rows before the first course is published.
+ */
+export async function getMenuCourses() {
+  return (await getCoursePages()).map((page) => page.course);
+}
+
 /** Non-draft posts, newest first. */
 export async function getPosts() {
   return visiblePosts(await getCollection('writing'));

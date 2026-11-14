@@ -106,6 +106,8 @@ describe('card builders', () => {
         { numeral: 'ii.', org: 'Fortinet' },
       ],
     });
+    expect(workCard([course('a', 'i.')]).meta).toBe('1 course');
+    expect(workCard([])).toMatchObject({ path: '/work', meta: 'Case studies' });
   });
 
   it('alt text names the card', () => {
