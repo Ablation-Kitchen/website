@@ -61,6 +61,8 @@ jobs:
         with:
           playwright: 'true'
       - run: pnpm build
+      # Every page's og:image is a 1200×630 card in dist/og/ (#39).
+      - run: pnpm test:og
       - uses: actions/upload-artifact@v7
         with:
           name: dist
