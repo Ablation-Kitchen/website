@@ -60,6 +60,8 @@ const og = image && {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {/* Without it the browser asks for /favicon.ico, whose 404 fails Lighthouse Best Practices (#28). */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     {hasFeed && (

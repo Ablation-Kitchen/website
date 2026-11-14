@@ -1,0 +1,26 @@
+# lychee link checker (#28), used by scripts/check-links.sh in two modes:
+#   internal  links and #anchors between built files in dist/, offline (blocking, every PR)
+#   external  links off the site, weekly (warn only: .github/workflows/links.yml)
+
+# Check #anchors against the ids in the target page.
+include_fragments = "anchor-only"
+# A directory link resolves to its index.html; an extensionless path may be a .html file.
+index_files = ["index.html"]
+fallback_extensions = ["html"]
+
+no_progress = true
+max_concurrency = 16
+accept = ["200..=299"]
+
+exclude = [
+  # LinkedIn answers every automated request with status 999.
+  '^https://(www\.)?linkedin\.com/',
+
+  # Pages the nav, /menu.txt, /llms.txt or the feeds already link to, but which
+  # a later ticket builds. The ticket that builds one deletes its line here.
+  '/dist/work(/|#|$)',      # #32 (/work) and #31 (case studies)
+  '/dist/research(/|#|$)',  # #34
+  '/dist/about(/|#|$)',     # #35
+  '/dist/cv\.pdf$',         # #35
+  '/dist/writing(/|#|$)',   # #44
+]

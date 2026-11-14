@@ -3,11 +3,30 @@
 GitHub Actions builds, checks and deploys (`.github/workflows/ci.yml`). Workers Builds stays off.
 
 - **Pull requests:** `wrangler versions upload --preview-alias pr-<n>` gives a preview at `https://pr-<n>-ablation-kitchen.<subdomain>.workers.dev`. The URL is in the job summary.
-- **`main`:** `wrangler deploy`, after Astro check, ESLint, Prettier, Build and CSP check all pass.
+- **`main`:** `wrangler deploy`, after every blocking check passes: Astro check, ESLint, Prettier, Build, CSP check, Accessibility, Lighthouse CI and Internal links.
 - Without the Cloudflare secrets (fork PRs, or before setup) both deploy jobs skip their steps and pass.
 - **Preview noindex:** `public/_headers` sends `X-Robots-Tag: noindex` on every `*.*.workers.dev` host (previews and the Worker's own workers.dev URL). `ablation.kitchen` doesn't match the rule, so production stays indexable.
 - **Security headers (#25):** defined in `src/lib/security-headers.ts`. At build, `integrations/security-headers.ts` hashes every inline script in `dist/**/*.html` and appends a `/*` rule with the CSP and the other headers to `dist/_headers`. Never paste a hash or a CSP into `public/_headers`: the build fails if it finds one. The Worker sets the same headers on `/_a/*`, because `_headers` doesn't apply to Worker responses.
 - **CSP check:** `pnpm build && pnpm test:csp` serves `dist/` with `wrangler dev` (so `_headers` applies) and loads every built page in Chromium. Any CSP or Trusted Types violation, console error or blocked request fails it.
+
+## Quality gates (#28)
+
+Run `pnpm build` first. Each gate runs as its own CI job after Build.
+
+| Gate                                                         | Local command                     | CI job                       | Blocks merge |
+| ------------------------------------------------------------ | --------------------------------- | ---------------------------- | ------------ |
+| axe, in Light and Dark, each with and without reduced motion | `pnpm test:a11y`                  | Accessibility                | yes          |
+| Lighthouse, mobile, 3 runs (median)                          | `pnpm test:lhci`                  | Lighthouse CI                | yes          |
+| Internal links and `#anchors` in `dist/`, offline            | `pnpm test:links`                 | Internal links               | yes          |
+| GLOSSARY.md vocabulary on `src/content/**`                   | `pnpm lint:prose`                 | Vale (warn only)             | no           |
+| External links, weekly                                       | `scripts/check-links.sh external` | External links (`links.yml`) | no           |
+
+- **Audited pages:** `e2e/pages.ts` is the one list. Lighthouse CI (`lighthouserc.js`) and the axe suite (`e2e/a11y.e2e.ts`) both read it. A ticket that ships a page template adds one entry there in the same PR: `name`, `path`, the built `file` under `dist/`, and `status` if it isn't 200. A listed page whose file is missing fails both gates, unless it has `pending: '#<issue>'`. Then it's skipped with a warning until the file is built. The 404 entry is pending on #36. `/work`, one case study, `/research` and `/about` aren't listed yet; #32, #31, #34 and #35 add them.
+- **Lighthouse thresholds:** Accessibility, Best Practices and SEO = 100, Performance ≥ 95, JavaScript ≤ 100 KB transferred (`wrangler dev` gzips), LCP ≤ 2.0 s, CLS ≤ 0.02, TBT ≤ 150 ms. On the 404 page, three audits fail by design: `http-status-code`, `is-crawlable` (it's noindex) and `errors-in-console` (Chrome logs the document's own 404). So there the SEO and Best Practices categories are swapped for every other audit in them at 100, plus at most that one console error. Reports are in `.lighthouseci/`, and the CI job uploads them as the `lighthouse-reports` artifact.
+- **No redirects:** both gates fail if a listed path redirects. LHCI matches assertions on the final URL, so a redirect would otherwise skip every assertion for that page. `scripts/lhci-check-urls.ts` checks this after `lhci autorun`.
+- **Internal links:** `scripts/check-links.sh internal` resolves root-relative links under `dist/`, and maps the site's own `https://ablation.kitchen/…` URLs (canonical, sitemap, feeds, `/menu.txt`) onto `dist/`. A directory link resolves to its `index.html`. `lychee.toml` excludes paths that the nav or feeds already link to but a later ticket builds. Each line names its ticket, and that ticket deletes its line.
+- **External links:** `.github/workflows/links.yml` runs on Mondays and on demand (Actions → External links → Run workflow). Broken links go into one open issue titled "Broken external links". The run creates it, updates its body each week, and closes it once everything passes. LinkedIn is excluded, because it answers every bot with status 999.
+- **Vale:** `scripts/vale-rules.ts` turns every `_Avoid_:` word in `GLOSSARY.md` into a Vale rule (generated into `.vale/styles/Glossary/`, not committed). Distinctive words are warnings, which CI shows as PR annotations. Everyday words the glossary lists only to name a concept (`who`, `number`, `line`) are suggestions, shown only locally. Install Vale and lychee locally with `brew install vale lychee`.
 
 ## Manual steps (Dalmo only)
 
@@ -53,7 +72,7 @@ Settings → Rules → Rulesets → New branch ruleset, target `main`, enforceme
 - Restrict deletions
 - Require linear history
 - Require a pull request before merging (0 approvals is fine for a single maintainer)
-- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`
+- Require status checks to pass, up to date with the base: `Astro check`, `ESLint`, `Prettier`, `Build`, `CSP check`, `Accessibility`, `Lighthouse CI`, `Internal links`. Not `Vale (warn only)`, which never blocks.
 - Block force pushes
 - No bypass list, or only for emergencies
 
