@@ -1,0 +1,121 @@
+---
+/**
+ * /research: the Ablation Lab (#34; design: #12 variant A "Glance + entries").
+ *
+ * Framing on the left (H1 + a lede explaining ablation) beside a glance panel
+ * with the ablation graphic and the Lab planes in its corner. Then "On the
+ * bench": one row per non-draft file in `src/content/research/` (kind · title
+ * · venue/years · blurb · tags · links), in `getResearch()` order. A new entry
+ * shows up without a code change. The *Too many cooks?* sentence and each
+ * entry's Lab tag follow the same rules as the homepage panel (#6, #7).
+ * Chaos: the "specimen 01" ticket, rotated −3°.
+ *
+ * No client JS, no inline styles.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AblationGraphic from '../components/art/AblationGraphic.astro';
+import ChaosTicket from '../components/art/ChaosTicket.astro';
+import LabPlanes from '../components/art/LabPlanes.astro';
+import { benchEntries, linkedPreprintHref } from '../lib/research';
+import { getResearch } from '../lib/visibility';
+
+const research = await getResearch();
+const entries = benchEntries(research);
+const preprintHref = linkedPreprintHref(research);
+
+const link = 'text-accent-text underline underline-offset-4 hover:decoration-current';
+---
+
+<BaseLayout
+  title="Research"
+  description="The Ablation Lab: experiments that take one part of an agent system out at a time to measure what it is worth, and Dalmo Veras's PhD at Warwick on topology-aware ML."
+>
+  <div class="wrap">
+    <header class="grid grid-cols-1 items-start gap-10 pt-18 min-[900px]:grid-cols-[minmax(0,1.4fr)_minmax(300px,1fr)] min-[900px]:gap-16 min-[900px]:pt-26">
+      <div>
+        <p class="rise mb-3.5 font-mono text-label text-meta">The Ablation Lab · research</p>
+        <h1 class="rise rise-1 text-[clamp(44px,5.8vw,80px)] leading-none tracking-[-0.025em]">
+          Take one ingredient out. <em class="text-accent-text">Taste the difference.</em>
+        </h1>
+        <p class="rise rise-2 mt-6 max-w-150 text-lede font-light">
+          An ablation study removes one part of a system at a time and measures what changes. Here
+          that means agent systems: drop the critic, the orchestrator or a station, and see what
+          each part is really worth in quality, cost and latency.
+          {preprintHref && (
+            <>
+              {' '}
+              First study:{' '}
+              <a href={preprintHref} class={link}>
+                <em>Too many cooks?</em>
+              </a>
+            </>
+          )}
+        </p>
+      </div>
+
+      <aside
+        class="rise rise-2 relative isolate overflow-hidden rounded-[20px] border border-rule bg-surface p-6 sm:p-8"
+        aria-labelledby="glance-h"
+      >
+        <LabPlanes corner="bottom-right" />
+        <h2 id="glance-h" class="mb-6 font-mono text-label text-meta">
+          How an ablation reads
+        </h2>
+        <AblationGraphic hideOnSmall={false} />
+        <p class="sr-only">
+          Four configurations of a brigade: the full brigade, the brigade without its critic, the
+          brigade without its orchestrator, and a single cook.
+        </p>
+        <p class="mt-6 text-ui text-meta">Dashed circles are the parts taken out.</p>
+      </aside>
+    </header>
+
+    <section class="mt-18 pb-18 min-[900px]:mt-26 min-[900px]:pb-26" aria-labelledby="bench-h">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h2 id="bench-h" class="text-row">
+          On the bench
+        </h2>
+        <ChaosTicket
+          class="-mt-16 mr-6"
+          width={200}
+          header={['specimen 01']}
+          items={[{ label: '− one ingredient', strong: true }, { label: '+ one measurement' }]}
+          footer="taste →"
+        />
+      </div>
+      <ol class="border-b border-rule" data-bench>
+        {entries.map((e) => (
+          <li id={e.id} class="border-t border-rule py-8" data-bench-entry={e.id}>
+            <article class="grid grid-cols-1 gap-1 min-[700px]:grid-cols-[140px_minmax(0,1fr)] min-[700px]:gap-6">
+              <p class="font-mono text-label text-meta min-[700px]:pt-2.5">{e.kind}</p>
+              <div>
+                <h3 class="font-serif text-[32px] leading-[1.1] text-ink">{e.title}</h3>
+                <p class="mt-2 mb-3 font-mono text-label text-meta">{e.meta}</p>
+                <p class="max-w-170">{e.blurb}</p>
+                {(e.tags.length > 0 || e.links.length > 0) && (
+                  <ul class="mt-4 flex flex-wrap items-center gap-2" aria-label="Tags and links">
+                    {e.tags.map((t) => (
+                      <li class="rounded-full border border-rule px-3 py-1.5 font-mono text-label-sm text-meta">
+                        {t}
+                      </li>
+                    ))}
+                    {e.links.map((l) => (
+                      <li class="flex">
+                        <a
+                          href={l.href}
+                          class="inline-flex min-h-11 items-center rounded-full border border-rule px-3 font-mono text-label-sm text-accent-text hover:border-current"
+                        >
+                          {l.label} <span aria-hidden="true">&nbsp;↗</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </div>
+</BaseLayout>

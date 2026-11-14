@@ -13,6 +13,7 @@ import RecipeBook from '../components/home/RecipeBook.astro';
 import LabPanel from '../components/home/LabPanel.astro';
 import KitchenRules from '../components/home/KitchenRules.astro';
 import { dishesHref, featuredPosts, homepageSections } from '../lib/homepage';
+import { linkedPreprintHref } from '../lib/research';
 import { getCourses, getLab, getPosts, getRail, getResearch } from '../lib/visibility';
 
 /**
@@ -37,9 +38,7 @@ const sections = homepageSections({
   writingPagesBuilt: WRITING_PAGES_BUILT,
 });
 
-const preprintHref = lab.tooManyCooks
-  ? research.find((r) => r.data.kind === 'preprint' && r.data.links[0])?.data.links[0]?.href
-  : undefined;
+const preprintHref = linkedPreprintHref(research);
 ---
 
 <BaseLayout description="Dalmo Veras, Lead AI Engineer: agent platforms, retrieval systems and applied ML in production. Case studies, research and writing.">
