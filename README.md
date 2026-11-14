@@ -17,6 +17,8 @@ pnpm lint    # ESLint (astro + jsx-a11y)
 pnpm format  # Prettier (format:check in CI)
 ```
 
+`pnpm build` renders Mermaid diagrams in headless Chromium (`pnpm exec playwright install chromium` once). Draft case studies get pages in `pnpm dev`; to build them too, run `PREVIEW_DRAFTS=1 pnpm build` (never deployed).
+
 CI and deploys run on GitHub Actions; see [`docs/deploy.md`](docs/deploy.md).
 
 ## License
