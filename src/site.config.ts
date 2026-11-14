@@ -16,8 +16,14 @@ export const person = {
   affiliation: { name: 'University of Warwick', note: 'PhD in progress' },
 } as const;
 
+/** City-level only (#18): the /about glance panel's "Based". */
+export const location = 'Vancouver, BC';
+
+/** The /about glance panel's "Open to". */
+export const openTo = 'principal roles';
+
 /** What Dalmo is open to, for /menu.txt and /llms.txt (#17). */
-export const availability = 'principal roles · Vancouver, BC';
+export const availability = `${openTo} · ${location}`;
 
 export const profiles = {
   linkedin: { label: 'LinkedIn', href: 'https://www.linkedin.com/in/dalmoveras' },
@@ -25,8 +31,9 @@ export const profiles = {
 } as const;
 
 /**
- * `/cv.pdf` is committed by hand as `public/cv.pdf` (#18 amendment, #35).
- * Until that file lands, the header link 404s.
+ * `/cv.pdf` is committed by hand as `public/cv.pdf` (#18 amendment, #35) and
+ * served inline (`public/_headers`); the links save it as `downloadName`.
+ * The file in the repo is a marked placeholder until the launch (#42).
  */
 export const cv = {
   href: '/cv.pdf',

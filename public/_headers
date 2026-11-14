@@ -3,3 +3,8 @@
 # and the Worker's own workers.dev URL. ablation.kitchen is not matched.
 https://:host.:subdomain.workers.dev/*
   X-Robots-Tag: noindex
+
+# The CV opens in the browser's PDF viewer; saving it from there (or from the
+# download links, which set the same name) gives the file name below (#18, #35).
+/cv.pdf
+  Content-Disposition: inline; filename="CV-Dalmo-Veras-Software-Engineer-AI.pdf"
